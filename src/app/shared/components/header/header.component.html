@@ -1,0 +1,179 @@
+<a
+  class="fb-skip-link"
+  href="#main-content"
+>
+  Ir para o conteúdo principal
+</a>
+
+<header class="site-header">
+  <div class="fb-container site-header__container">
+    <a
+      class="site-header__brand"
+      routerLink="/"
+      aria-label="FB Language Center, página inicial"
+      (click)="closeMenu()"
+    >
+      <span
+        class="site-header__brand-mark"
+        aria-hidden="true"
+      >
+        FB
+      </span>
+
+      <span class="site-header__brand-copy">
+        <strong>FB Language</strong>
+        <span>Center</span>
+      </span>
+    </a>
+
+    <nav
+      class="site-header__desktop-navigation"
+      aria-label="Navegação principal"
+    >
+      <ul class="site-header__navigation-list">
+        @for (
+          item of navigationItems;
+          track item.label
+        ) {
+          <li>
+            @if (item.fragment) {
+              <button
+                class="site-header__navigation-link"
+                type="button"
+                (click)="
+                  navigateToSection(
+                    item.route,
+                    item.fragment
+                  )
+                "
+              >
+                {{ item.label }}
+              </button>
+            } @else {
+              <a
+                class="site-header__navigation-link"
+                [routerLink]="item.route"
+                routerLinkActive="is-active"
+                [routerLinkActiveOptions]="{
+                  exact: true
+                }"
+              >
+                {{ item.label }}
+              </a>
+            }
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <a
+        class="fb-button fb-button--primary site-header__test-button"
+        routerLink="/teste"
+      >
+        Fazer teste
+
+        <i
+          class="bi bi-arrow-right"
+          aria-hidden="true"
+        ></i>
+      </a>
+
+      <button
+        class="site-header__menu-button"
+        type="button"
+        aria-label="Abrir ou fechar menu de navegação"
+        aria-controls="mobile-navigation"
+        [attr.aria-expanded]="isMenuOpen()"
+        (click)="toggleMenu()"
+      >
+        <span class="site-header__menu-button-box">
+          <span
+            class="site-header__menu-line"
+            [class.is-open]="isMenuOpen()"
+          ></span>
+
+          <span
+            class="site-header__menu-line"
+            [class.is-open]="isMenuOpen()"
+          ></span>
+
+          <span
+            class="site-header__menu-line"
+            [class.is-open]="isMenuOpen()"
+          ></span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div
+    id="mobile-navigation"
+    class="site-header__mobile-panel"
+    [class.is-open]="isMenuOpen()"
+    [attr.aria-hidden]="!isMenuOpen()"
+  >
+    <nav
+      class="fb-container site-header__mobile-navigation"
+      aria-label="Navegação para dispositivos móveis"
+    >
+      <ul class="site-header__mobile-list">
+        @for (
+          item of navigationItems;
+          track item.label
+        ) {
+          <li>
+            @if (item.fragment) {
+              <button
+                class="site-header__mobile-link"
+                type="button"
+                [attr.tabindex]="isMenuOpen() ? 0 : -1"
+                (click)="
+                  navigateToSection(
+                    item.route,
+                    item.fragment
+                  )
+                "
+              >
+                {{ item.label }}
+
+                <i
+                  class="bi bi-arrow-up-right"
+                  aria-hidden="true"
+                ></i>
+              </button>
+            } @else {
+              <a
+                class="site-header__mobile-link"
+                [routerLink]="item.route"
+                [attr.tabindex]="isMenuOpen() ? 0 : -1"
+                (click)="closeMenu()"
+              >
+                {{ item.label }}
+
+                <i
+                  class="bi bi-arrow-up-right"
+                  aria-hidden="true"
+                ></i>
+              </a>
+            }
+          </li>
+        }
+      </ul>
+
+      <a
+        class="fb-button fb-button--primary fb-button--block"
+        routerLink="/teste"
+        [attr.tabindex]="isMenuOpen() ? 0 : -1"
+        (click)="closeMenu()"
+      >
+        Começar teste
+
+        <i
+          class="bi bi-arrow-right"
+          aria-hidden="true"
+        ></i>
+      </a>
+    </nav>
+  </div>
+</header>

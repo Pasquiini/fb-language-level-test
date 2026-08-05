@@ -1,0 +1,132 @@
+<footer class="site-footer">
+  <div class="fb-container">
+    <div class="site-footer__main">
+      <div class="site-footer__identity">
+        <a
+          class="site-footer__brand"
+          routerLink="/"
+          aria-label="FB Language Center, voltar à página inicial"
+        >
+          <span
+            class="site-footer__brand-mark"
+            aria-hidden="true"
+          >
+            FB
+          </span>
+
+          <span>
+            <strong>FB Language Center</strong>
+            <small>English with purpose</small>
+          </span>
+        </a>
+
+        <p class="site-footer__description">
+          Uma escola de inglês focada em aprendizado
+          personalizado, confiança e comunicação real.
+        </p>
+      </div>
+
+      <div class="site-footer__navigation">
+        <h2 class="site-footer__heading">
+          Navegação
+        </h2>
+
+        <ul class="site-footer__link-list">
+          <li>
+            <a routerLink="/">
+              Início
+            </a>
+          </li>
+
+          <li>
+            <a routerLink="/teste">
+              Teste de nivelamento
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/"
+              fragment="como-funciona"
+            >
+              Como funciona
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/"
+              fragment="sobre"
+            >
+              Sobre a FB
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="site-footer__contact">
+        <h2 class="site-footer__heading">
+          Fale com a escola
+        </h2>
+
+        <ul class="site-footer__social-list">
+          <li>
+            <a
+              [href]="instagramUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Abrir Instagram da FB Language Center em uma nova aba"
+            >
+              <i
+                class="bi bi-instagram"
+                aria-hidden="true"
+              ></i>
+
+              Instagram
+            </a>
+          </li>
+
+          <li>
+            <a
+              [href]="whatsappUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Falar com a FB Language Center pelo WhatsApp em uma nova aba"
+            >
+              <i
+                class="bi bi-whatsapp"
+                aria-hidden="true"
+              ></i>
+
+              WhatsApp
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="site-footer__notice">
+      <i
+        class="bi bi-info-circle"
+        aria-hidden="true"
+      ></i>
+
+      <p>
+        O resultado deste teste representa uma estimativa
+        inicial. Uma avaliação com a equipe pedagógica poderá
+        oferecer uma análise mais completa.
+      </p>
+    </div>
+
+    <div class="site-footer__bottom">
+      <p>
+        © {{ currentYear }} FB Language Center.
+        Todos os direitos reservados.
+      </p>
+
+      <p>
+        Aprenda com confiança. Comunique-se com liberdade.
+      </p>
+    </div>
+  </div>
+</footer>

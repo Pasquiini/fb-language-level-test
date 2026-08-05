@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  min-height: 100%;
+}
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.app-shell__main {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  outline: none;
+}
