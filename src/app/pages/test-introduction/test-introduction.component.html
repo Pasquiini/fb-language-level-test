@@ -1,0 +1,118 @@
+<section
+  class="test-intro"
+  aria-labelledby="test-intro-title"
+>
+  <div class="fb-container">
+    <div class="test-intro__layout">
+      <div class="test-intro__content">
+        <p class="fb-eyebrow">
+          Teste de nivelamento
+        </p>
+
+        <h1
+          id="test-intro-title"
+          class="test-intro__title"
+        >
+          Vamos descobrir o seu nível de inglês
+        </h1>
+
+        <p class="test-intro__description">
+          Esta avaliação foi preparada para oferecer uma
+          estimativa inicial do seu nível atual e ajudar a
+          FB Language Center a entender melhor o seu momento
+          com o inglês.
+        </p>
+
+        <div class="test-intro__notice">
+          <i
+            class="bi bi-info-circle"
+            aria-hidden="true"
+          ></i>
+
+          <p>
+            O resultado é uma estimativa inicial e poderá ser
+            complementado por uma avaliação pedagógica da
+            equipe da FB Language Center.
+          </p>
+        </div>
+
+        <div class="test-intro__actions">
+          <a
+            class="fb-button fb-button--primary"
+            routerLink="/teste/dados"
+          >
+            Começar minha avaliação
+
+            <i
+              class="bi bi-arrow-right"
+              aria-hidden="true"
+            ></i>
+          </a>
+
+          <a
+            class="fb-button fb-button--outline"
+            routerLink="/"
+          >
+            Voltar ao início
+          </a>
+        </div>
+      </div>
+
+      <aside
+        class="test-intro__summary"
+        aria-label="Resumo da avaliação"
+      >
+        <div class="test-intro__summary-header">
+          <span>
+            Sua avaliação
+          </span>
+
+          <strong>
+            26 atividades
+          </strong>
+        </div>
+
+        <div class="test-intro__features">
+          @for (
+            feature of testFeatures;
+            track feature.label
+          ) {
+            <div class="test-intro__feature">
+              <div
+                class="test-intro__feature-icon"
+                aria-hidden="true"
+              >
+                <i
+                  class="bi"
+                  [class]="feature.icon"
+                ></i>
+              </div>
+
+              <div>
+                <span>
+                  {{ feature.label }}
+                </span>
+
+                <strong>
+                  {{ feature.value }}
+                </strong>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="test-intro__tip">
+          <i
+            class="bi bi-lightbulb"
+            aria-hidden="true"
+          ></i>
+
+          <p>
+            Reserve alguns minutos em um ambiente tranquilo e,
+            de preferência, utilize fones de ouvido.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

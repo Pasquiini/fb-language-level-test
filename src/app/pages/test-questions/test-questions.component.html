@@ -1,0 +1,213 @@
+<main
+  class="test-page"
+  id="main-content"
+>
+  <header class="test-header">
+    <div class="container">
+      <div class="test-header__content">
+        <div>
+          <span class="test-header__brand">
+            FB Language Center
+          </span>
+
+          <span class="test-header__section">
+            Grammar
+          </span>
+        </div>
+
+        @if (!loading() && questions().length > 0) {
+          <span class="test-header__counter">
+            Questão
+            {{ currentIndex() + 1 }}
+            de
+            {{ questions().length }}
+          </span>
+        }
+      </div>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <section class="state-section">
+      <div class="container">
+        <div
+          class="state-message"
+          role="status"
+          aria-live="polite"
+        >
+          <div
+            class="spinner-border"
+            role="presentation"
+          ></div>
+
+          <h1>
+            Preparando sua avaliação
+          </h1>
+
+          <p>
+            Estamos carregando as questões.
+          </p>
+        </div>
+      </div>
+    </section>
+  } @else if (error()) {
+    <section class="state-section">
+      <div class="container">
+        <div
+          class="state-message"
+          role="alert"
+        >
+          <i
+            class="bi bi-exclamation-circle"
+            aria-hidden="true"
+          ></i>
+
+          <h1>
+            Não conseguimos carregar o teste
+          </h1>
+
+          <p>
+            {{ error() }}
+          </p>
+        </div>
+      </div>
+    </section>
+  } @else {
+    @if (currentQuestion(); as question) {
+      <section class="question-section">
+        <div class="container">
+          <div class="question-layout">
+            <div class="question-progress">
+              <div class="question-progress__info">
+                <span>
+                  Parte 1 de 3
+                </span>
+
+                <span>
+                  Grammar
+                </span>
+              </div>
+
+              <div
+                class="progress"
+                role="progressbar"
+                [attr.aria-valuenow]="
+                  currentIndex() + 1
+                "
+                aria-valuemin="1"
+                [attr.aria-valuemax]="
+                  questions().length
+                "
+              >
+                <div
+                  class="progress-bar"
+                  [style.width.%]="progress()"
+                ></div>
+              </div>
+            </div>
+
+            <article class="question-card">
+              <div class="question-card__meta">
+                <span>
+                  Questão
+                  {{ currentIndex() + 1 }}
+                </span>
+              </div>
+
+              @if (question.instructions) {
+                <p class="question-card__instructions">
+                  {{ question.instructions }}
+                </p>
+              }
+
+              <h1 class="question-card__statement">
+                {{ question.statement }}
+              </h1>
+
+              <fieldset class="answer-list">
+                <legend class="visually-hidden">
+                  Escolha uma alternativa
+                </legend>
+
+                @for (
+                  option of question.options;
+                  track option.id
+                ) {
+                  <label
+                    class="answer-option"
+                    [class.answer-option--selected]="
+                      currentAnswer() === option.id
+                    "
+                  >
+                    <input
+                      type="radio"
+                      [name]="question.id"
+                      [value]="option.id"
+                      [checked]="
+                        currentAnswer() === option.id
+                      "
+                      (change)="
+                        selectAnswer(option.id)
+                      "
+                    >
+
+                    <span class="answer-option__marker">
+                      {{
+                        String.fromCharCode(
+                          65 + $index
+                        )
+                      }}
+                    </span>
+
+                    <span class="answer-option__text">
+                      {{ option.text }}
+                    </span>
+                  </label>
+                }
+              </fieldset>
+            </article>
+
+            <div class="question-actions">
+              <button
+                type="button"
+                class="fb-button fb-button--outline"
+                [disabled]="isFirstQuestion()"
+                (click)="previousQuestion()"
+              >
+                <i
+                  class="bi bi-arrow-left"
+                  aria-hidden="true"
+                ></i>
+
+                Anterior
+              </button>
+
+              <button
+                type="button"
+                class="fb-button fb-button--primary"
+                [disabled]="!currentAnswer()"
+                (click)="nextQuestion()"
+              >
+                @if (isLastQuestion()) {
+                  Continuar para o listening
+                } @else {
+                  Próxima questão
+                }
+
+                <i
+                  class="bi bi-arrow-right"
+                  aria-hidden="true"
+                ></i>
+              </button>
+            </div>
+
+            <p class="question-help">
+              Você pode voltar às questões anteriores
+              enquanto estiver nesta etapa.
+            </p>
+          </div>
+        </div>
+      </section>
+    }
+  }
+</main>

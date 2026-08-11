@@ -1,3 +1,5 @@
+export * from './auth-profile.model';
+export * from './database-test.model';
 export * from './english-level.model';
 export * from './lead.model';
 export * from './test-answer.model';
