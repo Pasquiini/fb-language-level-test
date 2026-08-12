@@ -51,4 +51,28 @@ export const routes: Routes = [
           component.TestQuestionsComponent,
       ),
   },
+  {
+    path: 'teste/listening',
+    title:
+      'Listening | Teste de Nivelamento | FB Language Center',
+    loadComponent: () =>
+      import(
+        './pages/test-listening/test-listening.component'
+      ).then(
+        (component) =>
+          component.TestListeningComponent,
+      ),
+  },
+  {
+    path: 'teste/speaking',
+    title:
+      'Speaking | Teste de Nivelamento | FB Language Center',
+    loadComponent: () =>
+      import(
+        './pages/test-speaking/test-speaking.component'
+      ).then(
+        (component) =>
+          component.TestSpeakingComponent,
+      ),
+  },
 ];

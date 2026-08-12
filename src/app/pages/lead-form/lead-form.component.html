@@ -7,6 +7,8 @@
             routerLink="/teste"
             class="back-link"
             aria-label="Voltar para a introdução do teste"
+            [attr.aria-disabled]="submitting"
+            [class.disabled]="submitting"
           >
             <i
               class="bi bi-arrow-left"
@@ -49,6 +51,7 @@
             [formGroup]="form"
             (ngSubmit)="onSubmit()"
             novalidate
+            [attr.aria-busy]="submitting"
           >
             <div class="form-block">
               <div class="block-heading">
@@ -126,13 +129,23 @@
                     class="form-control"
                     formControlName="whatsapp"
                     autocomplete="tel"
-                    inputmode="tel"
+                    inputmode="numeric"
+                    maxlength="15"
                     placeholder="(00) 00000-0000"
+                    (input)="onWhatsappInput($event)"
                     [class.is-invalid]="
                       isInvalid('whatsapp')
                     "
-                    aria-describedby="whatsappError"
+                    aria-describedby="whatsappHelp whatsappError"
                   >
+
+                  <div
+                    id="whatsappHelp"
+                    class="form-text"
+                  >
+                    Informe o DDD e o número do
+                    WhatsApp.
+                  </div>
 
                   @if (isInvalid('whatsapp')) {
                     <div
@@ -140,8 +153,21 @@
                       class="invalid-feedback"
                       role="alert"
                     >
-                      Informe um número de WhatsApp
-                      válido.
+                      @if (
+                        whatsapp.hasError('required')
+                      ) {
+                        Informe seu WhatsApp.
+                      } @else if (
+                        whatsapp.hasError(
+                          'whatsappLength'
+                        )
+                      ) {
+                        Informe o DDD e um número com
+                        8 ou 9 dígitos.
+                      } @else {
+                        Informe um número de WhatsApp
+                        válido.
+                      }
                     </div>
                   }
                 </div>
@@ -160,7 +186,10 @@
                     class="form-control"
                     formControlName="email"
                     autocomplete="email"
+                    inputmode="email"
+                    maxlength="160"
                     placeholder="voce@email.com"
+                    (blur)="onEmailBlur()"
                     [class.is-invalid]="
                       isInvalid('email')
                     "
@@ -177,6 +206,16 @@
                         email.hasError('required')
                       ) {
                         Informe seu e-mail.
+                      } @else if (
+                        email.hasError('whitespace')
+                      ) {
+                        O e-mail não pode conter
+                        espaços.
+                      } @else if (
+                        email.hasError('maxlength')
+                      ) {
+                        O e-mail informado é muito
+                        longo.
                       } @else {
                         Informe um endereço de e-mail
                         válido.
@@ -308,6 +347,7 @@
                     class="form-label"
                   >
                     Onde você já estudou inglês?
+
                     <span class="optional">
                       Opcional
                     </span>
@@ -385,8 +425,9 @@
                         [value]="option.value"
                       >
 
-                      <span class="choice-indicator">
-                      </span>
+                      <span
+                        class="choice-indicator"
+                      ></span>
 
                       <span>
                         {{ option.label }}
@@ -516,6 +557,53 @@
               </div>
             </div>
 
+            @if (submitError) {
+              <div
+                class="submit-message submit-message-error"
+                role="alert"
+                aria-live="assertive"
+              >
+                <i
+                  class="bi bi-exclamation-circle"
+                  aria-hidden="true"
+                ></i>
+
+                <div>
+                  <strong>
+                    Não conseguimos continuar.
+                  </strong>
+
+                  <p>
+                    {{ submitError }}
+                  </p>
+                </div>
+              </div>
+            }
+
+            @if (submitting) {
+              <div
+                class="submit-status"
+                role="status"
+                aria-live="polite"
+              >
+                <span
+                  class="spinner-border spinner-border-sm"
+                  aria-hidden="true"
+                ></span>
+
+                <div>
+                  <strong>
+                    Preparando sua avaliação...
+                  </strong>
+
+                  <p>
+                    Estamos organizando seu teste.
+                    Aguarde só mais um instante.
+                  </p>
+                </div>
+              </div>
+            }
+
             <div class="form-actions">
               <div class="privacy-note">
                 <i
@@ -533,13 +621,30 @@
               <button
                 type="submit"
                 class="btn-continue"
+                [disabled]="
+                  submitting ||
+                  form.disabled
+                "
               >
-                Continuar para o teste
+                @if (submitting) {
+                  <span
+                    class="spinner-border spinner-border-sm"
+                    aria-hidden="true"
+                  ></span>
 
-                <i
-                  class="bi bi-arrow-right"
-                  aria-hidden="true"
-                ></i>
+                  <span>
+                    Preparando sua avaliação...
+                  </span>
+                } @else {
+                  <span>
+                    Continuar para o teste
+                  </span>
+
+                  <i
+                    class="bi bi-arrow-right"
+                    aria-hidden="true"
+                  ></i>
+                }
               </button>
             </div>
           </form>

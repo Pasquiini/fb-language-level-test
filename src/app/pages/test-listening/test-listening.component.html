@@ -1,0 +1,352 @@
+<main
+  class="listening-page"
+  id="main-content"
+>
+  <header class="test-header">
+    <div class="container">
+      <div class="test-header__content">
+        <div>
+          <span class="test-header__brand">
+            FB Language Center
+          </span>
+
+          <span class="test-header__section">
+            Listening
+          </span>
+        </div>
+
+        @if (
+          !loading() &&
+          questions().length > 0
+        ) {
+          <span class="test-header__counter">
+            Questão
+            {{ currentIndex() + 21 }}
+            de 23
+          </span>
+        }
+      </div>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <section class="state-section">
+      <div class="container">
+        <div
+          class="state-message"
+          role="status"
+          aria-live="polite"
+        >
+          <div
+            class="spinner-border"
+            role="presentation"
+          ></div>
+
+          <h1>
+            Preparando o listening
+          </h1>
+
+          <p>
+            Estamos carregando o áudio
+            e as questões.
+          </p>
+        </div>
+      </div>
+    </section>
+  } @else if (error()) {
+    <section class="state-section">
+      <div class="container">
+        <div
+          class="state-message"
+          role="alert"
+        >
+          <i
+            class="bi bi-exclamation-circle"
+            aria-hidden="true"
+          ></i>
+
+          <h1>
+            Não conseguimos carregar
+            o listening
+          </h1>
+
+          <p>
+            {{ error() }}
+          </p>
+        </div>
+      </div>
+    </section>
+  } @else {
+    <section class="listening-section">
+      <div class="container">
+        <div class="listening-layout">
+          <div class="stage-heading">
+            <span class="stage-heading__eyebrow">
+              Parte 2 de 3
+            </span>
+
+            <h1>
+              Listening
+            </h1>
+
+            <p>
+              Ouça a conversa com atenção
+              e responda às três questões.
+              Você poderá ouvir o áudio
+              até duas vezes.
+            </p>
+          </div>
+
+          @if (audioUrl()) {
+            <section
+              class="audio-panel"
+              aria-labelledby="audio-title"
+            >
+              <div class="audio-panel__content">
+                <div class="audio-panel__icon">
+                  <i
+                    class="bi bi-headphones"
+                    aria-hidden="true"
+                  ></i>
+                </div>
+
+                <div>
+                  <span
+                    id="audio-title"
+                    class="audio-panel__label"
+                  >
+                    Conversa
+                  </span>
+
+                  <strong>
+                    Listening da avaliação
+                  </strong>
+                </div>
+              </div>
+
+              <audio
+                #audioPlayer
+                [src]="audioUrl()"
+                preload="metadata"
+                (ended)="
+                  onAudioEnded(audioPlayer)
+                "
+              ></audio>
+
+              <button
+                type="button"
+                class="audio-button"
+                [disabled]="
+                  cannotPlayAgain()
+                "
+                (click)="
+                  toggleAudio(audioPlayer)
+                "
+              >
+                <i
+                  class="bi"
+                  [class.bi-play-fill]="
+                    !isPlaying()
+                  "
+                  [class.bi-pause-fill]="
+                    isPlaying()
+                  "
+                  aria-hidden="true"
+                ></i>
+
+                @if (isPlaying()) {
+                  Pausar áudio
+                } @else if (
+                  cannotPlayAgain()
+                ) {
+                  Limite de reproduções atingido
+                } @else if (
+                  audioPlayer.currentTime > 0
+                ) {
+                  Continuar áudio
+                } @else {
+                  Ouvir áudio
+                }
+              </button>
+
+              <div
+                class="audio-panel__status"
+                aria-live="polite"
+              >
+                <span>
+                  Reproduções utilizadas:
+                  {{ playCount() }} de 2
+                </span>
+
+                @if (
+                  playCount() === 0
+                ) {
+                  <small>
+                    Utilize fones de ouvido,
+                    se possível.
+                  </small>
+                } @else if (
+                  playCount() === 1
+                ) {
+                  <small>
+                    Você ainda pode ouvir
+                    mais uma vez.
+                  </small>
+                } @else {
+                  <small>
+                    As duas reproduções
+                    foram utilizadas.
+                  </small>
+                }
+              </div>
+            </section>
+          }
+
+          <div class="question-progress">
+            <div class="question-progress__info">
+              <span>
+                Questão
+                {{ currentIndex() + 21 }}
+              </span>
+
+              <span>
+                {{ currentIndex() + 1 }}
+                de
+                {{ questions().length }}
+              </span>
+            </div>
+
+            <div
+              class="progress"
+              role="progressbar"
+              [attr.aria-valuenow]="
+                currentIndex() + 1
+              "
+              aria-valuemin="1"
+              [attr.aria-valuemax]="
+                questions().length
+              "
+            >
+              <div
+                class="progress-bar"
+                [style.width.%]="progress()"
+              ></div>
+            </div>
+          </div>
+
+          @if (
+            currentQuestion();
+            as question
+          ) {
+            <article class="question-card">
+              <div class="question-card__meta">
+                <span>
+                  Questão
+                  {{ question.orderIndex }}
+                </span>
+              </div>
+
+              <h2 class="question-card__statement">
+                {{ question.statement }}
+              </h2>
+
+              <fieldset class="answer-list">
+                <legend class="visually-hidden">
+                  Escolha uma alternativa
+                </legend>
+
+                @for (
+                  option of question.options;
+                  track option.id
+                ) {
+                  <label
+                    class="answer-option"
+                    [class.answer-option--selected]="
+                      currentAnswer() ===
+                      option.id
+                    "
+                  >
+                    <input
+                      type="radio"
+                      [name]="question.id"
+                      [value]="option.id"
+                      [checked]="
+                        currentAnswer() ===
+                        option.id
+                      "
+                      (change)="
+                        selectAnswer(
+                          option.id
+                        )
+                      "
+                    >
+
+                    <span
+                      class="answer-option__marker"
+                    >
+                      {{
+                        String.fromCharCode(
+                          65 + $index
+                        )
+                      }}
+                    </span>
+
+                    <span
+                      class="answer-option__text"
+                    >
+                      {{ option.text }}
+                    </span>
+                  </label>
+                }
+              </fieldset>
+            </article>
+
+            <div class="question-actions">
+              <button
+                type="button"
+                class="fb-button fb-button--outline"
+                [disabled]="
+                  isFirstQuestion()
+                "
+                (click)="
+                  previousQuestion()
+                "
+              >
+                <i
+                  class="bi bi-arrow-left"
+                  aria-hidden="true"
+                ></i>
+
+                Anterior
+              </button>
+
+              <button
+                type="button"
+                class="fb-button fb-button--primary"
+                [disabled]="
+                  !currentAnswer()
+                "
+                (click)="
+                  nextQuestion()
+                "
+              >
+                @if (
+                  isLastQuestion()
+                ) {
+                  Continuar para o speaking
+                } @else {
+                  Próxima questão
+                }
+
+                <i
+                  class="bi bi-arrow-right"
+                  aria-hidden="true"
+                ></i>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+</main>

@@ -25,17 +25,17 @@ import {
 } from '../../core/services/test-question.service';
 
 @Component({
-  selector: 'app-test-questions',
+  selector: 'app-test-listening',
   standalone: true,
   imports: [
     CommonModule,
   ],
   templateUrl:
-    './test-questions.component.html',
+    './test-listening.component.html',
   styleUrl:
-    './test-questions.component.scss',
+    './test-listening.component.scss',
 })
-export class TestQuestionsComponent
+export class TestListeningComponent
   implements OnInit {
 
   readonly String = String;
@@ -55,6 +55,9 @@ export class TestQuestionsComponent
   readonly questions =
     signal<TestQuestionItem[]>([]);
 
+  readonly audioUrl =
+    signal<string | null>(null);
+
   readonly currentIndex =
     signal(0);
 
@@ -69,6 +72,15 @@ export class TestQuestionsComponent
 
   readonly error =
     signal<string | null>(null);
+
+  readonly playCount =
+    signal(0);
+
+  readonly isPlaying =
+    signal(false);
+
+  readonly playbackFinished =
+    signal(false);
 
   readonly currentQuestion =
     computed(
@@ -128,8 +140,18 @@ export class TestQuestionsComponent
       );
     });
 
-  private testId: string | null = null;
-  private attemptId: string | null = null;
+  readonly cannotPlayAgain =
+    computed(
+      () =>
+        this.playCount() >= 2 &&
+        this.playbackFinished(),
+    );
+
+  private testId: string | null =
+    null;
+
+  private attemptId: string | null =
+    null;
 
   async ngOnInit(): Promise<void> {
     this.testId =
@@ -161,33 +183,29 @@ export class TestQuestionsComponent
     }
 
     try {
-      const questions =
+      const data =
         await this.questionService
-          .getGrammarQuestions(
+          .getListeningQuestions(
             this.testId,
           );
 
-      if (questions.length === 0) {
-        this.error.set(
-          'Nenhuma questão foi encontrada para este teste.',
-        );
-
-        return;
-      }
-
       this.questions.set(
-        questions,
+        data.questions,
+      );
+
+      this.audioUrl.set(
+        data.audioUrl,
       );
     } catch (error) {
       console.error(
-        'Could not load test questions:',
+        'Could not load listening:',
         error,
       );
 
       this.error.set(
         error instanceof Error
           ? error.message
-          : 'Não foi possível carregar as questões.',
+          : 'Não foi possível carregar o listening.',
       );
     } finally {
       this.loading.set(false);
@@ -213,6 +231,62 @@ export class TestQuestionsComponent
     );
   }
 
+  async toggleAudio(
+    audio: HTMLAudioElement,
+  ): Promise<void> {
+    if (this.isPlaying()) {
+      audio.pause();
+
+      this.isPlaying.set(false);
+
+      return;
+    }
+
+    if (
+      this.playCount() >= 2 &&
+      audio.currentTime === 0
+    ) {
+      return;
+    }
+
+    if (audio.currentTime === 0) {
+      this.playCount.update(
+        (count) => count + 1,
+      );
+
+      this.playbackFinished.set(
+        false,
+      );
+    }
+
+    try {
+      await audio.play();
+
+      this.isPlaying.set(true);
+    } catch (error) {
+      console.error(
+        'Could not play audio:',
+        error,
+      );
+
+      this.error.set(
+        'Não foi possível reproduzir o áudio.',
+      );
+    }
+  }
+
+  onAudioEnded(
+    audio: HTMLAudioElement,
+  ): void {
+    this.isPlaying.set(false);
+
+    this.playbackFinished.set(
+      true,
+    );
+
+    audio.currentTime = 0;
+  }
+
   previousQuestion(): void {
     if (
       this.isFirstQuestion() ||
@@ -225,7 +299,7 @@ export class TestQuestionsComponent
       (index) => index - 1,
     );
 
-    this.scrollToTop();
+    this.scrollToQuestion();
   }
 
   async nextQuestion(): Promise<void> {
@@ -242,7 +316,7 @@ export class TestQuestionsComponent
         (index) => index + 1,
       );
 
-      this.scrollToTop();
+      this.scrollToQuestion();
 
       return;
     }
@@ -269,7 +343,7 @@ export class TestQuestionsComponent
         );
 
       await this.router.navigate(
-        ['/teste/listening'],
+        ['/teste/speaking'],
         {
           queryParams: {
             testId:
@@ -281,7 +355,7 @@ export class TestQuestionsComponent
       );
     } catch (error) {
       console.error(
-        'Could not save grammar answers:',
+        'Could not save listening answers:',
         error,
       );
 
@@ -295,7 +369,7 @@ export class TestQuestionsComponent
     }
   }
 
-  private scrollToTop(): void {
+  private scrollToQuestion(): void {
     window.scrollTo({
       top: 0,
       behavior: 'smooth',

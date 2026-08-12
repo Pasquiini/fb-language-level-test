@@ -26,7 +26,8 @@
   text-decoration: none;
   transition:
     color 0.2s ease,
-    gap 0.2s ease;
+    gap 0.2s ease,
+    opacity 0.2s ease;
 
   &:hover {
     gap: 0.7rem;
@@ -38,6 +39,11 @@
       rgba(197, 154, 91, 0.45);
     outline-offset: 4px;
     border-radius: 0.25rem;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
   }
 }
 
@@ -165,7 +171,8 @@
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
-    background-color 0.2s ease;
+    background-color 0.2s ease,
+    opacity 0.2s ease;
 
   &:hover {
     border-color:
@@ -191,6 +198,13 @@
         0 0 0 0.2rem
         rgba(183, 68, 56, 0.12);
     }
+  }
+
+  &:disabled {
+    background:
+      rgba(233, 223, 207, 0.25);
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 }
 
@@ -245,7 +259,8 @@
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    opacity 0.2s ease;
 
   &:hover {
     border-color:
@@ -264,6 +279,11 @@
     outline: 3px solid
       rgba(197, 154, 91, 0.35);
     outline-offset: 2px;
+  }
+
+  &:has(input:disabled) {
+    opacity: 0.65;
+    cursor: not-allowed;
   }
 
   input {
@@ -305,6 +325,65 @@
     padding-top: 2rem;
     border-top: 1px solid
       rgba(69, 69, 28, 0.08);
+  }
+}
+
+.submit-status,
+.submit-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 1rem 1.1rem;
+  border-radius: 0.75rem;
+
+  strong {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 0.88rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.55;
+  }
+}
+
+.submit-status {
+  background:
+    rgba(233, 223, 207, 0.45);
+  border: 1px solid
+    rgba(197, 154, 91, 0.3);
+  color: var(--fb-olive-dark);
+
+  .spinner-border {
+    flex: 0 0 auto;
+    margin-top: 0.15rem;
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.12rem;
+  }
+
+  p {
+    color: var(--fb-gray);
+  }
+}
+
+.submit-message-error {
+  background:
+    rgba(183, 68, 56, 0.06);
+  border: 1px solid
+    rgba(183, 68, 56, 0.2);
+  color: #8f3028;
+
+  > i {
+    flex: 0 0 auto;
+    margin-top: 0.05rem;
+    font-size: 1.05rem;
+  }
+
+  p {
+    color: #8f3028;
   }
 }
 
@@ -353,9 +432,10 @@
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    opacity 0.2s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: var(--fb-brown);
     border-color: var(--fb-brown);
 
@@ -371,9 +451,20 @@
     outline-offset: 3px;
   }
 
+  &:disabled {
+    opacity: 0.72;
+    cursor: not-allowed;
+  }
+
   i {
     transition:
       transform 0.2s ease;
+  }
+
+  .spinner-border {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.12rem;
   }
 }
 

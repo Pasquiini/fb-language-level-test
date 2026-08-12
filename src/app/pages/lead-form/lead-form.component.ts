@@ -1,18 +1,16 @@
-import {
-  CommonModule,
-} from '@angular/common';
-
+import { CommonModule } from '@angular/common';
 import {
   Component,
   inject,
 } from '@angular/core';
-
 import {
+  AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
   Validators,
 } from '@angular/forms';
-
 import {
   Router,
   RouterLink,
@@ -21,6 +19,67 @@ import {
 import {
   TestRegistrationService,
 } from '../../core/services/test-registration.service';
+
+const whatsappValidator: ValidatorFn = (
+  control: AbstractControl,
+): ValidationErrors | null => {
+  const value = String(
+    control.value ?? '',
+  );
+
+  const digits = value.replace(
+    /\D/g,
+    '',
+  );
+
+  if (!digits) {
+    return null;
+  }
+
+  if (
+    digits.length !== 10 &&
+    digits.length !== 11
+  ) {
+    return {
+      whatsappLength: true,
+    };
+  }
+
+  const areaCode =
+    digits.slice(0, 2);
+
+  const phoneNumber =
+    digits.slice(2);
+
+  if (
+    areaCode.startsWith('0') ||
+    phoneNumber.startsWith('0')
+  ) {
+    return {
+      whatsappFormat: true,
+    };
+  }
+
+  return null;
+};
+
+const noWhitespaceValidator: ValidatorFn = (
+  control: AbstractControl,
+): ValidationErrors | null => {
+  const value = String(
+    control.value ?? '',
+  );
+
+  if (!value) {
+    return null;
+  }
+
+  return /\s/.test(value)
+    ? {
+        whitespace: true,
+      }
+    : null;
+};
 
 @Component({
   selector: 'app-lead-form',
@@ -181,8 +240,7 @@ export class LeadFormComponent {
           '',
           [
             Validators.required,
-            Validators.minLength(10),
-            Validators.maxLength(20),
+            whatsappValidator,
           ],
         ],
 
@@ -192,6 +250,7 @@ export class LeadFormComponent {
             Validators.required,
             Validators.email,
             Validators.maxLength(160),
+            noWhitespaceValidator,
           ],
         ],
 
@@ -230,7 +289,6 @@ export class LeadFormComponent {
   submitting = false;
 
   submitError: string | null = null;
-  submitSuccess: string | null = null;
 
   get fullName() {
     return this.form.controls.fullName;
@@ -286,27 +344,160 @@ export class LeadFormComponent {
     );
   }
 
+  onWhatsappInput(
+    event: Event,
+  ): void {
+    const input =
+      event.target as HTMLInputElement;
+
+    const formattedValue =
+      this.formatWhatsapp(
+        input.value,
+      );
+
+    this.whatsapp.setValue(
+      formattedValue,
+      {
+        emitEvent: false,
+      },
+    );
+
+    input.value =
+      formattedValue;
+  }
+
+  onEmailBlur(): void {
+    const normalizedEmail =
+      this.normalizeEmail(
+        this.email.value,
+      );
+
+    this.email.setValue(
+      normalizedEmail,
+      {
+        emitEvent: false,
+      },
+    );
+
+    this.email.updateValueAndValidity({
+      emitEvent: false,
+    });
+  }
+
+  private formatWhatsapp(
+    value: string,
+  ): string {
+    const digits =
+      this.normalizeWhatsapp(value)
+        .slice(0, 11);
+
+    if (!digits) {
+      return '';
+    }
+
+    if (digits.length <= 2) {
+      return `(${digits}`;
+    }
+
+    const areaCode =
+      digits.slice(0, 2);
+
+    const phone =
+      digits.slice(2);
+
+    if (phone.length <= 4) {
+      return `(${areaCode}) ${phone}`;
+    }
+
+    if (digits.length <= 10) {
+      const firstPart =
+        phone.slice(0, 4);
+
+      const lastPart =
+        phone.slice(4, 8);
+
+      return lastPart
+        ? `(${areaCode}) ${firstPart}-${lastPart}`
+        : `(${areaCode}) ${firstPart}`;
+    }
+
+    const firstPart =
+      phone.slice(0, 5);
+
+    const lastPart =
+      phone.slice(5, 9);
+
+    return lastPart
+      ? `(${areaCode}) ${firstPart}-${lastPart}`
+      : `(${areaCode}) ${firstPart}`;
+  }
+
+  private normalizeWhatsapp(
+    value: string,
+  ): string {
+    return value.replace(
+      /\D/g,
+      '',
+    );
+  }
+
+  private normalizeEmail(
+    value: string,
+  ): string {
+    return value
+      .trim()
+      .toLowerCase();
+  }
+
   async onSubmit(): Promise<void> {
+    if (this.submitting) {
+      return;
+    }
+
     this.submitted = true;
     this.submitError = null;
-    this.submitSuccess = null;
+
+    this.onEmailBlur();
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    if (this.submitting) {
-      return;
-    }
-
     this.submitting = true;
 
+    this.form.disable({
+      emitEvent: false,
+    });
+
     try {
+      const formValue =
+        this.form.getRawValue();
+
+      const registrationData = {
+        ...formValue,
+
+        fullName:
+          formValue.fullName.trim(),
+
+        whatsapp:
+          this.normalizeWhatsapp(
+            formValue.whatsapp,
+          ),
+
+        email:
+          this.normalizeEmail(
+            formValue.email,
+          ),
+
+        previousSchool:
+          formValue.previousSchool.trim(),
+      };
+
       const result =
         await this.testRegistration
           .register(
-            this.form.getRawValue(),
+            registrationData,
           );
 
       if (!result.success) {
@@ -321,13 +512,10 @@ export class LeadFormComponent {
         !result.attemptId
       ) {
         this.submitError =
-          'O teste foi iniciado, mas não foi possível identificar a tentativa.';
+          'Sua avaliação foi preparada, mas não conseguimos identificar a tentativa. Tente novamente.';
 
         return;
       }
-
-      this.submitSuccess =
-        result.message;
 
       await this.router.navigate(
         ['/teste/perguntas'],
@@ -347,9 +535,13 @@ export class LeadFormComponent {
       );
 
       this.submitError =
-        'Não foi possível iniciar sua avaliação. Tente novamente.';
+        'Não foi possível preparar sua avaliação. Verifique sua conexão e tente novamente.';
     } finally {
       this.submitting = false;
+
+      this.form.enable({
+        emitEvent: false,
+      });
     }
   }
 }

@@ -1,0 +1,324 @@
+<main
+  class="speaking-page"
+  id="main-content"
+>
+  <header class="test-header">
+    <div class="container">
+      <div class="test-header__content">
+        <div>
+          <span class="test-header__brand">
+            FB Language Center
+          </span>
+
+          <span class="test-header__section">
+            Speaking
+          </span>
+        </div>
+
+        @if (
+          !loading() &&
+          questions().length > 0
+        ) {
+          <span class="test-header__counter">
+            Questão
+            {{
+              currentQuestion()?.orderIndex
+            }}
+            de 26
+          </span>
+        }
+      </div>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <section class="state-section">
+      <div class="container">
+        <div
+          class="state-message"
+          role="status"
+        >
+          <div
+            class="spinner-border"
+            role="presentation"
+          ></div>
+
+          <h1>
+            Preparando o speaking
+          </h1>
+
+          <p>
+            Estamos carregando as
+            atividades de fala.
+          </p>
+        </div>
+      </div>
+    </section>
+  } @else if (
+    questions().length > 0
+  ) {
+    @if (
+      currentQuestion();
+      as question
+    ) {
+      <section class="speaking-section">
+        <div class="container">
+          <div class="speaking-layout">
+            <div class="stage-heading">
+              <span class="stage-heading__eyebrow">
+                Parte 3 de 3
+              </span>
+
+              <h1>
+                Speaking
+              </h1>
+
+              <p>
+                Grave sua resposta em inglês.
+                Procure falar de forma natural
+                e desenvolver suas ideias.
+              </p>
+            </div>
+
+            @if (error()) {
+              <div
+                class="error-message"
+                role="alert"
+              >
+                <i
+                  class="bi bi-exclamation-circle"
+                  aria-hidden="true"
+                ></i>
+
+                {{ error() }}
+              </div>
+            }
+
+            <article class="question-card">
+              <div class="question-card__meta">
+                <span>
+                  Questão
+                  {{ question.orderIndex }}
+                </span>
+
+                @if (question.level) {
+                  <span>
+                    {{ question.level }}
+                  </span>
+                }
+              </div>
+
+              <h2>
+                {{ question.statement }}
+              </h2>
+
+              @if (
+                question.instructions
+              ) {
+                <p class="question-instructions">
+                  {{
+                    question.instructions
+                  }}
+                </p>
+              }
+
+              <div class="recording-panel">
+                <div class="recording-status">
+                  <div
+                    class="recording-indicator"
+                    [class.recording-indicator--active]="
+                      recording()
+                    "
+                  ></div>
+
+                  <div>
+                    <span>
+                      @if (recording()) {
+                        Gravando
+                      } @else if (
+                        recordedAudioUrl()
+                      ) {
+                        Gravação concluída
+                      } @else {
+                        Pronto para gravar
+                      }
+                    </span>
+
+                    <strong>
+                      {{ formattedTime() }}
+                    </strong>
+                  </div>
+                </div>
+
+                @if (
+                  !recording() &&
+                  !recordedAudioUrl()
+                ) {
+                  <button
+                    type="button"
+                    class="record-button"
+                    (click)="
+                      startRecording()
+                    "
+                  >
+                    <i
+                      class="bi bi-mic-fill"
+                      aria-hidden="true"
+                    ></i>
+
+                    Iniciar gravação
+                  </button>
+                }
+
+                @if (recording()) {
+                  <button
+                    type="button"
+                    class="record-button record-button--stop"
+                    (click)="
+                      stopRecording()
+                    "
+                  >
+                    <i
+                      class="bi bi-stop-fill"
+                      aria-hidden="true"
+                    ></i>
+
+                    Parar gravação
+                  </button>
+                }
+              </div>
+
+              @if (
+                recordedAudioUrl();
+                as audioUrl
+              ) {
+                <div class="recording-review">
+                  <span>
+                    Ouça sua resposta antes
+                    de continuar
+                  </span>
+
+                  <audio
+                    controls
+                    [src]="audioUrl"
+                  ></audio>
+
+                  <div class="recording-review__actions">
+                    <button
+                      type="button"
+                      class="secondary-action"
+                      [disabled]="saving()"
+                      (click)="
+                        discardRecording()
+                      "
+                    >
+                      <i
+                        class="bi bi-arrow-counterclockwise"
+                        aria-hidden="true"
+                      ></i>
+
+                      Gravar novamente
+                    </button>
+
+                    <button
+                      type="button"
+                      class="save-button"
+                      [disabled]="
+                        saving() ||
+                        hasSavedCurrentAnswer()
+                      "
+                      (click)="
+                        saveRecording()
+                      "
+                    >
+                      @if (saving()) {
+                        <span
+                          class="spinner-border spinner-border-sm"
+                          aria-hidden="true"
+                        ></span>
+
+                        Salvando...
+                      } @else if (
+                        hasSavedCurrentAnswer()
+                      ) {
+                        <i
+                          class="bi bi-check-circle"
+                          aria-hidden="true"
+                        ></i>
+
+                        Resposta salva
+                      } @else {
+                        <i
+                          class="bi bi-cloud-arrow-up"
+                          aria-hidden="true"
+                        ></i>
+
+                        Salvar resposta
+                      }
+                    </button>
+                  </div>
+                </div>
+              }
+            </article>
+
+            <div class="question-actions">
+              <button
+                type="button"
+                class="fb-button fb-button--outline"
+                [disabled]="
+                  isFirstQuestion() ||
+                  recording()
+                "
+                (click)="
+                  previousQuestion()
+                "
+              >
+                <i
+                  class="bi bi-arrow-left"
+                  aria-hidden="true"
+                ></i>
+
+                Anterior
+              </button>
+
+              <button
+                type="button"
+                class="fb-button fb-button--primary"
+                [disabled]="
+                  !hasSavedCurrentAnswer()
+                "
+                (click)="
+                  nextQuestion()
+                "
+              >
+                @if (
+                  isLastQuestion()
+                ) {
+                  Finalizar avaliação
+                } @else {
+                  Próxima questão
+                }
+
+                <i
+                  class="bi bi-arrow-right"
+                  aria-hidden="true"
+                ></i>
+              </button>
+            </div>
+
+            <p class="privacy-note">
+              <i
+                class="bi bi-shield-lock"
+                aria-hidden="true"
+              ></i>
+
+              Sua gravação é enviada para
+              uma área privada e será usada
+              apenas na avaliação.
+            </p>
+          </div>
+        </div>
+      </section>
+    }
+  }
+</main>
