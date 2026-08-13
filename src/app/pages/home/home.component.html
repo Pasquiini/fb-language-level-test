@@ -1,336 +1,491 @@
-<section
-  class="home-hero"
-  aria-labelledby="home-hero-title"
->
-  <div class="fb-container">
-    <div class="home-hero__layout">
-      <div class="home-hero__content">
-        <p class="fb-eyebrow">
-          Seu inglês começa daqui
-        </p>
+<main id="main-content">
+  <section
+    class="home-hero"
+    aria-labelledby="home-hero-title"
+  >
+    <div class="fb-container">
+      <div class="home-hero__layout">
+        <div class="home-hero__content">
+          <p class="fb-eyebrow">
+            Teste de nivelamento
+          </p>
 
-        <h1
-          id="home-hero-title"
-          class="home-hero__title"
-        >
-          Descubra o seu nível de inglês
-        </h1>
-
-        <p class="home-hero__description">
-          Faça uma avaliação rápida e receba uma estimativa
-          personalizada do seu nível atual.
-        </p>
-
-        <div class="home-hero__actions">
-          <a
-            class="fb-button fb-button--primary home-hero__primary-action"
-            routerLink="/teste"
+          <h1
+            id="home-hero-title"
+            class="home-hero__title"
           >
-            Começar teste
+            Entenda onde o seu inglês
+            está hoje.
+          </h1>
 
-            <i
-              class="bi bi-arrow-right"
-              aria-hidden="true"
-            ></i>
-          </a>
-
-          <a
-            class="fb-button fb-button--outline"
-            href="#sobre"
+          <p
+            class="home-hero__description"
           >
-            Conhecer a FB
-          </a>
-        </div>
+            Uma avaliação completa para
+            conhecer seu momento com o
+            inglês e começar a próxima
+            etapa a partir do lugar certo.
+          </p>
 
-        <ul
-          class="home-hero__details"
-          aria-label="Informações sobre o teste"
-        >
-          <li>
-            <i
-              class="bi bi-clock"
-              aria-hidden="true"
-            ></i>
-
-            Cerca de 10 minutos
-          </li>
-
-          <li>
-            <i
-              class="bi bi-list-check"
-              aria-hidden="true"
-            ></i>
-
-            12 perguntas
-          </li>
-
-          <li>
-            <i
-              class="bi bi-patch-check"
-              aria-hidden="true"
-            ></i>
-
-            Resultado imediato
-          </li>
-        </ul>
-      </div>
-
-      <div class="home-hero__visual">
-        <figure class="home-hero__figure">
-          <img
-            class="home-hero__image"
-            src="/images/capa_fb.jpeg"
-            alt="Estudantes reunidos durante uma atividade de aprendizagem"
-            width="800"
-            height="1000"
-            fetchpriority="high"
-          />
-
-          <figcaption class="home-hero__caption">
-            <span>
-              Aprendizado feito para pessoas reais
-            </span>
-
-            <strong>
-              Confiança para se comunicar
-            </strong>
-          </figcaption>
-        </figure>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section
-  class="home-benefits fb-section--white"
-  aria-labelledby="benefits-title"
->
-  <div class="fb-container">
-    <div class="home-section-heading">
-      <div>
-        <p class="fb-eyebrow">
-          Uma avaliação simples
-        </p>
-
-        <h2
-          id="benefits-title"
-          class="fb-section-title"
-        >
-          Clareza para começar do ponto certo
-        </h2>
-      </div>
-
-      <p class="home-section-heading__description">
-        O teste oferece uma primeira leitura do seu nível
-        para que a próxima etapa do aprendizado seja mais
-        consciente e personalizada.
-      </p>
-    </div>
-
-    <div class="home-benefits__grid">
-      @for (
-        benefit of benefits;
-        track benefit.title
-      ) {
-        <article class="home-benefit">
           <div
-            class="home-benefit__icon"
-            aria-hidden="true"
+            class="home-hero__actions"
           >
-            <i
-              class="bi"
-              [class]="benefit.icon"
-            ></i>
+            <a
+              class="fb-button fb-button--primary home-hero__primary-action"
+              routerLink="/teste"
+            >
+              Descobrir meu nível
+
+              <i
+                class="bi bi-arrow-right"
+                aria-hidden="true"
+              ></i>
+            </a>
+
+            <a
+              class="fb-button fb-button--outline"
+              href="#como-funciona"
+            >
+              Como funciona
+            </a>
           </div>
 
-          <h3>
-            {{ benefit.title }}
-          </h3>
-
-          <p>
-            {{ benefit.description }}
-          </p>
-        </article>
-      }
-    </div>
-  </div>
-</section>
-
-<section
-  id="como-funciona"
-  class="home-process fb-section"
-  aria-labelledby="process-title"
->
-  <div class="fb-container">
-    <div class="home-process__heading">
-      <p class="fb-eyebrow">
-        Como funciona
-      </p>
-
-      <h2
-        id="process-title"
-        class="fb-section-title"
-      >
-        Três passos para entender o seu momento
-      </h2>
-
-      <p class="fb-lead">
-        Sem pressão e sem respostas exibidas durante a
-        avaliação. Você avança no seu ritmo e recebe o
-        resultado ao final.
-      </p>
-    </div>
-
-    <ol class="home-process__list">
-      @for (
-        step of processSteps;
-        track step.number
-      ) {
-        <li class="home-process__item">
-          <span
-            class="home-process__number"
-            aria-hidden="true"
+          <ul
+            class="home-hero__details"
+            aria-label="Informações sobre o teste"
           >
-            {{ step.number }}
-          </span>
+            <li>
+              <i
+                class="bi bi-clock"
+                aria-hidden="true"
+              ></i>
 
-          <div class="home-process__content">
+              Cerca de 20 minutos
+            </li>
+
+            <li>
+              <i
+                class="bi bi-list-check"
+                aria-hidden="true"
+              ></i>
+
+              26 atividades
+            </li>
+
+            <li>
+              <i
+                class="bi bi-mic"
+                aria-hidden="true"
+              ></i>
+
+              Grammar, Listening e
+              Speaking
+            </li>
+          </ul>
+        </div>
+
+        <div class="home-hero__visual">
+          <figure
+            class="home-hero__figure"
+          >
+            <img
+              class="home-hero__image"
+              src="/images/capa_fb.jpeg"
+              alt="Estudantes reunidos durante uma atividade de aprendizagem"
+              width="800"
+              height="1000"
+              fetchpriority="high"
+            >
+
+            <figcaption
+              class="home-hero__caption"
+            >
+              <span>
+                FB Language Center
+              </span>
+
+              <strong>
+                Inglês para se comunicar
+                com confiança
+              </strong>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="home-benefits fb-section--white"
+    aria-labelledby="benefits-title"
+  >
+    <div class="fb-container">
+      <div
+        class="home-section-heading"
+      >
+        <div>
+          <p class="fb-eyebrow">
+            Mais do que um quiz
+          </p>
+
+          <h2
+            id="benefits-title"
+            class="fb-section-title"
+          >
+            Uma avaliação para entender
+            o seu momento.
+          </h2>
+        </div>
+
+        <p
+          class="home-section-heading__description"
+        >
+          Seu nível de inglês não cabe
+          em uma única pergunta. Por
+          isso, observamos diferentes
+          habilidades antes de indicar
+          um ponto de partida.
+        </p>
+      </div>
+
+      <div
+        class="home-benefits__grid"
+      >
+        @for (
+          benefit of benefits;
+          track benefit.title
+        ) {
+          <article
+            class="home-benefit"
+          >
+            <div
+              class="home-benefit__icon"
+              aria-hidden="true"
+            >
+              <i
+                class="bi"
+                [class]="benefit.icon"
+              ></i>
+            </div>
+
             <h3>
-              {{ step.title }}
+              {{ benefit.title }}
             </h3>
 
             <p>
-              {{ step.description }}
+              {{
+                benefit.description
+              }}
             </p>
-          </div>
-        </li>
-      }
-    </ol>
-
-    <div class="home-process__action">
-      <a
-        class="fb-button fb-button--secondary fb-button--mobile-block"
-        routerLink="/teste"
-      >
-        Fazer minha avaliação
-
-        <i
-          class="bi bi-arrow-right"
-          aria-hidden="true"
-        ></i>
-      </a>
+          </article>
+        }
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section
-  id="sobre"
-  class="home-about fb-section"
-  aria-labelledby="about-title"
->
-  <div class="fb-container">
-    <div class="home-about__layout">
-      <div class="home-about__statement">
+  <section
+    class="home-stages fb-section"
+    aria-labelledby="stages-title"
+  >
+    <div class="fb-container">
+      <div
+        class="home-stages__heading"
+      >
         <p class="fb-eyebrow">
-          FB Language Center
+          A avaliação
         </p>
 
         <h2
-          id="about-title"
-          class="home-about__title"
+          id="stages-title"
+          class="fb-section-title"
         >
-          Inglês para se comunicar com mais liberdade
+          Três habilidades. Uma visão
+          mais completa do seu inglês.
         </h2>
+
+        <p class="fb-lead">
+          Cada etapa observa uma parte
+          diferente da sua comunicação.
+        </p>
       </div>
 
-      <div class="home-about__content">
-        <p class="home-about__lead">
-          Uma escola de inglês focada em aprendizado
-          personalizado, confiança e comunicação real.
+      <div
+        class="home-stages__grid"
+      >
+        @for (
+          stage of testStages;
+          track stage.title
+        ) {
+          <article
+            class="home-stage"
+          >
+            <div
+              class="home-stage__top"
+            >
+              <span
+                class="home-stage__icon"
+                aria-hidden="true"
+              >
+                <i
+                  class="bi"
+                  [class]="stage.icon"
+                ></i>
+              </span>
+
+              <span
+                class="home-stage__line"
+                aria-hidden="true"
+              ></span>
+            </div>
+
+            <h3>
+              {{ stage.title }}
+            </h3>
+
+            <p>
+              {{
+                stage.description
+              }}
+            </p>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="como-funciona"
+    class="home-process fb-section"
+    aria-labelledby="process-title"
+  >
+    <div class="fb-container">
+      <div
+        class="home-process__heading"
+      >
+        <p class="fb-eyebrow">
+          Como funciona
         </p>
 
-        <p>
-          Cada pessoa possui objetivos, experiências e
-          desafios diferentes. Por isso, a proposta da FB
-          Language Center parte de um acompanhamento próximo
-          e de um ensino conectado à vida real.
-        </p>
-
-        <p>
-          Mais do que memorizar regras, o objetivo é criar
-          segurança para usar o inglês em viagens, estudos,
-          trabalho e conversas cotidianas.
-        </p>
-
-        <a
-          class="home-about__link"
-          href="#chamada-final"
+        <h2
+          id="process-title"
+          class="fb-section-title"
         >
-          Dar o primeiro passo
+          Do primeiro clique até a sua
+          análise.
+        </h2>
+
+        <p class="fb-lead">
+          Faça tudo com tranquilidade.
+          Suas respostas são salvas
+          durante a avaliação e você
+          avança uma etapa de cada vez.
+        </p>
+      </div>
+
+      <ol
+        class="home-process__list"
+      >
+        @for (
+          step of processSteps;
+          track step.number
+        ) {
+          <li
+            class="home-process__item"
+          >
+            <span
+              class="home-process__number"
+              aria-hidden="true"
+            >
+              {{ step.number }}
+            </span>
+
+            <div
+              class="home-process__content"
+            >
+              <h3>
+                {{ step.title }}
+              </h3>
+
+              <p>
+                {{
+                  step.description
+                }}
+              </p>
+            </div>
+          </li>
+        }
+      </ol>
+
+      <div
+        class="home-process__action"
+      >
+        <a
+          class="fb-button fb-button--secondary fb-button--mobile-block"
+          routerLink="/teste"
+        >
+          Começar minha avaliação
 
           <i
-            class="bi bi-arrow-down-right"
+            class="bi bi-arrow-right"
             aria-hidden="true"
           ></i>
         </a>
       </div>
     </div>
+  </section>
 
-    <div
-      class="home-about__values"
-      aria-label="Valores da FB Language Center"
-    >
-      <div>
-        <strong>Personalização</strong>
-        <span>Um caminho adequado aos seus objetivos.</span>
-      </div>
-
-      <div>
-        <strong>Confiança</strong>
-        <span>Espaço seguro para praticar e evoluir.</span>
-      </div>
-
-      <div>
-        <strong>Comunicação real</strong>
-        <span>Inglês conectado às situações da sua vida.</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section
-  id="chamada-final"
-  class="home-final-cta"
-  aria-labelledby="final-cta-title"
->
-  <div class="fb-container">
-    <div class="home-final-cta__content">
-      <div>
-        <p class="home-final-cta__eyebrow">
-          Seu próximo capítulo em inglês
-        </p>
-
-        <h2 id="final-cta-title">
-          Pronto para descobrir o seu nível?
-        </h2>
-
-        <p>
-          Reserve alguns minutos, responda com tranquilidade
-          e receba sua estimativa ao final.
-        </p>
-      </div>
-
-      <a
-        class="fb-button fb-button--light home-final-cta__button"
-        routerLink="/teste"
+  <section
+    id="sobre"
+    class="home-about fb-section"
+    aria-labelledby="about-title"
+  >
+    <div class="fb-container">
+      <div
+        class="home-about__layout"
       >
-        Começar agora
+        <div
+          class="home-about__statement"
+        >
+          <p class="fb-eyebrow">
+            FB Language Center
+          </p>
 
-        <i
-          class="bi bi-arrow-right"
-          aria-hidden="true"
-        ></i>
-      </a>
+          <h2
+            id="about-title"
+            class="home-about__title"
+          >
+            Inglês que encontra espaço
+            na sua vida.
+          </h2>
+        </div>
+
+        <div
+          class="home-about__content"
+        >
+          <p
+            class="home-about__lead"
+          >
+            Aprender um idioma é também
+            ganhar autonomia para
+            participar de novas
+            conversas, lugares e
+            oportunidades.
+          </p>
+
+          <p>
+            Cada aluno chega com uma
+            história diferente. Objetivos,
+            experiências, inseguranças e
+            ritmos também são diferentes.
+            É por isso que nosso trabalho
+            começa entendendo quem está do
+            outro lado.
+          </p>
+
+          <p>
+            Na FB Language Center, o
+            inglês é desenvolvido para
+            ser usado: em viagens,
+            estudos, trabalho,
+            relacionamentos e nas
+            situações que fazem parte da
+            vida real.
+          </p>
+
+          <a
+            class="home-about__link"
+            href="#chamada-final"
+          >
+            Começar pelo meu nível
+
+            <i
+              class="bi bi-arrow-down-right"
+              aria-hidden="true"
+            ></i>
+          </a>
+        </div>
+      </div>
+
+      <div
+        class="home-about__values"
+        aria-label="Valores da FB Language Center"
+      >
+        <div>
+          <strong>
+            Personalização
+          </strong>
+
+          <span>
+            Um caminho conectado aos
+            seus objetivos.
+          </span>
+        </div>
+
+        <div>
+          <strong>
+            Confiança
+          </strong>
+
+          <span>
+            Espaço para praticar,
+            experimentar e evoluir.
+          </span>
+        </div>
+
+        <div>
+          <strong>
+            Comunicação real
+          </strong>
+
+          <span>
+            Inglês para situações que
+            existem fora da sala de aula.
+          </span>
+        </div>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+
+  <section
+    id="chamada-final"
+    class="home-final-cta"
+    aria-labelledby="final-cta-title"
+  >
+    <div class="fb-container">
+      <div
+        class="home-final-cta__content"
+      >
+        <div>
+          <p
+            class="home-final-cta__eyebrow"
+          >
+            Seu ponto de partida
+          </p>
+
+          <h2 id="final-cta-title">
+            Vamos descobrir onde o seu
+            inglês está hoje?
+          </h2>
+
+          <p>
+            Reserve cerca de 20 minutos
+            e faça a avaliação com
+            tranquilidade.
+          </p>
+        </div>
+
+        <a
+          class="fb-button fb-button--light home-final-cta__button"
+          routerLink="/teste"
+        >
+          Começar avaliação
+
+          <i
+            class="bi bi-arrow-right"
+            aria-hidden="true"
+          ></i>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>

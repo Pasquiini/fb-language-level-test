@@ -79,7 +79,10 @@
   } @else {
     <section class="listening-section">
       <div class="container">
-        <div class="listening-layout">
+        <div
+          class="listening-layout"
+          [attr.aria-busy]="saving()"
+        >
           <div class="stage-heading">
             <span class="stage-heading__eyebrow">
               Parte 2 de 3
@@ -234,6 +237,46 @@
             </div>
           </div>
 
+          @if (saveError()) {
+            <div
+              class="save-message save-message--error"
+              role="alert"
+              aria-live="assertive"
+            >
+              <i
+                class="bi bi-exclamation-circle"
+                aria-hidden="true"
+              ></i>
+
+              <div>
+                <strong>
+                  Sua resposta não foi salva.
+                </strong>
+
+                <p>
+                  {{ saveError() }}
+                </p>
+              </div>
+            </div>
+          }
+
+          @if (saveSuccess()) {
+            <div
+              class="save-message save-message--success"
+              role="status"
+              aria-live="polite"
+            >
+              <i
+                class="bi bi-check-circle"
+                aria-hidden="true"
+              ></i>
+
+              <span>
+                {{ saveSuccess() }}
+              </span>
+            </div>
+          }
+
           @if (
             currentQuestion();
             as question
@@ -250,7 +293,10 @@
                 {{ question.statement }}
               </h2>
 
-              <fieldset class="answer-list">
+              <fieldset
+                class="answer-list"
+                [disabled]="saving()"
+              >
                 <legend class="visually-hidden">
                   Escolha uma alternativa
                 </legend>
@@ -274,6 +320,7 @@
                         currentAnswer() ===
                         option.id
                       "
+                      [disabled]="saving()"
                       (change)="
                         selectAnswer(
                           option.id
@@ -301,12 +348,30 @@
               </fieldset>
             </article>
 
+            @if (saving()) {
+              <div
+                class="saving-status"
+                role="status"
+                aria-live="polite"
+              >
+                <span
+                  class="spinner-border spinner-border-sm"
+                  aria-hidden="true"
+                ></span>
+
+                <span>
+                  Salvando sua resposta...
+                </span>
+              </div>
+            }
+
             <div class="question-actions">
               <button
                 type="button"
                 class="fb-button fb-button--outline"
                 [disabled]="
-                  isFirstQuestion()
+                  isFirstQuestion() ||
+                  saving()
                 "
                 (click)="
                   previousQuestion()
@@ -324,26 +389,50 @@
                 type="button"
                 class="fb-button fb-button--primary"
                 [disabled]="
-                  !currentAnswer()
+                  !currentAnswer() ||
+                  saving()
                 "
                 (click)="
                   nextQuestion()
                 "
               >
-                @if (
+                @if (saving()) {
+                  <span
+                    class="spinner-border spinner-border-sm"
+                    aria-hidden="true"
+                  ></span>
+
+                  <span>
+                    Salvando...
+                  </span>
+                } @else if (
                   isLastQuestion()
                 ) {
-                  Continuar para o speaking
-                } @else {
-                  Próxima questão
-                }
+                  <span>
+                    Continuar para o speaking
+                  </span>
 
-                <i
-                  class="bi bi-arrow-right"
-                  aria-hidden="true"
-                ></i>
+                  <i
+                    class="bi bi-arrow-right"
+                    aria-hidden="true"
+                  ></i>
+                } @else {
+                  <span>
+                    Próxima questão
+                  </span>
+
+                  <i
+                    class="bi bi-arrow-right"
+                    aria-hidden="true"
+                  ></i>
+                }
               </button>
             </div>
+
+            <p class="question-help">
+              Suas respostas são salvas
+              sempre que você avança.
+            </p>
           }
         </div>
       </div>

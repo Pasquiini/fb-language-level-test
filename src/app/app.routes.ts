@@ -2,11 +2,17 @@ import {
   Routes,
 } from '@angular/router';
 
+import {
+  testAttemptGuard,
+} from './core/guards/test-attempt.guard';
+
 export const routes: Routes = [
   {
     path: '',
+
     title:
       'FB Language Center | Teste de Nivelamento',
+
     loadComponent: () =>
       import(
         './pages/home/home.component'
@@ -15,10 +21,14 @@ export const routes: Routes = [
           component.Home,
       ),
   },
+
   {
-    path: 'teste',
+    path:
+      'teste',
+
     title:
       'Teste de Nivelamento | FB Language Center',
+
     loadComponent: () =>
       import(
         './pages/test-introduction/test-introduction.component'
@@ -27,10 +37,14 @@ export const routes: Routes = [
           component.TestIntroductionComponent,
       ),
   },
+
   {
-    path: 'teste/dados',
+    path:
+      'teste/dados',
+
     title:
       'Seus dados | Teste de Nivelamento | FB Language Center',
+
     loadComponent: () =>
       import(
         './pages/lead-form/lead-form.component'
@@ -39,10 +53,18 @@ export const routes: Routes = [
           component.LeadFormComponent,
       ),
   },
+
   {
-    path: 'teste/perguntas',
+    path:
+      'teste/perguntas',
+
     title:
       'Grammar | Teste de Nivelamento | FB Language Center',
+
+    canActivate: [
+      testAttemptGuard,
+    ],
+
     loadComponent: () =>
       import(
         './pages/test-questions/test-questions.component'
@@ -51,10 +73,18 @@ export const routes: Routes = [
           component.TestQuestionsComponent,
       ),
   },
+
   {
-    path: 'teste/listening',
+    path:
+      'teste/listening',
+
     title:
       'Listening | Teste de Nivelamento | FB Language Center',
+
+    canActivate: [
+      testAttemptGuard,
+    ],
+
     loadComponent: () =>
       import(
         './pages/test-listening/test-listening.component'
@@ -63,16 +93,60 @@ export const routes: Routes = [
           component.TestListeningComponent,
       ),
   },
+
   {
-    path: 'teste/speaking',
+    path:
+      'teste/speaking',
+
     title:
       'Speaking | Teste de Nivelamento | FB Language Center',
+
+    canActivate: [
+      testAttemptGuard,
+    ],
+
     loadComponent: () =>
       import(
         './pages/test-speaking/test-speaking.component'
       ).then(
         (component) =>
           component.TestSpeakingComponent,
+      ),
+  },
+
+  {
+    path:
+      'teste/processando',
+
+    title:
+      'Preparando resultado | FB Language Center',
+
+    canActivate: [
+      testAttemptGuard,
+    ],
+
+    loadComponent: () =>
+      import(
+        './pages/test-processing/test-processing.component'
+      ).then(
+        (component) =>
+          component.TestProcessingComponent,
+      ),
+  },
+
+  {
+    path:
+      'teste/resultado',
+
+    title:
+      'Seu resultado | FB Language Center',
+
+    loadComponent: () =>
+      import(
+        './pages/test-result/test-result.component'
+      ).then(
+        (component) =>
+          component.TestResultComponent,
       ),
   },
 ];

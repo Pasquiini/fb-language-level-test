@@ -20,7 +20,9 @@ import {
   UserRole,
 } from '../models';
 
-import { SupabaseService } from './supabase.service';
+import {
+  SupabaseService,
+} from './supabase.service';
 
 interface ProfileRow {
   id: string;
@@ -52,6 +54,9 @@ export class AuthService {
 
   private readonly loadingState =
     signal<boolean>(false);
+
+  private readonly initializationPromise:
+    Promise<void>;
 
   readonly session: Signal<Session | null> =
     this.sessionState.asReadonly();
@@ -100,7 +105,12 @@ export class AuthService {
   );
 
   constructor() {
-    void this.initialize();
+    this.initializationPromise =
+      this.initialize();
+  }
+
+  async waitUntilInitialized(): Promise<void> {
+    await this.initializationPromise;
   }
 
   async initialize(): Promise<void> {
@@ -110,39 +120,54 @@ export class AuthService {
       const {
         data: { session },
         error,
-      } = await this.supabase.client.auth.getSession();
+      } =
+        await this.supabase.client.auth
+          .getSession();
 
       if (error) {
         throw error;
       }
 
-      this.sessionState.set(session);
+      this.sessionState.set(
+        session,
+      );
 
       if (session?.user) {
-        await this.loadProfile(session.user);
+        await this.loadProfile(
+          session.user,
+        );
       }
 
       const {
         data: { subscription },
       } =
-        this.supabase.client.auth.onAuthStateChange(
-          (
-            event: AuthChangeEvent,
-            changedSession: Session | null,
-          ) => {
-            this.handleAuthChange(
-              event,
-              changedSession,
-            );
-          },
-        );
+        this.supabase.client.auth
+          .onAuthStateChange(
+            (
+              event: AuthChangeEvent,
+              changedSession:
+                Session | null,
+            ) => {
+              this.handleAuthChange(
+                event,
+                changedSession,
+              );
+            },
+          );
 
-      this.destroyRef.onDestroy(() => {
-        subscription.unsubscribe();
-      });
+      this.destroyRef.onDestroy(
+        () => {
+          subscription.unsubscribe();
+        },
+      );
     } finally {
-      this.initializedState.set(true);
-      this.loadingState.set(false);
+      this.initializedState.set(
+        true,
+      );
+
+      this.loadingState.set(
+        false,
+      );
     }
   }
 
@@ -155,7 +180,8 @@ export class AuthService {
       if (this.user()) {
         return {
           success: true,
-          message: 'Sessão já existente.',
+          message:
+            'Sessão já existente.',
         };
       }
 
@@ -168,7 +194,8 @@ export class AuthService {
             options: fullName
               ? {
                   data: {
-                    full_name: fullName.trim(),
+                    full_name:
+                      fullName.trim(),
                   },
                 }
               : undefined,
@@ -177,14 +204,19 @@ export class AuthService {
       if (error) {
         return {
           success: false,
-          message: error.message,
+          message:
+            error.message,
         };
       }
 
-      this.sessionState.set(data.session);
+      this.sessionState.set(
+        data.session,
+      );
 
       if (data.user) {
-        await this.loadProfile(data.user);
+        await this.loadProfile(
+          data.user,
+        );
       }
 
       return {
@@ -193,12 +225,15 @@ export class AuthService {
           'Sessão criada com sucesso.',
       };
     } finally {
-      this.loadingState.set(false);
+      this.loadingState.set(
+        false,
+      );
     }
   }
 
   async signInWithPassword(
-    credentials: SignInCredentials,
+    credentials:
+      SignInCredentials,
   ): Promise<AuthOperationResult> {
     this.loadingState.set(true);
 
@@ -213,7 +248,9 @@ export class AuthService {
               credentials.email
                 .trim()
                 .toLowerCase(),
-            password: credentials.password,
+
+            password:
+              credentials.password,
           });
 
       if (error) {
@@ -224,18 +261,25 @@ export class AuthService {
         };
       }
 
-      this.sessionState.set(data.session);
+      this.sessionState.set(
+        data.session,
+      );
 
       if (data.user) {
-        await this.loadProfile(data.user);
+        await this.loadProfile(
+          data.user,
+        );
       }
 
       return {
         success: true,
-        message: 'Login realizado com sucesso.',
+        message:
+          'Login realizado com sucesso.',
       };
     } finally {
-      this.loadingState.set(false);
+      this.loadingState.set(
+        false,
+      );
     }
   }
 
@@ -246,7 +290,9 @@ export class AuthService {
 
     try {
       const normalizedEmail =
-        email.trim().toLowerCase();
+        email
+          .trim()
+          .toLowerCase();
 
       const redirectUrl =
         `${window.location.origin}/aluno`;
@@ -256,17 +302,23 @@ export class AuthService {
       } =
         await this.supabase.client.auth
           .signInWithOtp({
-            email: normalizedEmail,
+            email:
+              normalizedEmail,
+
             options: {
-              shouldCreateUser: true,
-              emailRedirectTo: redirectUrl,
+              shouldCreateUser:
+                true,
+
+              emailRedirectTo:
+                redirectUrl,
             },
           });
 
       if (error) {
         return {
           success: false,
-          message: error.message,
+          message:
+            error.message,
         };
       }
 
@@ -276,14 +328,17 @@ export class AuthService {
           'Enviamos um link de acesso para o seu e-mail.',
       };
     } finally {
-      this.loadingState.set(false);
+      this.loadingState.set(
+        false,
+      );
     }
   }
 
   async attachEmailToAnonymousUser(
     email: string,
   ): Promise<AuthOperationResult> {
-    const currentUser = this.user();
+    const currentUser =
+      this.user();
 
     if (!currentUser) {
       return {
@@ -293,7 +348,9 @@ export class AuthService {
       };
     }
 
-    if (!currentUser.is_anonymous) {
+    if (
+      !currentUser.is_anonymous
+    ) {
       return {
         success: false,
         message:
@@ -305,20 +362,24 @@ export class AuthService {
 
     try {
       const normalizedEmail =
-        email.trim().toLowerCase();
+        email
+          .trim()
+          .toLowerCase();
 
       const {
         error,
       } =
         await this.supabase.client.auth
           .updateUser({
-            email: normalizedEmail,
+            email:
+              normalizedEmail,
           });
 
       if (error) {
         return {
           success: false,
-          message: error.message,
+          message:
+            error.message,
         };
       }
 
@@ -328,19 +389,27 @@ export class AuthService {
           'Enviamos uma confirmação para o seu e-mail.',
       };
     } finally {
-      this.loadingState.set(false);
+      this.loadingState.set(
+        false,
+      );
     }
   }
 
   async refreshProfile(): Promise<void> {
-    const currentUser = this.user();
+    const currentUser =
+      this.user();
 
     if (!currentUser) {
-      this.profileState.set(null);
+      this.profileState.set(
+        null,
+      );
+
       return;
     }
 
-    await this.loadProfile(currentUser);
+    await this.loadProfile(
+      currentUser,
+    );
   }
 
   async signOut(): Promise<AuthOperationResult> {
@@ -356,52 +425,80 @@ export class AuthService {
       if (error) {
         return {
           success: false,
-          message: error.message,
+          message:
+            error.message,
         };
       }
 
-      this.sessionState.set(null);
-      this.profileState.set(null);
+      this.sessionState.set(
+        null,
+      );
+
+      this.profileState.set(
+        null,
+      );
 
       return {
         success: true,
-        message: 'Sessão encerrada.',
+        message:
+          'Sessão encerrada.',
       };
     } finally {
-      this.loadingState.set(false);
+      this.loadingState.set(
+        false,
+      );
     }
   }
 
   hasRole(
-    allowedRoles: readonly UserRole[],
+    allowedRoles:
+      readonly UserRole[],
   ): boolean {
-    const currentRole = this.role();
+    const currentRole =
+      this.role();
 
     return (
       currentRole !== null &&
-      allowedRoles.includes(currentRole)
+      allowedRoles.includes(
+        currentRole,
+      )
     );
   }
 
   private handleAuthChange(
-    _event: AuthChangeEvent,
-    session: Session | null,
+    _event:
+      AuthChangeEvent,
+    session:
+      Session | null,
   ): void {
-    this.sessionState.set(session);
+    this.sessionState.set(
+      session,
+    );
 
     if (!session?.user) {
-      this.profileState.set(null);
+      this.profileState.set(
+        null,
+      );
+
       return;
     }
 
     /*
-     * Mantemos o callback do onAuthStateChange síncrono.
-     * A leitura do perfil ocorre em outra microtask para
-     * evitar bloquear o processamento interno do Auth.
+     * Mantemos o callback do
+     * onAuthStateChange síncrono.
+     *
+     * A leitura do perfil ocorre
+     * em outra microtask para
+     * evitar bloquear o processamento
+     * interno do Auth.
      */
-    queueMicrotask(() => {
-      void this.loadProfile(session.user);
-    });
+    queueMicrotask(
+      () => {
+        void this.loadProfile(
+          session.user,
+        );
+      },
+    );
   }
 
   private async loadProfile(
@@ -421,7 +518,10 @@ export class AuthService {
           role,
           avatar_url
         `)
-        .eq('id', user.id)
+        .eq(
+          'id',
+          user.id,
+        )
         .maybeSingle<ProfileRow>();
 
     if (error) {
@@ -430,24 +530,43 @@ export class AuthService {
         error.message,
       );
 
-      this.profileState.set(null);
+      this.profileState.set(
+        null,
+      );
+
       return;
     }
 
     if (!data) {
-      this.profileState.set(null);
+      this.profileState.set(
+        null,
+      );
+
       return;
     }
 
     this.profileState.set({
-      id: data.id,
-      fullName: data.full_name,
-      email: data.email,
-      whatsapp: data.whatsapp,
-      role: data.role,
-      avatarUrl: data.avatar_url,
+      id:
+        data.id,
+
+      fullName:
+        data.full_name,
+
+      email:
+        data.email,
+
+      whatsapp:
+        data.whatsapp,
+
+      role:
+        data.role,
+
+      avatarUrl:
+        data.avatar_url,
+
       isAnonymous:
-        user.is_anonymous === true,
+        user.is_anonymous ===
+        true,
     });
   }
 }

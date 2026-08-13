@@ -1,8 +1,12 @@
-import { CommonModule } from '@angular/common';
+import {
+  CommonModule,
+} from '@angular/common';
+
 import {
   Component,
   inject,
 } from '@angular/core';
+
 import {
   AbstractControl,
   FormBuilder,
@@ -11,6 +15,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
+
 import {
   Router,
   RouterLink,
@@ -19,6 +24,13 @@ import {
 import {
   TestRegistrationService,
 } from '../../core/services/test-registration.service';
+
+interface CountryOption {
+  code: string;
+  name: string;
+  dialCode: string;
+  flag: string;
+}
 
 const whatsappValidator: ValidatorFn = (
   control: AbstractControl,
@@ -36,25 +48,62 @@ const whatsappValidator: ValidatorFn = (
     return null;
   }
 
+  const countryCode =
+    String(
+      control.parent
+        ?.get('countryCode')
+        ?.value ?? '+55',
+    );
+
+  const dialCodeDigits =
+    countryCode.replace(
+      /\D/g,
+      '',
+    );
+
+  const maxNationalLength =
+    15 - dialCodeDigits.length;
+
+  if (countryCode === '+55') {
+    if (
+      digits.length !== 10 &&
+      digits.length !== 11
+    ) {
+      return {
+        whatsappLength: true,
+      };
+    }
+
+    const areaCode =
+      digits.slice(0, 2);
+
+    const phoneNumber =
+      digits.slice(2);
+
+    if (
+      areaCode.startsWith('0') ||
+      phoneNumber.startsWith('0')
+    ) {
+      return {
+        whatsappFormat: true,
+      };
+    }
+
+    return null;
+  }
+
   if (
-    digits.length !== 10 &&
-    digits.length !== 11
+    digits.length < 6 ||
+    digits.length >
+      maxNationalLength
   ) {
     return {
-      whatsappLength: true,
+      internationalWhatsappLength:
+        true,
     };
   }
 
-  const areaCode =
-    digits.slice(0, 2);
-
-  const phoneNumber =
-    digits.slice(2);
-
-  if (
-    areaCode.startsWith('0') ||
-    phoneNumber.startsWith('0')
-  ) {
+  if (digits.startsWith('0')) {
     return {
       whatsappFormat: true,
     };
@@ -63,23 +112,24 @@ const whatsappValidator: ValidatorFn = (
   return null;
 };
 
-const noWhitespaceValidator: ValidatorFn = (
-  control: AbstractControl,
-): ValidationErrors | null => {
-  const value = String(
-    control.value ?? '',
-  );
+const noWhitespaceValidator:
+  ValidatorFn = (
+    control: AbstractControl,
+  ): ValidationErrors | null => {
+    const value = String(
+      control.value ?? '',
+    );
 
-  if (!value) {
-    return null;
-  }
+    if (!value) {
+      return null;
+    }
 
-  return /\s/.test(value)
-    ? {
-        whitespace: true,
-      }
-    : null;
-};
+    return /\s/.test(value)
+      ? {
+          whitespace: true,
+        }
+      : null;
+  };
 
 @Component({
   selector: 'app-lead-form',
@@ -103,6 +153,130 @@ export class LeadFormComponent {
 
   private readonly router =
     inject(Router);
+
+  readonly countryOptions:
+    CountryOption[] = [
+      {
+        code: 'BR',
+        name: 'Brasil',
+        dialCode: '+55',
+        flag: '🇧🇷',
+      },
+      {
+        code: 'US',
+        name: 'Estados Unidos',
+        dialCode: '+1',
+        flag: '🇺🇸',
+      },
+      {
+        code: 'CA',
+        name: 'Canadá',
+        dialCode: '+1',
+        flag: '🇨🇦',
+      },
+      {
+        code: 'PT',
+        name: 'Portugal',
+        dialCode: '+351',
+        flag: '🇵🇹',
+      },
+      {
+        code: 'GB',
+        name: 'Reino Unido',
+        dialCode: '+44',
+        flag: '🇬🇧',
+      },
+      {
+        code: 'IE',
+        name: 'Irlanda',
+        dialCode: '+353',
+        flag: '🇮🇪',
+      },
+      {
+        code: 'ES',
+        name: 'Espanha',
+        dialCode: '+34',
+        flag: '🇪🇸',
+      },
+      {
+        code: 'FR',
+        name: 'França',
+        dialCode: '+33',
+        flag: '🇫🇷',
+      },
+      {
+        code: 'DE',
+        name: 'Alemanha',
+        dialCode: '+49',
+        flag: '🇩🇪',
+      },
+      {
+        code: 'IT',
+        name: 'Itália',
+        dialCode: '+39',
+        flag: '🇮🇹',
+      },
+      {
+        code: 'CH',
+        name: 'Suíça',
+        dialCode: '+41',
+        flag: '🇨🇭',
+      },
+      {
+        code: 'AU',
+        name: 'Austrália',
+        dialCode: '+61',
+        flag: '🇦🇺',
+      },
+      {
+        code: 'NZ',
+        name: 'Nova Zelândia',
+        dialCode: '+64',
+        flag: '🇳🇿',
+      },
+      {
+        code: 'AR',
+        name: 'Argentina',
+        dialCode: '+54',
+        flag: '🇦🇷',
+      },
+      {
+        code: 'UY',
+        name: 'Uruguai',
+        dialCode: '+598',
+        flag: '🇺🇾',
+      },
+      {
+        code: 'PY',
+        name: 'Paraguai',
+        dialCode: '+595',
+        flag: '🇵🇾',
+      },
+      {
+        code: 'CL',
+        name: 'Chile',
+        dialCode: '+56',
+        flag: '🇨🇱',
+      },
+      {
+        code: 'CO',
+        name: 'Colômbia',
+        dialCode: '+57',
+        flag: '🇨🇴',
+      },
+      {
+        code: 'MX',
+        name: 'México',
+        dialCode: '+52',
+        flag: '🇲🇽',
+      },
+      {
+        code: 'PE',
+        name: 'Peru',
+        dialCode: '+51',
+        flag: '🇵🇪',
+      },
+    ];
 
   readonly levelOptions = [
     {
@@ -176,8 +350,10 @@ export class LeadFormComponent {
       label: 'Prova / certificação',
     },
     {
-      value: 'personal_development',
-      label: 'Desenvolvimento pessoal',
+      value:
+        'personal_development',
+      label:
+        'Desenvolvimento pessoal',
     },
     {
       value: 'general_english',
@@ -236,6 +412,11 @@ export class LeadFormComponent {
           ],
         ],
 
+        countryCode: [
+          '+55',
+          Validators.required,
+        ],
+
         whatsapp: [
           '',
           [
@@ -288,14 +469,22 @@ export class LeadFormComponent {
   submitted = false;
   submitting = false;
 
-  submitError: string | null = null;
+  submitError: string | null =
+    null;
 
   get fullName() {
-    return this.form.controls.fullName;
+    return this.form.controls
+      .fullName;
+  }
+
+  get countryCode() {
+    return this.form.controls
+      .countryCode;
   }
 
   get whatsapp() {
-    return this.form.controls.whatsapp;
+    return this.form.controls
+      .whatsapp;
   }
 
   get email() {
@@ -303,19 +492,23 @@ export class LeadFormComponent {
   }
 
   get perceivedLevel() {
-    return this.form.controls.perceivedLevel;
+    return this.form.controls
+      .perceivedLevel;
   }
 
   get studyDuration() {
-    return this.form.controls.studyDuration;
+    return this.form.controls
+      .studyDuration;
   }
 
   get previousSchool() {
-    return this.form.controls.previousSchool;
+    return this.form.controls
+      .previousSchool;
   }
 
   get mainGoal() {
-    return this.form.controls.mainGoal;
+    return this.form.controls
+      .mainGoal;
   }
 
   get preferredModality() {
@@ -328,12 +521,35 @@ export class LeadFormComponent {
       .availabilityPeriod;
   }
 
+  get isBrazil(): boolean {
+    return (
+      this.countryCode.value ===
+      '+55'
+    );
+  }
+
+  get whatsappPlaceholder():
+    string {
+    return this.isBrazil
+      ? '(00) 00000-0000'
+      : 'Número do WhatsApp';
+  }
+
+  get whatsappMaxLength():
+    number {
+    return this.isBrazil
+      ? 15
+      : 18;
+  }
+
   isInvalid(
     controlName:
       keyof typeof this.form.controls,
   ): boolean {
     const control =
-      this.form.controls[controlName];
+      this.form.controls[
+        controlName
+      ];
 
     return (
       control.invalid &&
@@ -344,6 +560,32 @@ export class LeadFormComponent {
     );
   }
 
+  onCountryCodeChange(): void {
+    const digits =
+      this.normalizeWhatsapp(
+        this.whatsapp.value,
+      );
+
+    const formattedValue =
+      this.isBrazil
+        ? this.formatBrazilWhatsapp(
+            digits,
+          )
+        : digits;
+
+    this.whatsapp.setValue(
+      formattedValue,
+      {
+        emitEvent: false,
+      },
+    );
+
+    this.whatsapp
+      .updateValueAndValidity({
+        emitEvent: false,
+      });
+  }
+
   onWhatsappInput(
     event: Event,
   ): void {
@@ -351,9 +593,13 @@ export class LeadFormComponent {
       event.target as HTMLInputElement;
 
     const formattedValue =
-      this.formatWhatsapp(
-        input.value,
-      );
+      this.isBrazil
+        ? this.formatBrazilWhatsapp(
+            input.value,
+          )
+        : this.formatInternationalWhatsapp(
+            input.value,
+          );
 
     this.whatsapp.setValue(
       formattedValue,
@@ -364,6 +610,11 @@ export class LeadFormComponent {
 
     input.value =
       formattedValue;
+
+    this.whatsapp
+      .updateValueAndValidity({
+        emitEvent: false,
+      });
   }
 
   onEmailBlur(): void {
@@ -379,17 +630,19 @@ export class LeadFormComponent {
       },
     );
 
-    this.email.updateValueAndValidity({
-      emitEvent: false,
-    });
+    this.email
+      .updateValueAndValidity({
+        emitEvent: false,
+      });
   }
 
-  private formatWhatsapp(
+  private formatBrazilWhatsapp(
     value: string,
   ): string {
     const digits =
-      this.normalizeWhatsapp(value)
-        .slice(0, 11);
+      this.normalizeWhatsapp(
+        value,
+      ).slice(0, 11);
 
     if (!digits) {
       return '';
@@ -406,7 +659,10 @@ export class LeadFormComponent {
       digits.slice(2);
 
     if (phone.length <= 4) {
-      return `(${areaCode}) ${phone}`;
+      return (
+        `(${areaCode}) ` +
+        phone
+      );
     }
 
     if (digits.length <= 10) {
@@ -432,6 +688,31 @@ export class LeadFormComponent {
       : `(${areaCode}) ${firstPart}`;
   }
 
+  private formatInternationalWhatsapp(
+    value: string,
+  ): string {
+    const digits =
+      this.normalizeWhatsapp(
+        value,
+      );
+
+    const dialCodeDigits =
+      this.countryCode.value
+        .replace(
+          /\D/g,
+          '',
+        );
+
+    const maxNationalLength =
+      15 -
+      dialCodeDigits.length;
+
+    return digits.slice(
+      0,
+      maxNationalLength,
+    );
+  }
+
   private normalizeWhatsapp(
     value: string,
   ): string {
@@ -449,6 +730,27 @@ export class LeadFormComponent {
       .toLowerCase();
   }
 
+  private buildInternationalWhatsapp(
+    countryCode: string,
+    whatsapp: string,
+  ): string {
+    const dialCode =
+      countryCode.replace(
+        /\D/g,
+        '',
+      );
+
+    const nationalNumber =
+      this.normalizeWhatsapp(
+        whatsapp,
+      );
+
+    return (
+      `+${dialCode}` +
+      nationalNumber
+    );
+  }
+
   async onSubmit(): Promise<void> {
     if (this.submitting) {
       return;
@@ -459,8 +761,14 @@ export class LeadFormComponent {
 
     this.onEmailBlur();
 
+    this.whatsapp
+      .updateValueAndValidity({
+        emitEvent: false,
+      });
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+
       return;
     }
 
@@ -474,14 +782,20 @@ export class LeadFormComponent {
       const formValue =
         this.form.getRawValue();
 
+      const {
+        countryCode,
+        ...registrationFormValue
+      } = formValue;
+
       const registrationData = {
-        ...formValue,
+        ...registrationFormValue,
 
         fullName:
           formValue.fullName.trim(),
 
         whatsapp:
-          this.normalizeWhatsapp(
+          this.buildInternationalWhatsapp(
+            countryCode,
             formValue.whatsapp,
           ),
 
@@ -491,7 +805,8 @@ export class LeadFormComponent {
           ),
 
         previousSchool:
-          formValue.previousSchool.trim(),
+          formValue.previousSchool
+            .trim(),
       };
 
       const result =
@@ -518,11 +833,14 @@ export class LeadFormComponent {
       }
 
       await this.router.navigate(
-        ['/teste/perguntas'],
+        [
+          '/teste/perguntas',
+        ],
         {
           queryParams: {
             testId:
               result.testId,
+
             attemptId:
               result.attemptId,
           },

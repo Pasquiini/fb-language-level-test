@@ -70,6 +70,12 @@ export class TestQuestionsComponent
   readonly error =
     signal<string | null>(null);
 
+  readonly saveError =
+    signal<string | null>(null);
+
+  readonly saveSuccess =
+    signal<string | null>(null);
+
   readonly currentQuestion =
     computed(
       () =>
@@ -128,8 +134,11 @@ export class TestQuestionsComponent
       );
     });
 
-  private testId: string | null = null;
-  private attemptId: string | null = null;
+  private testId: string | null =
+    null;
+
+  private attemptId: string | null =
+    null;
 
   async ngOnInit(): Promise<void> {
     this.testId =
@@ -148,6 +157,7 @@ export class TestQuestionsComponent
       );
 
       this.loading.set(false);
+
       return;
     }
 
@@ -157,17 +167,30 @@ export class TestQuestionsComponent
       );
 
       this.loading.set(false);
+
       return;
     }
 
     try {
-      const questions =
-        await this.questionService
-          .getGrammarQuestions(
-            this.testId,
-          );
+      const [
+        questions,
+        existingAnswers,
+      ] =
+        await Promise.all([
+          this.questionService
+            .getGrammarQuestions(
+              this.testId,
+            ),
 
-      if (questions.length === 0) {
+          this.testAnswerService
+            .getAnswers(
+              this.attemptId,
+            ),
+        ]);
+
+      if (
+        questions.length === 0
+      ) {
         this.error.set(
           'Nenhuma questão foi encontrada para este teste.',
         );
@@ -177,6 +200,23 @@ export class TestQuestionsComponent
 
       this.questions.set(
         questions,
+      );
+
+      const grammarAnswers =
+        this.filterAnswersForQuestions(
+          questions,
+          existingAnswers,
+        );
+
+      this.selectedAnswers.set(
+        grammarAnswers,
+      );
+
+      this.currentIndex.set(
+        this.findResumeIndex(
+          questions,
+          grammarAnswers,
+        ),
       );
     } catch (error) {
       console.error(
@@ -197,6 +237,10 @@ export class TestQuestionsComponent
   selectAnswer(
     optionId: string,
   ): void {
+    if (this.saving()) {
+      return;
+    }
+
     const question =
       this.currentQuestion();
 
@@ -204,9 +248,13 @@ export class TestQuestionsComponent
       return;
     }
 
+    this.saveError.set(null);
+    this.saveSuccess.set(null);
+
     this.selectedAnswers.update(
       (answers) => ({
         ...answers,
+
         [question.id]:
           optionId,
       }),
@@ -221,6 +269,9 @@ export class TestQuestionsComponent
       return;
     }
 
+    this.saveError.set(null);
+    this.saveSuccess.set(null);
+
     this.currentIndex.update(
       (index) => index - 1,
     );
@@ -229,21 +280,20 @@ export class TestQuestionsComponent
   }
 
   async nextQuestion(): Promise<void> {
-    if (!this.currentAnswer()) {
-      return;
-    }
-
     if (this.saving()) {
       return;
     }
 
-    if (!this.isLastQuestion()) {
-      this.currentIndex.update(
-        (index) => index + 1,
-      );
+    const question =
+      this.currentQuestion();
 
-      this.scrollToTop();
+    const answer =
+      this.currentAnswer();
 
+    if (
+      !question ||
+      !answer
+    ) {
       return;
     }
 
@@ -251,7 +301,7 @@ export class TestQuestionsComponent
       !this.testId ||
       !this.attemptId
     ) {
-      this.error.set(
+      this.saveError.set(
         'Não foi possível identificar a tentativa atual.',
       );
 
@@ -259,40 +309,119 @@ export class TestQuestionsComponent
     }
 
     this.saving.set(true);
-    this.error.set(null);
+    this.saveError.set(null);
+    this.saveSuccess.set(null);
 
     try {
       await this.testAnswerService
         .saveAnswers(
           this.attemptId,
-          this.selectedAnswers(),
+          {
+            [question.id]:
+              answer,
+          },
         );
 
-      await this.router.navigate(
-        ['/teste/listening'],
-        {
-          queryParams: {
-            testId:
-              this.testId,
-            attemptId:
-              this.attemptId,
+      if (this.isLastQuestion()) {
+        await this.router.navigate(
+          ['/teste/listening'],
+          {
+            queryParams: {
+              testId:
+                this.testId,
+
+              attemptId:
+                this.attemptId,
+            },
           },
-        },
+        );
+
+        return;
+      }
+
+      this.currentIndex.update(
+        (index) => index + 1,
       );
+
+      this.saveSuccess.set(
+        'Resposta salva.',
+      );
+
+      this.scrollToTop();
     } catch (error) {
       console.error(
-        'Could not save grammar answers:',
+        'Could not save grammar answer:',
         error,
       );
 
-      this.error.set(
+      this.saveError.set(
         error instanceof Error
           ? error.message
-          : 'Não foi possível salvar suas respostas.',
+          : 'Não foi possível salvar sua resposta. Tente novamente.',
       );
     } finally {
       this.saving.set(false);
     }
+  }
+
+  private filterAnswersForQuestions(
+    questions: TestQuestionItem[],
+    answers: Record<string, string>,
+  ): Record<string, string> {
+    const questionIds =
+      new Set(
+        questions.map(
+          (question) =>
+            question.id,
+        ),
+      );
+
+    const filteredAnswers:
+      Record<string, string> = {};
+
+    for (
+      const [
+        questionId,
+        selectedOptionId,
+      ] of Object.entries(answers)
+    ) {
+      if (
+        questionIds.has(
+          questionId,
+        )
+      ) {
+        filteredAnswers[
+          questionId
+        ] =
+          selectedOptionId;
+      }
+    }
+
+    return filteredAnswers;
+  }
+
+  private findResumeIndex(
+    questions: TestQuestionItem[],
+    answers: Record<string, string>,
+  ): number {
+    const unansweredIndex =
+      questions.findIndex(
+        (question) =>
+          !answers[
+            question.id
+          ],
+      );
+
+    if (
+      unansweredIndex !== -1
+    ) {
+      return unansweredIndex;
+    }
+
+    return Math.max(
+      questions.length - 1,
+      0,
+    );
   }
 
   private scrollToTop(): void {

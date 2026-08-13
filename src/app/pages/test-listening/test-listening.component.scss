@@ -194,6 +194,51 @@
   background: var(--fb-brown);
 }
 
+.save-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.7rem;
+  font-size: 0.82rem;
+
+  > i {
+    flex: 0 0 auto;
+    margin-top: 0.05rem;
+  }
+
+  strong {
+    display: block;
+  }
+
+  p {
+    margin: 0.2rem 0 0;
+    line-height: 1.5;
+  }
+}
+
+.save-message--error {
+  background:
+    rgba(183, 68, 56, 0.06);
+  border: 1px solid
+    rgba(183, 68, 56, 0.2);
+  color: #8f3028;
+}
+
+.save-message--success {
+  align-items: center;
+  background:
+    rgba(69, 69, 28, 0.06);
+  border: 1px solid
+    rgba(69, 69, 28, 0.16);
+  color: var(--fb-olive-dark);
+
+  i {
+    color: var(--fb-olive);
+  }
+}
+
 .question-card {
   padding: 1.5rem;
   background: var(--fb-white);
@@ -249,7 +294,8 @@
   cursor: pointer;
   transition:
     border-color 0.2s ease,
-    background-color 0.2s ease;
+    background-color 0.2s ease,
+    opacity 0.2s ease;
 
   &:hover {
     border-color:
@@ -267,6 +313,12 @@
     outline: 3px solid
       rgba(197, 154, 91, 0.4);
     outline-offset: 2px;
+  }
+
+  &:has(input:disabled) {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 }
 
@@ -301,17 +353,55 @@
   line-height: 1.45;
 }
 
+.saving-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  min-height: 1.5rem;
+  margin-top: 0.85rem;
+  color: var(--fb-gray);
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  .spinner-border {
+    width: 0.85rem;
+    height: 0.85rem;
+    border-width: 0.1rem;
+  }
+}
+
 .question-actions {
   display: flex;
   justify-content: space-between;
   gap: 0.75rem;
   margin-top: 1.5rem;
 
-  .fb-button:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-    pointer-events: none;
+  .fb-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .spinner-border {
+      width: 0.9rem;
+      height: 0.9rem;
+      border-width: 0.1rem;
+    }
   }
+}
+
+.question-help {
+  margin: 1rem 0 0;
+  color: var(--fb-gray);
+  font-size: 0.75rem;
+  text-align: center;
 }
 
 .state-section {
@@ -357,5 +447,19 @@
   .audio-panel__status {
     flex-direction: row;
     justify-content: space-between;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .question-actions {
+    flex-direction: column-reverse;
+
+    .fb-button {
+      width: 100%;
+    }
+  }
+
+  .saving-status {
+    justify-content: center;
   }
 }

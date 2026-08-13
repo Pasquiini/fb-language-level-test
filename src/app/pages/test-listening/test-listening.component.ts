@@ -73,6 +73,12 @@ export class TestListeningComponent
   readonly error =
     signal<string | null>(null);
 
+  readonly saveError =
+    signal<string | null>(null);
+
+  readonly saveSuccess =
+    signal<string | null>(null);
+
   readonly playCount =
     signal(0);
 
@@ -170,6 +176,7 @@ export class TestListeningComponent
       );
 
       this.loading.set(false);
+
       return;
     }
 
@@ -179,15 +186,36 @@ export class TestListeningComponent
       );
 
       this.loading.set(false);
+
       return;
     }
 
     try {
-      const data =
-        await this.questionService
-          .getListeningQuestions(
-            this.testId,
-          );
+      const [
+        data,
+        existingAnswers,
+      ] =
+        await Promise.all([
+          this.questionService
+            .getListeningQuestions(
+              this.testId,
+            ),
+
+          this.testAnswerService
+            .getAnswers(
+              this.attemptId,
+            ),
+        ]);
+
+      if (
+        data.questions.length === 0
+      ) {
+        this.error.set(
+          'Nenhuma questão de listening foi encontrada.',
+        );
+
+        return;
+      }
 
       this.questions.set(
         data.questions,
@@ -195,6 +223,23 @@ export class TestListeningComponent
 
       this.audioUrl.set(
         data.audioUrl,
+      );
+
+      const listeningAnswers =
+        this.filterAnswersForQuestions(
+          data.questions,
+          existingAnswers,
+        );
+
+      this.selectedAnswers.set(
+        listeningAnswers,
+      );
+
+      this.currentIndex.set(
+        this.findResumeIndex(
+          data.questions,
+          listeningAnswers,
+        ),
       );
     } catch (error) {
       console.error(
@@ -215,6 +260,10 @@ export class TestListeningComponent
   selectAnswer(
     optionId: string,
   ): void {
+    if (this.saving()) {
+      return;
+    }
+
     const question =
       this.currentQuestion();
 
@@ -222,9 +271,13 @@ export class TestListeningComponent
       return;
     }
 
+    this.saveError.set(null);
+    this.saveSuccess.set(null);
+
     this.selectedAnswers.update(
       (answers) => ({
         ...answers,
+
         [question.id]:
           optionId,
       }),
@@ -295,6 +348,9 @@ export class TestListeningComponent
       return;
     }
 
+    this.saveError.set(null);
+    this.saveSuccess.set(null);
+
     this.currentIndex.update(
       (index) => index - 1,
     );
@@ -303,21 +359,20 @@ export class TestListeningComponent
   }
 
   async nextQuestion(): Promise<void> {
-    if (!this.currentAnswer()) {
-      return;
-    }
-
     if (this.saving()) {
       return;
     }
 
-    if (!this.isLastQuestion()) {
-      this.currentIndex.update(
-        (index) => index + 1,
-      );
+    const question =
+      this.currentQuestion();
 
-      this.scrollToQuestion();
+    const answer =
+      this.currentAnswer();
 
+    if (
+      !question ||
+      !answer
+    ) {
       return;
     }
 
@@ -325,7 +380,7 @@ export class TestListeningComponent
       !this.testId ||
       !this.attemptId
     ) {
-      this.error.set(
+      this.saveError.set(
         'Não foi possível identificar a tentativa atual.',
       );
 
@@ -333,40 +388,119 @@ export class TestListeningComponent
     }
 
     this.saving.set(true);
-    this.error.set(null);
+    this.saveError.set(null);
+    this.saveSuccess.set(null);
 
     try {
       await this.testAnswerService
         .saveAnswers(
           this.attemptId,
-          this.selectedAnswers(),
+          {
+            [question.id]:
+              answer,
+          },
         );
 
-      await this.router.navigate(
-        ['/teste/speaking'],
-        {
-          queryParams: {
-            testId:
-              this.testId,
-            attemptId:
-              this.attemptId,
+      if (this.isLastQuestion()) {
+        await this.router.navigate(
+          ['/teste/speaking'],
+          {
+            queryParams: {
+              testId:
+                this.testId,
+
+              attemptId:
+                this.attemptId,
+            },
           },
-        },
+        );
+
+        return;
+      }
+
+      this.currentIndex.update(
+        (index) => index + 1,
       );
+
+      this.saveSuccess.set(
+        'Resposta salva.',
+      );
+
+      this.scrollToQuestion();
     } catch (error) {
       console.error(
-        'Could not save listening answers:',
+        'Could not save listening answer:',
         error,
       );
 
-      this.error.set(
+      this.saveError.set(
         error instanceof Error
           ? error.message
-          : 'Não foi possível salvar suas respostas.',
+          : 'Não foi possível salvar sua resposta. Tente novamente.',
       );
     } finally {
       this.saving.set(false);
     }
+  }
+
+  private filterAnswersForQuestions(
+    questions: TestQuestionItem[],
+    answers: Record<string, string>,
+  ): Record<string, string> {
+    const questionIds =
+      new Set(
+        questions.map(
+          (question) =>
+            question.id,
+        ),
+      );
+
+    const filteredAnswers:
+      Record<string, string> = {};
+
+    for (
+      const [
+        questionId,
+        selectedOptionId,
+      ] of Object.entries(answers)
+    ) {
+      if (
+        questionIds.has(
+          questionId,
+        )
+      ) {
+        filteredAnswers[
+          questionId
+        ] =
+          selectedOptionId;
+      }
+    }
+
+    return filteredAnswers;
+  }
+
+  private findResumeIndex(
+    questions: TestQuestionItem[],
+    answers: Record<string, string>,
+  ): number {
+    const unansweredIndex =
+      questions.findIndex(
+        (question) =>
+          !answers[
+            question.id
+          ],
+      );
+
+    if (
+      unansweredIndex !== -1
+    ) {
+      return unansweredIndex;
+    }
+
+    return Math.max(
+      questions.length - 1,
+      0,
+    );
   }
 
   private scrollToQuestion(): void {

@@ -77,7 +77,8 @@ export class TestRegistrationService {
         };
       }
 
-      const user = this.auth.user();
+      const user =
+        this.auth.user();
 
       if (!user) {
         return {
@@ -98,15 +99,24 @@ export class TestRegistrationService {
       } = await this.supabase.client
         .from('profiles')
         .update({
-          full_name: data.fullName.trim(),
-          email: data.email
-            .trim()
-            .toLowerCase(),
-          whatsapp: data.whatsapp.trim(),
+          full_name:
+            data.fullName.trim(),
+
+          email:
+            data.email
+              .trim()
+              .toLowerCase(),
+
+          whatsapp:
+            data.whatsapp.trim(),
+
           updated_at:
             new Date().toISOString(),
         })
-        .eq('id', user.id);
+        .eq(
+          'id',
+          user.id,
+        );
 
       if (profileError) {
         throw new Error(
@@ -125,24 +135,34 @@ export class TestRegistrationService {
         .from('student_profiles')
         .upsert(
           {
-            user_id: user.id,
+            user_id:
+              user.id,
+
             perceived_level:
               data.perceivedLevel,
+
             study_duration:
               data.studyDuration,
+
             previous_school:
-              data.previousSchool.trim() || null,
+              data.previousSchool.trim() ||
+              null,
+
             main_goal:
               data.mainGoal,
+
             preferred_modality:
               data.preferredModality,
+
             availability_period:
               data.availabilityPeriod,
+
             updated_at:
               new Date().toISOString(),
           },
           {
-            onConflict: 'user_id',
+            onConflict:
+              'user_id',
           },
         );
 
@@ -168,7 +188,37 @@ export class TestRegistrationService {
       }
 
       /*
-       * 5. Cria a tentativa.
+       * 5. Verifica se já existe uma tentativa
+       * aberta para este aluno + teste.
+       *
+       * Não dependemos do valor textual do enum status.
+       * Consideramos aberta uma tentativa que ainda
+       * não possui submitted_at nem completed_at.
+       */
+      const existingAttempt =
+        await this.testRepository
+          .getOpenAttempt(
+            user.id,
+            activeTest.id,
+          );
+
+      if (existingAttempt) {
+        await this.auth.refreshProfile();
+
+        return {
+          success: true,
+          message:
+            'Seus dados foram atualizados. Vamos continuar sua avaliação.',
+          attemptId:
+            existingAttempt.id,
+          testId:
+            existingAttempt.testId,
+        };
+      }
+
+      /*
+       * 6. Nenhuma tentativa aberta foi encontrada.
+       * Cria uma nova tentativa.
        *
        * id, status, started_at, created_at
        * e updated_at são definidos pelo banco.
@@ -179,8 +229,11 @@ export class TestRegistrationService {
       } = await this.supabase.client
         .from('test_attempts')
         .insert({
-          test_id: activeTest.id,
-          student_id: user.id,
+          test_id:
+            activeTest.id,
+
+          student_id:
+            user.id,
         })
         .select(`
           id,
@@ -197,8 +250,9 @@ export class TestRegistrationService {
       }
 
       /*
-       * Atualiza o Signal de perfil do AuthService
-       * com nome, e-mail e WhatsApp recém-gravados.
+       * 7. Atualiza o Signal de perfil
+       * do AuthService com os dados
+       * recém-gravados.
        */
       await this.auth.refreshProfile();
 
@@ -206,8 +260,10 @@ export class TestRegistrationService {
         success: true,
         message:
           'Cadastro concluído e teste iniciado.',
-        attemptId: attempt.id,
-        testId: attempt.test_id,
+        attemptId:
+          attempt.id,
+        testId:
+          attempt.test_id,
       };
     } catch (error) {
       console.error(

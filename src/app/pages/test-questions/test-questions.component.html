@@ -15,7 +15,10 @@
           </span>
         </div>
 
-        @if (!loading() && questions().length > 0) {
+        @if (
+          !loading() &&
+          questions().length > 0
+        ) {
           <span class="test-header__counter">
             Questão
             {{ currentIndex() + 1 }}
@@ -76,7 +79,10 @@
     @if (currentQuestion(); as question) {
       <section class="question-section">
         <div class="container">
-          <div class="question-layout">
+          <div
+            class="question-layout"
+            [attr.aria-busy]="saving()"
+          >
             <div class="question-progress">
               <div class="question-progress__info">
                 <span>
@@ -106,6 +112,46 @@
               </div>
             </div>
 
+            @if (saveError()) {
+              <div
+                class="save-message save-message--error"
+                role="alert"
+                aria-live="assertive"
+              >
+                <i
+                  class="bi bi-exclamation-circle"
+                  aria-hidden="true"
+                ></i>
+
+                <div>
+                  <strong>
+                    Sua resposta não foi salva.
+                  </strong>
+
+                  <p>
+                    {{ saveError() }}
+                  </p>
+                </div>
+              </div>
+            }
+
+            @if (saveSuccess()) {
+              <div
+                class="save-message save-message--success"
+                role="status"
+                aria-live="polite"
+              >
+                <i
+                  class="bi bi-check-circle"
+                  aria-hidden="true"
+                ></i>
+
+                <span>
+                  {{ saveSuccess() }}
+                </span>
+              </div>
+            }
+
             <article class="question-card">
               <div class="question-card__meta">
                 <span>
@@ -124,7 +170,10 @@
                 {{ question.statement }}
               </h1>
 
-              <fieldset class="answer-list">
+              <fieldset
+                class="answer-list"
+                [disabled]="saving()"
+              >
                 <legend class="visually-hidden">
                   Escolha uma alternativa
                 </legend>
@@ -146,6 +195,7 @@
                       [checked]="
                         currentAnswer() === option.id
                       "
+                      [disabled]="saving()"
                       (change)="
                         selectAnswer(option.id)
                       "
@@ -167,11 +217,31 @@
               </fieldset>
             </article>
 
+            @if (saving()) {
+              <div
+                class="saving-status"
+                role="status"
+                aria-live="polite"
+              >
+                <span
+                  class="spinner-border spinner-border-sm"
+                  aria-hidden="true"
+                ></span>
+
+                <span>
+                  Salvando sua resposta...
+                </span>
+              </div>
+            }
+
             <div class="question-actions">
               <button
                 type="button"
                 class="fb-button fb-button--outline"
-                [disabled]="isFirstQuestion()"
+                [disabled]="
+                  isFirstQuestion() ||
+                  saving()
+                "
                 (click)="previousQuestion()"
               >
                 <i
@@ -185,25 +255,49 @@
               <button
                 type="button"
                 class="fb-button fb-button--primary"
-                [disabled]="!currentAnswer()"
+                [disabled]="
+                  !currentAnswer() ||
+                  saving()
+                "
                 (click)="nextQuestion()"
               >
-                @if (isLastQuestion()) {
-                  Continuar para o listening
-                } @else {
-                  Próxima questão
-                }
+                @if (saving()) {
+                  <span
+                    class="spinner-border spinner-border-sm"
+                    aria-hidden="true"
+                  ></span>
 
-                <i
-                  class="bi bi-arrow-right"
-                  aria-hidden="true"
-                ></i>
+                  <span>
+                    Salvando...
+                  </span>
+                } @else if (
+                  isLastQuestion()
+                ) {
+                  <span>
+                    Continuar para o listening
+                  </span>
+
+                  <i
+                    class="bi bi-arrow-right"
+                    aria-hidden="true"
+                  ></i>
+                } @else {
+                  <span>
+                    Próxima questão
+                  </span>
+
+                  <i
+                    class="bi bi-arrow-right"
+                    aria-hidden="true"
+                  ></i>
+                }
               </button>
             </div>
 
             <p class="question-help">
               Você pode voltar às questões anteriores
               enquanto estiver nesta etapa.
+              Suas respostas são salvas ao avançar.
             </p>
           </div>
         </div>

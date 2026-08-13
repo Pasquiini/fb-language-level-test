@@ -13,17 +13,13 @@
       aria-label="FB Language Center, página inicial"
       (click)="closeMenu()"
     >
-      <span
-        class="site-header__brand-mark"
-        aria-hidden="true"
+      <img
+        class="site-header__logo"
+        src="/images/logo.jpeg"
+        alt="FB Language Center"
+        width="160"
+        height="64"
       >
-        FB
-      </span>
-
-      <span class="site-header__brand-copy">
-        <strong>FB Language</strong>
-        <span>Center</span>
-      </span>
     </a>
 
     <nav
@@ -127,7 +123,9 @@
               <button
                 class="site-header__mobile-link"
                 type="button"
-                [attr.tabindex]="isMenuOpen() ? 0 : -1"
+                [attr.tabindex]="
+                  isMenuOpen() ? 0 : -1
+                "
                 (click)="
                   navigateToSection(
                     item.route,
@@ -146,7 +144,9 @@
               <a
                 class="site-header__mobile-link"
                 [routerLink]="item.route"
-                [attr.tabindex]="isMenuOpen() ? 0 : -1"
+                [attr.tabindex]="
+                  isMenuOpen() ? 0 : -1
+                "
                 (click)="closeMenu()"
               >
                 {{ item.label }}
@@ -164,7 +164,9 @@
       <a
         class="fb-button fb-button--primary fb-button--block"
         routerLink="/teste"
-        [attr.tabindex]="isMenuOpen() ? 0 : -1"
+        [attr.tabindex]="
+          isMenuOpen() ? 0 : -1
+        "
         (click)="closeMenu()"
       >
         Começar teste

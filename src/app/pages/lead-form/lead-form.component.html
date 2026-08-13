@@ -1,8 +1,17 @@
-<main class="lead-form-page" id="main-content">
-  <section class="lead-form-hero">
+<main
+  class="lead-form-page"
+  id="main-content"
+>
+  <section
+    class="lead-form-hero"
+  >
     <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-xl-9 col-lg-10">
+      <div
+        class="row justify-content-center"
+      >
+        <div
+          class="col-xl-9 col-lg-10"
+        >
           <a
             routerLink="/teste"
             class="back-link"
@@ -29,9 +38,11 @@
             </h1>
 
             <p>
-              Essas informações nos ajudam a entender
-              seu momento com o inglês e tornam sua
-              avaliação mais personalizada.
+              Essas informações nos
+              ajudam a entender seu
+              momento com o inglês e
+              tornam sua avaliação mais
+              personalizada.
             </p>
           </div>
         </div>
@@ -44,18 +55,28 @@
     aria-labelledby="form-title"
   >
     <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-xl-9 col-lg-10">
+      <div
+        class="row justify-content-center"
+      >
+        <div
+          class="col-xl-9 col-lg-10"
+        >
           <form
             class="lead-form"
             [formGroup]="form"
             (ngSubmit)="onSubmit()"
             novalidate
-            [attr.aria-busy]="submitting"
+            [attr.aria-busy]="
+              submitting
+            "
           >
             <div class="form-block">
-              <div class="block-heading">
-                <span class="block-number">
+              <div
+                class="block-heading"
+              >
+                <span
+                  class="block-number"
+                >
                   01
                 </span>
 
@@ -65,9 +86,12 @@
                   </h2>
 
                   <p>
-                    Vamos usar essas informações para
-                    identificar sua avaliação e entrar
-                    em contato, se necessário.
+                    Vamos usar essas
+                    informações para
+                    identificar sua
+                    avaliação e entrar
+                    em contato, se
+                    necessário.
                   </p>
                 </div>
               </div>
@@ -89,33 +113,51 @@
                     autocomplete="name"
                     placeholder="Como você gostaria de ser chamado?"
                     [class.is-invalid]="
-                      isInvalid('fullName')
+                      isInvalid(
+                        'fullName'
+                      )
                     "
                     aria-describedby="fullNameError"
                   >
 
-                  @if (isInvalid('fullName')) {
+                  @if (
+                    isInvalid(
+                      'fullName'
+                    )
+                  ) {
                     <div
                       id="fullNameError"
                       class="invalid-feedback"
                       role="alert"
                     >
                       @if (
-                        fullName.hasError('required')
+                        fullName
+                          .hasError(
+                            'required'
+                          )
                       ) {
-                        Informe seu nome completo.
+                        Informe seu nome
+                        completo.
                       } @else if (
-                        fullName.hasError('minlength')
+                        fullName
+                          .hasError(
+                            'minlength'
+                          )
                       ) {
-                        Informe pelo menos 3 caracteres.
+                        Informe pelo
+                        menos 3
+                        caracteres.
                       } @else {
-                        O nome informado é muito longo.
+                        O nome informado
+                        é muito longo.
                       }
                     </div>
                   }
                 </div>
 
-                <div class="col-md-6">
+                <div
+                  class="col-md-6"
+                >
                   <label
                     for="whatsapp"
                     class="form-label"
@@ -123,56 +165,150 @@
                     WhatsApp
                   </label>
 
-                  <input
-                    id="whatsapp"
-                    type="tel"
-                    class="form-control"
-                    formControlName="whatsapp"
-                    autocomplete="tel"
-                    inputmode="numeric"
-                    maxlength="15"
-                    placeholder="(00) 00000-0000"
-                    (input)="onWhatsappInput($event)"
-                    [class.is-invalid]="
-                      isInvalid('whatsapp')
+                  <div
+                    class="phone-field"
+                    [class.phone-field--invalid]="
+                      isInvalid(
+                        'whatsapp'
+                      )
                     "
-                    aria-describedby="whatsappHelp whatsappError"
                   >
+                    <div
+                      class="phone-field__country"
+                    >
+                      <label
+                        for="countryCode"
+                        class="visually-hidden"
+                      >
+                        País e DDI
+                      </label>
+
+                      <select
+                        id="countryCode"
+                        class="phone-country-select"
+                        formControlName="countryCode"
+                        autocomplete="tel-country-code"
+                        aria-label="País e código internacional"
+                        (change)="
+                          onCountryCodeChange()
+                        "
+                      >
+                        @for (
+                          country of
+                            countryOptions;
+                          track country.code
+                        ) {
+                          <option
+                            [value]="
+                              country.dialCode
+                            "
+                          >
+                            {{
+                              country.flag
+                            }}
+                            {{
+                              country.name
+                            }}
+                            {{
+                              country.dialCode
+                            }}
+                          </option>
+                        }
+                      </select>
+                    </div>
+
+                    <div
+                      class="phone-field__number"
+                    >
+                      <input
+                        id="whatsapp"
+                        type="tel"
+                        class="phone-number-input"
+                        formControlName="whatsapp"
+                        autocomplete="tel-national"
+                        inputmode="numeric"
+                        [attr.maxlength]="
+                          whatsappMaxLength
+                        "
+                        [placeholder]="
+                          whatsappPlaceholder
+                        "
+                        (input)="
+                          onWhatsappInput(
+                            $event
+                          )
+                        "
+                        aria-describedby="whatsappHelp whatsappError"
+                      >
+                    </div>
+                  </div>
 
                   <div
                     id="whatsappHelp"
                     class="form-text"
                   >
-                    Informe o DDD e o número do
-                    WhatsApp.
+                    @if (isBrazil) {
+                      Informe o DDD e o
+                      número do WhatsApp.
+                      O código +55 será
+                      adicionado
+                      automaticamente.
+                    } @else {
+                      Informe somente o
+                      número nacional,
+                      sem repetir o DDI.
+                    }
                   </div>
 
-                  @if (isInvalid('whatsapp')) {
+                  @if (
+                    isInvalid(
+                      'whatsapp'
+                    )
+                  ) {
                     <div
                       id="whatsappError"
-                      class="invalid-feedback"
+                      class="phone-error"
                       role="alert"
                     >
                       @if (
-                        whatsapp.hasError('required')
+                        whatsapp
+                          .hasError(
+                            'required'
+                          )
                       ) {
-                        Informe seu WhatsApp.
+                        Informe seu
+                        WhatsApp.
                       } @else if (
-                        whatsapp.hasError(
-                          'whatsappLength'
-                        )
+                        whatsapp
+                          .hasError(
+                            'whatsappLength'
+                          )
                       ) {
-                        Informe o DDD e um número com
-                        8 ou 9 dígitos.
+                        Informe o DDD e
+                        um número com 8
+                        ou 9 dígitos.
+                      } @else if (
+                        whatsapp
+                          .hasError(
+                            'internationalWhatsappLength'
+                          )
+                      ) {
+                        Informe um
+                        número compatível
+                        com o país
+                        selecionado.
                       } @else {
-                        Informe um número de WhatsApp
-                        válido.
+                        Informe um
+                        número de
+                        WhatsApp válido.
                       }
                     </div>
                   }
                 </div>
 
-                <div class="col-md-6">
+                <div
+                  class="col-md-6"
+                >
                   <label
                     for="email"
                     class="form-label"
@@ -189,36 +325,57 @@
                     inputmode="email"
                     maxlength="160"
                     placeholder="voce@email.com"
-                    (blur)="onEmailBlur()"
+                    (blur)="
+                      onEmailBlur()
+                    "
                     [class.is-invalid]="
-                      isInvalid('email')
+                      isInvalid(
+                        'email'
+                      )
                     "
                     aria-describedby="emailError"
                   >
 
-                  @if (isInvalid('email')) {
+                  @if (
+                    isInvalid(
+                      'email'
+                    )
+                  ) {
                     <div
                       id="emailError"
                       class="invalid-feedback"
                       role="alert"
                     >
                       @if (
-                        email.hasError('required')
+                        email
+                          .hasError(
+                            'required'
+                          )
                       ) {
-                        Informe seu e-mail.
+                        Informe seu
+                        e-mail.
                       } @else if (
-                        email.hasError('whitespace')
+                        email
+                          .hasError(
+                            'whitespace'
+                          )
                       ) {
-                        O e-mail não pode conter
+                        O e-mail não
+                        pode conter
                         espaços.
                       } @else if (
-                        email.hasError('maxlength')
+                        email
+                          .hasError(
+                            'maxlength'
+                          )
                       ) {
-                        O e-mail informado é muito
-                        longo.
+                        O e-mail
+                        informado é
+                        muito longo.
                       } @else {
-                        Informe um endereço de e-mail
-                        válido.
+                        Informe um
+                        endereço de
+                        e-mail válido.
                       }
                     </div>
                   }
@@ -227,32 +384,41 @@
             </div>
 
             <div class="form-block">
-              <div class="block-heading">
-                <span class="block-number">
+              <div
+                class="block-heading"
+              >
+                <span
+                  class="block-number"
+                >
                   02
                 </span>
 
                 <div>
                   <h2>
-                    Sua relação com o inglês
+                    Sua relação com o
+                    inglês
                   </h2>
 
                   <p>
-                    Não existe resposta certa aqui.
-                    Queremos apenas conhecer seu
-                    histórico antes da avaliação.
+                    Não existe resposta
+                    certa aqui. Queremos
+                    apenas conhecer seu
+                    histórico antes da
+                    avaliação.
                   </p>
                 </div>
               </div>
 
               <div class="row g-4">
-                <div class="col-md-6">
+                <div
+                  class="col-md-6"
+                >
                   <label
                     for="perceivedLevel"
                     class="form-label"
                   >
-                    Como você considera seu nível
-                    atualmente?
+                    Como você considera
+                    seu nível atualmente?
                   </label>
 
                   <select
@@ -260,46 +426,59 @@
                     class="form-select"
                     formControlName="perceivedLevel"
                     [class.is-invalid]="
-                      isInvalid('perceivedLevel')
+                      isInvalid(
+                        'perceivedLevel'
+                      )
                     "
                     aria-describedby="perceivedLevelError"
                   >
                     <option value="">
-                      Selecione uma opção
+                      Selecione uma
+                      opção
                     </option>
 
                     @for (
-                      option of levelOptions;
+                      option of
+                        levelOptions;
                       track option.value
                     ) {
                       <option
-                        [value]="option.value"
+                        [value]="
+                          option.value
+                        "
                       >
-                        {{ option.label }}
+                        {{
+                          option.label
+                        }}
                       </option>
                     }
                   </select>
 
                   @if (
-                    isInvalid('perceivedLevel')
+                    isInvalid(
+                      'perceivedLevel'
+                    )
                   ) {
                     <div
                       id="perceivedLevelError"
                       class="invalid-feedback"
                       role="alert"
                     >
-                      Selecione seu nível atual.
+                      Selecione seu
+                      nível atual.
                     </div>
                   }
                 </div>
 
-                <div class="col-md-6">
+                <div
+                  class="col-md-6"
+                >
                   <label
                     for="studyDuration"
                     class="form-label"
                   >
-                    Há quanto tempo você estuda
-                    inglês?
+                    Há quanto tempo
+                    você estuda inglês?
                   </label>
 
                   <select
@@ -307,35 +486,46 @@
                     class="form-select"
                     formControlName="studyDuration"
                     [class.is-invalid]="
-                      isInvalid('studyDuration')
+                      isInvalid(
+                        'studyDuration'
+                      )
                     "
                     aria-describedby="studyDurationError"
                   >
                     <option value="">
-                      Selecione uma opção
+                      Selecione uma
+                      opção
                     </option>
 
                     @for (
-                      option of studyDurationOptions;
+                      option of
+                        studyDurationOptions;
                       track option.value
                     ) {
                       <option
-                        [value]="option.value"
+                        [value]="
+                          option.value
+                        "
                       >
-                        {{ option.label }}
+                        {{
+                          option.label
+                        }}
                       </option>
                     }
                   </select>
 
                   @if (
-                    isInvalid('studyDuration')
+                    isInvalid(
+                      'studyDuration'
+                    )
                   ) {
                     <div
                       id="studyDurationError"
                       class="invalid-feedback"
                       role="alert"
                     >
-                      Selecione há quanto tempo você
+                      Selecione há
+                      quanto tempo você
                       estuda inglês.
                     </div>
                   }
@@ -346,9 +536,12 @@
                     for="previousSchool"
                     class="form-label"
                   >
-                    Onde você já estudou inglês?
+                    Onde você já
+                    estudou inglês?
 
-                    <span class="optional">
+                    <span
+                      class="optional"
+                    >
                       Opcional
                     </span>
                   </label>
@@ -360,7 +553,9 @@
                     formControlName="previousSchool"
                     placeholder="Escola, curso, professor particular, autodidata..."
                     [class.is-invalid]="
-                      isInvalid('previousSchool')
+                      isInvalid(
+                        'previousSchool'
+                      )
                     "
                     aria-describedby="previousSchoolHelp previousSchoolError"
                   >
@@ -369,20 +564,25 @@
                     id="previousSchoolHelp"
                     class="form-text"
                   >
-                    Você pode deixar este campo em
-                    branco caso nunca tenha estudado
+                    Você pode deixar
+                    este campo em branco
+                    caso nunca tenha
+                    estudado
                     anteriormente.
                   </div>
 
                   @if (
-                    isInvalid('previousSchool')
+                    isInvalid(
+                      'previousSchool'
+                    )
                   ) {
                     <div
                       id="previousSchoolError"
                       class="invalid-feedback"
                       role="alert"
                     >
-                      O texto informado é muito longo.
+                      O texto informado
+                      é muito longo.
                     </div>
                   }
                 </div>
@@ -390,8 +590,12 @@
             </div>
 
             <div class="form-block">
-              <div class="block-heading">
-                <span class="block-number">
+              <div
+                class="block-heading"
+              >
+                <span
+                  class="block-number"
+                >
                   03
                 </span>
 
@@ -401,28 +605,41 @@
                   </h2>
 
                   <p>
-                    Qual é hoje a principal razão para
-                    você desenvolver seu inglês?
+                    Qual é hoje a
+                    principal razão
+                    para você
+                    desenvolver seu
+                    inglês?
                   </p>
                 </div>
               </div>
 
               <fieldset>
-                <legend class="visually-hidden">
-                  Selecione seu principal objetivo
+                <legend
+                  class="visually-hidden"
+                >
+                  Selecione seu
+                  principal objetivo
                   com o inglês
                 </legend>
 
-                <div class="choice-grid">
+                <div
+                  class="choice-grid"
+                >
                   @for (
-                    option of goalOptions;
+                    option of
+                      goalOptions;
                     track option.value
                   ) {
-                    <label class="choice-card">
+                    <label
+                      class="choice-card"
+                    >
                       <input
                         type="radio"
                         formControlName="mainGoal"
-                        [value]="option.value"
+                        [value]="
+                          option.value
+                        "
                       >
 
                       <span
@@ -430,26 +647,37 @@
                       ></span>
 
                       <span>
-                        {{ option.label }}
+                        {{
+                          option.label
+                        }}
                       </span>
                     </label>
                   }
                 </div>
 
-                @if (isInvalid('mainGoal')) {
+                @if (
+                  isInvalid(
+                    'mainGoal'
+                  )
+                ) {
                   <p
                     class="field-error"
                     role="alert"
                   >
-                    Escolha seu principal objetivo.
+                    Escolha seu
+                    principal objetivo.
                   </p>
                 }
               </fieldset>
             </div>
 
             <div class="form-block">
-              <div class="block-heading">
-                <span class="block-number">
+              <div
+                class="block-heading"
+              >
+                <span
+                  class="block-number"
+                >
                   04
                 </span>
 
@@ -459,28 +687,42 @@
                   </h2>
 
                   <p>
-                    Conte como você imagina sua rotina
-                    ideal de aprendizado.
+                    Conte como você
+                    imagina sua rotina
+                    ideal de
+                    aprendizado.
                   </p>
                 </div>
               </div>
 
-              <div class="preference-group">
+              <div
+                class="preference-group"
+              >
                 <fieldset>
-                  <legend class="form-label">
-                    Qual modalidade você prefere?
+                  <legend
+                    class="form-label"
+                  >
+                    Qual modalidade
+                    você prefere?
                   </legend>
 
-                  <div class="choice-grid compact">
+                  <div
+                    class="choice-grid compact"
+                  >
                     @for (
-                      option of modalityOptions;
+                      option of
+                        modalityOptions;
                       track option.value
                     ) {
-                      <label class="choice-card">
+                      <label
+                        class="choice-card"
+                      >
                         <input
                           type="radio"
                           formControlName="preferredModality"
-                          [value]="option.value"
+                          [value]="
+                            option.value
+                          "
                         >
 
                         <span
@@ -488,7 +730,9 @@
                         ></span>
 
                         <span>
-                          {{ option.label }}
+                          {{
+                            option.label
+                          }}
                         </span>
                       </label>
                     }
@@ -503,31 +747,42 @@
                       class="field-error"
                       role="alert"
                     >
-                      Escolha uma modalidade.
+                      Escolha uma
+                      modalidade.
                     </p>
                   }
                 </fieldset>
               </div>
 
-              <div class="preference-group">
+              <div
+                class="preference-group"
+              >
                 <fieldset>
-                  <legend class="form-label">
-                    Qual período funciona melhor para
-                    você?
+                  <legend
+                    class="form-label"
+                  >
+                    Qual período
+                    funciona melhor
+                    para você?
                   </legend>
 
                   <div
                     class="choice-grid availability"
                   >
                     @for (
-                      option of availabilityOptions;
+                      option of
+                        availabilityOptions;
                       track option.value
                     ) {
-                      <label class="choice-card">
+                      <label
+                        class="choice-card"
+                      >
                         <input
                           type="radio"
                           formControlName="availabilityPeriod"
-                          [value]="option.value"
+                          [value]="
+                            option.value
+                          "
                         >
 
                         <span
@@ -535,7 +790,9 @@
                         ></span>
 
                         <span>
-                          {{ option.label }}
+                          {{
+                            option.label
+                          }}
                         </span>
                       </label>
                     }
@@ -550,7 +807,8 @@
                       class="field-error"
                       role="alert"
                     >
-                      Escolha um período.
+                      Escolha um
+                      período.
                     </p>
                   }
                 </fieldset>
@@ -570,7 +828,8 @@
 
                 <div>
                   <strong>
-                    Não conseguimos continuar.
+                    Não conseguimos
+                    continuar.
                   </strong>
 
                   <p>
@@ -593,28 +852,36 @@
 
                 <div>
                   <strong>
-                    Preparando sua avaliação...
+                    Preparando sua
+                    avaliação...
                   </strong>
 
                   <p>
-                    Estamos organizando seu teste.
-                    Aguarde só mais um instante.
+                    Estamos organizando
+                    seu teste. Aguarde
+                    só mais um instante.
                   </p>
                 </div>
               </div>
             }
 
-            <div class="form-actions">
-              <div class="privacy-note">
+            <div
+              class="form-actions"
+            >
+              <div
+                class="privacy-note"
+              >
                 <i
                   class="bi bi-shield-check"
                   aria-hidden="true"
                 ></i>
 
                 <p>
-                  Seus dados serão utilizados pela
-                  FB Language Center para sua
-                  avaliação e atendimento.
+                  Seus dados serão
+                  utilizados pela FB
+                  Language Center para
+                  sua avaliação e
+                  atendimento.
                 </p>
               </div>
 
@@ -633,11 +900,13 @@
                   ></span>
 
                   <span>
-                    Preparando sua avaliação...
+                    Preparando sua
+                    avaliação...
                   </span>
                 } @else {
                   <span>
-                    Continuar para o teste
+                    Continuar para o
+                    teste
                   </span>
 
                   <i

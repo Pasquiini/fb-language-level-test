@@ -1,0 +1,159 @@
+:host {
+  display: block;
+}
+
+.processing-page {
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+  padding: 3rem 0;
+  background:
+    var(--fb-cream);
+  color:
+    var(--fb-charcoal);
+}
+
+.processing-card {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 2.25rem 1.5rem;
+  background:
+    var(--fb-white);
+  border: 1px solid
+    rgba(69, 69, 28, 0.1);
+  border-radius: 1rem;
+  text-align: center;
+}
+
+.processing-eyebrow {
+  display: block;
+  margin-bottom: 2rem;
+  color:
+    var(--fb-brown);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.processing-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  margin: 0 auto 1.5rem;
+  background:
+    rgba(233, 223, 207, 0.5);
+  border-radius: 50%;
+  color:
+    var(--fb-olive-dark);
+
+  .spinner-border {
+    width: 2rem;
+    height: 2rem;
+    border-width: 0.18rem;
+  }
+
+  > i {
+    font-size: 2rem;
+  }
+}
+
+.processing-icon--error {
+  background:
+    rgba(183, 68, 56, 0.08);
+  color:
+    #a4382e;
+}
+
+.processing-icon--success {
+  background:
+    rgba(69, 69, 28, 0.08);
+  color:
+    var(--fb-olive);
+}
+
+h1 {
+  max-width: 560px;
+  margin: 0 auto;
+  color:
+    var(--fb-olive-dark);
+  font-family:
+    'Playfair Display',
+    serif;
+  font-size: clamp(
+    2rem,
+    7vw,
+    3.25rem
+  );
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+p {
+  max-width: 520px;
+  margin: 1.25rem auto 0;
+  color:
+    var(--fb-gray);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.processing-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 2rem;
+  padding: 0.75rem 1rem;
+  background:
+    rgba(233, 223, 207, 0.35);
+  border-radius: 999px;
+  color:
+    var(--fb-olive-dark);
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  i {
+    color:
+      var(--fb-brown);
+  }
+}
+
+.retry-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 3.2rem;
+  margin-top: 2rem;
+  padding: 0.8rem 1.25rem;
+  background:
+    var(--fb-olive-dark);
+  border: 1px solid
+    var(--fb-olive-dark);
+  border-radius: 0.7rem;
+  color:
+    var(--fb-white);
+  font-size: 0.88rem;
+  font-weight: 700;
+
+  &:hover {
+    background:
+      var(--fb-brown);
+    border-color:
+      var(--fb-brown);
+  }
+
+  &:focus-visible {
+    outline: 3px solid
+      rgba(197, 154, 91, 0.55);
+    outline-offset: 3px;
+  }
+}
+
+@media (min-width: 768px) {
+  .processing-card {
+    padding: 4rem;
+  }
+}
