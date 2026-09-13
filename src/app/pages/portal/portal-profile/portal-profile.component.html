@@ -1,0 +1,187 @@
+<section class="profile-page">
+  <div class="profile-container">
+    <header class="profile-header">
+      <span class="profile-eyebrow">
+        Seus dados
+      </span>
+
+      <h1>
+        Meu perfil
+      </h1>
+
+      <p>
+        Consulte as informações
+        vinculadas ao seu acesso
+        à FB Language Center.
+      </p>
+    </header>
+
+    @if (profile(); as profile) {
+      <section class="profile-card">
+        <div class="profile-card__identity">
+          <div class="profile-avatar">
+            {{ initials() }}
+          </div>
+
+          <div class="profile-identity__copy">
+            <span class="profile-role">
+              Portal do Aluno
+            </span>
+
+            <h2>
+              {{ profile.fullName }}
+            </h2>
+
+            @if (profile.email) {
+              <p>
+                {{ profile.email }}
+              </p>
+            }
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <div class="profile-section__heading">
+            <span>
+              Informações pessoais
+            </span>
+
+            <h3>
+              Dados do seu acesso
+            </h3>
+          </div>
+
+          <div class="profile-fields">
+            <div class="profile-field">
+              <div class="profile-field__icon">
+                <i
+                  class="
+                    bi
+                    bi-person
+                  "
+                ></i>
+              </div>
+
+              <div>
+                <span>
+                  Nome
+                </span>
+
+                <strong>
+                  {{ profile.fullName }}
+                </strong>
+              </div>
+            </div>
+
+            <div class="profile-field">
+              <div class="profile-field__icon">
+                <i
+                  class="
+                    bi
+                    bi-envelope
+                  "
+                ></i>
+              </div>
+
+              <div>
+                <span>
+                  E-mail
+                </span>
+
+                <strong>
+                  {{
+                    profile.email
+                    ?? 'Não informado'
+                  }}
+                </strong>
+              </div>
+            </div>
+
+            <div class="profile-field">
+              <div class="profile-field__icon">
+                <i
+                  class="
+                    bi
+                    bi-whatsapp
+                  "
+                ></i>
+              </div>
+
+              <div>
+                <span>
+                  WhatsApp
+                </span>
+
+                <strong>
+                  {{
+                    profile.whatsapp
+                    ?? 'Não informado'
+                  }}
+                </strong>
+              </div>
+            </div>
+
+            <div class="profile-field">
+              <div class="profile-field__icon">
+                <i
+                  class="
+                    bi
+                    bi-shield-check
+                  "
+                ></i>
+              </div>
+
+              <div>
+                <span>
+                  Tipo de acesso
+                </span>
+
+                <strong>
+                  Portal do aluno
+                </strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-notice">
+          <div class="profile-notice__icon">
+            <i
+              class="
+                bi
+                bi-info-circle
+              "
+            ></i>
+          </div>
+
+          <div>
+            <strong>
+              Precisa corrigir algum dado?
+            </strong>
+
+            <p>
+              Entre em contato com a
+              FB Language Center para
+              solicitar uma atualização
+              das suas informações.
+            </p>
+          </div>
+        </div>
+      </section>
+    } @else {
+      <div class="profile-state">
+        <span
+          class="
+            spinner-border
+            spinner-border-sm
+          "
+          aria-hidden="true"
+        ></span>
+
+        <span>
+          Carregando seu perfil...
+        </span>
+      </div>
+    }
+  </div>
+</section>

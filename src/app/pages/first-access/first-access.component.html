@@ -1,0 +1,392 @@
+<main class="first-access">
+  <section class="first-access__brand-panel">
+    <div class="brand-panel__content">
+      <a
+        routerLink="/"
+        class="brand"
+        aria-label="FB Language Center"
+      >
+        <span class="brand__mark">
+          FB
+        </span>
+
+        <span class="brand__name">
+          Language Center
+        </span>
+      </a>
+
+      <div class="brand-copy">
+        <span class="brand-eyebrow">
+          Portal do Aluno
+        </span>
+
+        <h1>
+          Um novo passo
+          na sua jornada.
+        </h1>
+
+        <p>
+          Seu teste foi recebido.
+          Agora prepare seu acesso
+          para acompanhar resultados,
+          orientações e próximos passos.
+        </p>
+      </div>
+
+      <div class="brand-footer">
+        Inglês com propósito,
+        clareza e acompanhamento.
+      </div>
+    </div>
+  </section>
+
+  <section class="first-access__form-panel">
+    <div class="first-access__container">
+      <a
+        routerLink="/"
+        class="mobile-brand"
+        aria-label="FB Language Center"
+      >
+        <span class="mobile-brand__mark">
+          FB
+        </span>
+
+        <span>
+          Language Center
+        </span>
+      </a>
+
+      @if (validating()) {
+        <div class="validation-state">
+          <div class="validation-state__icon">
+            <span
+              class="
+                spinner-border
+                spinner-border-sm
+              "
+              aria-hidden="true"
+            ></span>
+          </div>
+
+          <h2>
+            Validando seu acesso
+          </h2>
+
+          <p>
+            Estamos verificando seu
+            link de primeiro acesso.
+          </p>
+        </div>
+      } @else if (!authService.user()) {
+        <div class="invalid-state">
+          <div class="invalid-state__icon">
+            <i
+              class="
+                bi
+                bi-link-45deg
+              "
+            ></i>
+          </div>
+
+          <span class="form-eyebrow">
+            Primeiro acesso
+          </span>
+
+          <h2>
+            Este link não está mais válido.
+          </h2>
+
+          <p>
+            O link pode ter expirado ou já
+            ter sido utilizado. Entre em
+            contato com a FB Language Center
+            para solicitar um novo acesso.
+          </p>
+
+          <div
+            class="form-alert"
+            role="alert"
+          >
+            <i
+              class="
+                bi
+                bi-exclamation-circle
+              "
+            ></i>
+
+            <span>
+              {{ errorMessage() }}
+            </span>
+          </div>
+
+          <a
+            routerLink="/login"
+            class="secondary-action"
+          >
+            Ir para o login
+
+            <i
+              class="
+                bi
+                bi-arrow-right
+              "
+            ></i>
+          </a>
+        </div>
+      } @else {
+        <div class="form-heading">
+          <span class="form-eyebrow">
+            Primeiro acesso
+          </span>
+
+          <h2>
+            Crie sua senha.
+          </h2>
+
+          <p>
+            Escolha uma senha segura
+            para acessar seu Portal
+            do Aluno.
+          </p>
+        </div>
+
+        @if (errorMessage()) {
+          <div
+            class="form-alert"
+            role="alert"
+          >
+            <i
+              class="
+                bi
+                bi-exclamation-circle
+              "
+            ></i>
+
+            <span>
+              {{ errorMessage() }}
+            </span>
+          </div>
+        }
+
+        <form
+          [formGroup]="form"
+          (ngSubmit)="submit()"
+          novalidate
+        >
+          <div class="form-field">
+            <label for="password">
+              Nova senha
+            </label>
+
+            <div
+              class="input-shell"
+              [class.input-shell--invalid]="
+                passwordControl.invalid &&
+                passwordControl.touched
+              "
+            >
+              <i
+                class="
+                  bi
+                  bi-lock
+                "
+              ></i>
+
+              <input
+                id="password"
+                [type]="
+                  showPassword()
+                    ? 'text'
+                    : 'password'
+                "
+                formControlName="password"
+                autocomplete="new-password"
+                placeholder="Mínimo de 8 caracteres"
+              >
+
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="togglePassword()"
+                [attr.aria-label]="
+                  showPassword()
+                    ? 'Ocultar senha'
+                    : 'Mostrar senha'
+                "
+              >
+                <i
+                  class="bi"
+                  [class.bi-eye]="
+                    !showPassword()
+                  "
+                  [class.bi-eye-slash]="
+                    showPassword()
+                  "
+                ></i>
+              </button>
+            </div>
+
+            @if (
+              hasError(
+                'password',
+                'required'
+              )
+            ) {
+              <span class="field-error">
+                Informe uma senha.
+              </span>
+            } @else if (
+              hasError(
+                'password',
+                'minlength'
+              )
+            ) {
+              <span class="field-error">
+                Use pelo menos
+                8 caracteres.
+              </span>
+            }
+
+            <div class="password-hint">
+              <i
+                class="
+                  bi
+                  bi-shield-check
+                "
+              ></i>
+
+              <span>
+                Use pelo menos
+                8 caracteres.
+              </span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="confirmPassword">
+              Confirmar senha
+            </label>
+
+            <div
+              class="input-shell"
+              [class.input-shell--invalid]="
+                (
+                  confirmPasswordControl.invalid ||
+                  !passwordsMatch()
+                ) &&
+                confirmPasswordControl.touched
+              "
+            >
+              <i
+                class="
+                  bi
+                  bi-lock-fill
+                "
+              ></i>
+
+              <input
+                id="confirmPassword"
+                [type]="
+                  showConfirmPassword()
+                    ? 'text'
+                    : 'password'
+                "
+                formControlName="confirmPassword"
+                autocomplete="new-password"
+                placeholder="Digite novamente"
+              >
+
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="
+                  toggleConfirmPassword()
+                "
+                [attr.aria-label]="
+                  showConfirmPassword()
+                    ? 'Ocultar confirmação'
+                    : 'Mostrar confirmação'
+                "
+              >
+                <i
+                  class="bi"
+                  [class.bi-eye]="
+                    !showConfirmPassword()
+                  "
+                  [class.bi-eye-slash]="
+                    showConfirmPassword()
+                  "
+                ></i>
+              </button>
+            </div>
+
+            @if (
+              hasError(
+                'confirmPassword',
+                'required'
+              )
+            ) {
+              <span class="field-error">
+                Confirme sua senha.
+              </span>
+            } @else if (
+              confirmPasswordControl.touched &&
+              !passwordsMatch()
+            ) {
+              <span class="field-error">
+                As senhas não coincidem.
+              </span>
+            }
+          </div>
+
+          <button
+            type="submit"
+            class="primary-action"
+            [disabled]="
+              !canSubmit()
+            "
+          >
+            @if (submitting()) {
+              <span
+                class="
+                  spinner-border
+                  spinner-border-sm
+                "
+                aria-hidden="true"
+              ></span>
+
+              <span>
+                Criando acesso...
+              </span>
+            } @else {
+              <span>
+                Criar senha
+              </span>
+
+              <i
+                class="
+                  bi
+                  bi-arrow-right
+                "
+              ></i>
+            }
+          </button>
+        </form>
+
+        <div class="security-note">
+          <i
+            class="
+              bi
+              bi-shield-check
+            "
+          ></i>
+
+          <span>
+            Sua senha é pessoal e seu
+            acesso é protegido.
+          </span>
+        </div>
+      }
+    </div>
+  </section>
+</main>

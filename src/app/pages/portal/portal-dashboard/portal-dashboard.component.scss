@@ -1,0 +1,690 @@
+:host {
+  display: block;
+}
+
+.portal-dashboard {
+  min-height: 100vh;
+
+  padding:
+    2rem 1rem
+    4rem;
+
+  background:
+    var(--fb-cream);
+
+  color:
+    var(--fb-charcoal);
+}
+
+.portal-container {
+  width: 100%;
+  max-width: 76rem;
+
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
+}
+
+.dashboard-eyebrow {
+  display: block;
+
+  margin-bottom: 0.55rem;
+
+  color:
+    var(--fb-brown);
+
+  font-size: 0.68rem;
+  font-weight: 700;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+}
+
+.dashboard-header h1 {
+  margin:
+    0
+    0
+    0.75rem;
+
+  font-family:
+    'Playfair Display',
+    serif;
+
+  font-size:
+    clamp(
+      2.5rem,
+      7vw,
+      4rem
+    );
+
+  font-weight: 500;
+
+  line-height: 1;
+
+  letter-spacing: -0.04em;
+}
+
+.dashboard-header p {
+  max-width: 38rem;
+
+  margin: 0;
+
+  color:
+    rgba(
+      69,
+      69,
+      28,
+      0.6
+    );
+
+  font-size: 0.9rem;
+
+  line-height: 1.7;
+}
+
+.test-status-card {
+  display: grid;
+
+  grid-template-columns:
+    auto 1fr;
+
+  gap: 1rem;
+
+  margin-bottom: 1rem;
+
+  padding: 1.5rem;
+
+  border:
+    1px solid
+    rgba(
+      69,
+      69,
+      28,
+      0.09
+    );
+
+  border-radius: 1rem;
+
+  background:
+    var(--fb-white);
+}
+
+.test-status-card__icon {
+  width: 3rem;
+  height: 3rem;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 0.85rem;
+
+  background:
+    rgba(
+      143,
+      108,
+      54,
+      0.1
+    );
+
+  color: #765b30;
+}
+
+.test-status-card__content span {
+  color:
+    var(--fb-brown);
+
+  font-size: 0.63rem;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+.test-status-card__content h2 {
+  margin:
+    0.3rem
+    0
+    0.45rem;
+
+  font-family:
+    'Playfair Display',
+    serif;
+
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.test-status-card__content p {
+  margin: 0;
+
+  color:
+    rgba(
+      69,
+      69,
+      28,
+      0.56
+    );
+
+  font-size: 0.75rem;
+
+  line-height: 1.6;
+}
+
+.status-pill {
+  grid-column:
+    1 / -1;
+
+  justify-self: start;
+
+  display: inline-flex;
+
+  padding:
+    0.35rem
+    0.6rem;
+
+  border-radius: 999px;
+
+  background:
+    rgba(
+      143,
+      108,
+      54,
+      0.1
+    );
+
+  color: #765b30;
+
+  font-size: 0.58rem;
+  font-weight: 700;
+
+  letter-spacing: 0.05em;
+
+  text-transform: uppercase;
+}
+
+.dashboard-grid {
+  display: grid;
+
+  grid-template-columns: 1fr;
+
+  gap: 1rem;
+
+  margin-bottom: 2.5rem;
+}
+
+.dashboard-card,
+.recommendation-card {
+  padding: 1.25rem;
+
+  border:
+    1px solid
+    rgba(
+      69,
+      69,
+      28,
+      0.09
+    );
+
+  border-radius: 1rem;
+
+  background:
+    var(--fb-white);
+}
+
+.dashboard-card__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 1rem;
+
+  margin-bottom: 1.25rem;
+}
+
+.dashboard-card__heading span {
+  color:
+    rgba(
+      69,
+      69,
+      28,
+      0.5
+    );
+
+  font-size: 0.65rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+}
+
+.dashboard-card__heading i {
+  color:
+    var(--fb-brown);
+}
+
+.dashboard-card strong {
+  display: block;
+
+  margin-bottom: 0.5rem;
+
+  font-family:
+    'Playfair Display',
+    serif;
+
+  font-size: 1.35rem;
+  font-weight: 500;
+}
+
+.dashboard-card
+.level-placeholder {
+  font-size: 2rem;
+}
+
+.dashboard-card p,
+.recommendation-card p {
+  margin: 0;
+
+  color:
+    rgba(
+      69,
+      69,
+      28,
+      0.55
+    );
+
+  font-size: 0.73rem;
+
+  line-height: 1.65;
+}
+
+.portal-section {
+  margin-bottom: 2.5rem;
+}
+
+.portal-section__heading {
+  margin-bottom: 1rem;
+}
+
+.portal-section__heading span {
+  color:
+    var(--fb-brown);
+
+  font-size: 0.65rem;
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+
+  text-transform: uppercase;
+}
+
+.portal-section__heading h2 {
+  margin:
+    0.25rem 0 0;
+
+  font-family:
+    'Playfair Display',
+    serif;
+
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+.shortcut-grid {
+  display: grid;
+
+  grid-template-columns: 1fr;
+
+  gap: 1rem;
+}
+
+.shortcut-card {
+  display: flex;
+  align-items: center;
+
+  gap: 1rem;
+
+  padding: 1.25rem;
+
+  border:
+    1px solid
+    rgba(
+      69,
+      69,
+      28,
+      0.09
+    );
+
+  border-radius: 1rem;
+
+  background:
+    var(--fb-white);
+
+  color:
+    inherit;
+
+  text-decoration: none;
+}
+
+.shortcut-card__icon {
+  width: 2.75rem;
+  height: 2.75rem;
+
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  border-radius: 0.8rem;
+
+  background:
+    var(--fb-olive);
+
+  color:
+    var(--fb-white);
+}
+
+.shortcut-card h3 {
+  margin:
+    0
+    0
+    0.25rem;
+
+  font-size: 0.82rem;
+}
+
+.shortcut-card p {
+  margin: 0;
+
+  color:
+    rgba(
+      69,
+      69,
+      28,
+      0.5
+    );
+
+  font-size: 0.7rem;
+}
+
+.shortcut-card__arrow {
+  margin-left: auto;
+
+  color:
+    rgba(
+      69,
+      69,
+      28,
+      0.32
+    );
+}
+
+.recommendation-card h2 {
+  margin:
+    0.3rem
+    0
+    0.75rem;
+
+  font-family:
+    'Playfair Display',
+    serif;
+
+  font-size:
+    1.65rem;
+
+  font-weight: 500;
+}
+
+@media (
+  min-width: 640px
+) {
+  .dashboard-grid,
+  .shortcut-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  }
+}
+
+@media (
+  min-width: 992px
+) {
+  .portal-dashboard {
+    padding:
+      3rem 2rem
+      4rem;
+  }
+
+  .test-status-card {
+    grid-template-columns:
+      auto
+      minmax(
+        0,
+        1fr
+      )
+      auto;
+
+    align-items: center;
+  }
+
+  .status-pill {
+    grid-column: auto;
+
+    justify-self: end;
+  }
+}
+.portal-state {
+  min-height: 15rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 0.65rem;
+
+  border:
+    1px solid
+    rgba(
+      69,
+      69,
+      28,
+      0.08
+    );
+
+  border-radius: 1rem;
+
+  background:
+    var(--fb-white);
+
+  color:
+    rgba(
+      69,
+      69,
+      28,
+      0.58
+    );
+
+  font-size: 0.78rem;
+}
+
+.portal-state--error {
+  color: #7d3c32;
+}
+
+.status-pill.is-completed {
+  background:
+    rgba(
+      62,
+      112,
+      75,
+      0.1
+    );
+
+  color: #3e704b;
+}
+
+.status-pill.is-review {
+  background:
+    rgba(
+      143,
+      108,
+      54,
+      0.1
+    );
+
+  color: #765b30;
+}
+
+.status-pill.is-progress {
+  background:
+    rgba(
+      67,
+      91,
+      133,
+      0.1
+    );
+
+  color: #435b85;
+}
+
+.status-pill.is-neutral {
+  background:
+    rgba(
+      69,
+      69,
+      28,
+      0.07
+    );
+
+  color:
+    rgba(
+      69,
+      69,
+      28,
+      0.6
+    );
+}
+
+.result-card,
+.no-test-card {
+  margin-bottom: 2.5rem;
+
+  padding: 1.5rem;
+
+  border:
+    1px solid
+    rgba(
+      69,
+      69,
+      28,
+      0.09
+    );
+
+  border-radius: 1rem;
+
+  background:
+    var(--fb-white);
+}
+
+.result-card h2,
+.no-test-card h2 {
+  margin:
+    0.3rem
+    0
+    0.75rem;
+
+  font-family:
+    'Playfair Display',
+    serif;
+
+  font-size: 1.65rem;
+  font-weight: 500;
+}
+
+.result-card p,
+.no-test-card p {
+  max-width: 48rem;
+
+  margin: 0;
+
+  color:
+    rgba(
+      69,
+      69,
+      28,
+      0.58
+    );
+
+  font-size: 0.76rem;
+
+  line-height: 1.75;
+}
+
+.no-test-card {
+  text-align: center;
+}
+
+.no-test-card__icon {
+  width: 3.5rem;
+  height: 3.5rem;
+
+  display: grid;
+  place-items: center;
+
+  margin:
+    0 auto
+    1rem;
+
+  border-radius: 50%;
+
+  background:
+    rgba(
+      69,
+      69,
+      28,
+      0.07
+    );
+
+  color:
+    var(--fb-olive);
+
+  font-size: 1.25rem;
+}
+
+.start-test-button {
+  min-height: 3rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 0.6rem;
+
+  margin-top: 1.5rem;
+
+  padding:
+    0.7rem
+    1rem;
+
+  border-radius: 0.75rem;
+
+  background:
+    var(--fb-olive);
+
+  color:
+    var(--fb-white);
+
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  text-decoration: none;
+}

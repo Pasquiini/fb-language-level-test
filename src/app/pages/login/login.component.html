@@ -1,0 +1,273 @@
+<main class="login-page">
+  <section class="login-brand-panel">
+    <div class="login-brand-panel__content">
+      <a
+        routerLink="/"
+        class="brand"
+        aria-label="FB Language Center"
+      >
+        <span class="brand__mark">
+          FB
+        </span>
+
+        <span class="brand__name">
+          Language Center
+        </span>
+      </a>
+
+      <div class="login-brand-copy">
+        <span class="login-eyebrow">
+          FB Language Center
+        </span>
+
+        <h1>
+          Aprender inglês
+          começa com direção.
+        </h1>
+
+        <p>
+          Acesse seu espaço para acompanhar
+          avaliações, resultados e próximos
+          passos na sua jornada.
+        </p>
+      </div>
+
+      <div class="login-brand-footer">
+        Inglês com propósito,
+        clareza e acompanhamento.
+      </div>
+    </div>
+  </section>
+
+  <section class="login-form-panel">
+    <div class="login-form-container">
+      <a
+        routerLink="/"
+        class="mobile-brand"
+        aria-label="FB Language Center"
+      >
+        <span class="mobile-brand__mark">
+          FB
+        </span>
+
+        <span>
+          Language Center
+        </span>
+      </a>
+
+      <div class="login-heading">
+        <span class="login-heading__eyebrow">
+          Área exclusiva
+        </span>
+
+        <h2>
+          Bem-vindo de volta.
+        </h2>
+
+        <p>
+          Entre com seu e-mail e senha
+          para continuar.
+        </p>
+      </div>
+
+      @if (
+        errorMessage()
+      ) {
+        <div
+          class="login-alert"
+          role="alert"
+        >
+          <i
+            class="
+              bi
+              bi-exclamation-circle
+            "
+          ></i>
+
+          <span>
+            {{ errorMessage() }}
+          </span>
+        </div>
+      }
+
+      <form
+        [formGroup]="loginForm"
+        (ngSubmit)="submit()"
+        novalidate
+      >
+        <div class="form-field">
+          <label for="email">
+            E-mail
+          </label>
+
+          <div
+            class="input-shell"
+            [class.input-shell--invalid]="
+              emailControl.invalid &&
+              emailControl.touched
+            "
+          >
+            <i
+              class="
+                bi
+                bi-envelope
+              "
+            ></i>
+
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              inputmode="email"
+              placeholder="voce@exemplo.com"
+            >
+          </div>
+
+          @if (
+            emailControl.invalid &&
+            emailControl.touched
+          ) {
+            <span class="field-error">
+              @if (
+                emailControl.hasError(
+                  'required'
+                )
+              ) {
+                Informe seu e-mail.
+              } @else {
+                Informe um e-mail válido.
+              }
+            </span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="password">
+            Senha
+          </label>
+
+          <div
+            class="input-shell"
+            [class.input-shell--invalid]="
+              passwordControl.invalid &&
+              passwordControl.touched
+            "
+          >
+            <i
+              class="
+                bi
+                bi-lock
+              "
+            ></i>
+
+            <input
+              id="password"
+              [type]="
+                showPassword()
+                  ? 'text'
+                  : 'password'
+              "
+              formControlName="password"
+              autocomplete="current-password"
+              placeholder="Sua senha"
+            >
+
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePassword()"
+              [attr.aria-label]="
+                showPassword()
+                  ? 'Ocultar senha'
+                  : 'Mostrar senha'
+              "
+            >
+              <i
+                class="bi"
+                [class.bi-eye]="
+                  !showPassword()
+                "
+                [class.bi-eye-slash]="
+                  showPassword()
+                "
+              ></i>
+            </button>
+          </div>
+
+          @if (
+            passwordControl.invalid &&
+            passwordControl.touched
+          ) {
+            <span class="field-error">
+              Informe sua senha.
+            </span>
+          }
+        </div>
+
+        <button
+          type="submit"
+          class="login-submit"
+          [disabled]="
+            !canSubmit()
+          "
+        >
+          @if (
+            isSubmitting()
+          ) {
+            <span
+              class="
+                spinner-border
+                spinner-border-sm
+              "
+              aria-hidden="true"
+            ></span>
+
+            <span>
+              Entrando...
+            </span>
+          } @else {
+            <span>
+              Entrar
+            </span>
+
+            <i
+              class="
+                bi
+                bi-arrow-right
+              "
+            ></i>
+          }
+        </button>
+      </form>
+
+      <div class="login-help">
+        <i
+          class="
+            bi
+            bi-shield-check
+          "
+        ></i>
+
+        <span>
+          Seu acesso é protegido
+          e exclusivo.
+        </span>
+      </div>
+
+      <a
+        routerLink="/"
+        class="back-home"
+      >
+        <i
+          class="
+            bi
+            bi-arrow-left
+          "
+        ></i>
+
+        Voltar para o site
+      </a>
+    </div>
+  </section>
+</main>

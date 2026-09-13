@@ -1,0 +1,161 @@
+<div
+  class="portal-shell"
+  [class.portal-shell--menu-open]="
+    mobileMenuOpen()
+  "
+>
+  <aside class="portal-sidebar">
+    <div class="portal-sidebar__header">
+      <a
+        routerLink="/portal"
+        class="portal-brand"
+        (click)="closeMobileMenu()"
+      >
+        <span class="portal-brand__mark">
+          FB
+        </span>
+
+        <span class="portal-brand__copy">
+          <strong>
+            Language Center
+          </strong>
+
+          <small>
+            Portal do aluno
+          </small>
+        </span>
+      </a>
+
+      <button
+        type="button"
+        class="portal-sidebar__close"
+        aria-label="Fechar menu"
+        (click)="closeMobileMenu()"
+      >
+        <i
+          class="bi bi-x-lg"
+        ></i>
+      </button>
+    </div>
+
+    <nav
+      class="portal-navigation"
+      aria-label="Navegação do portal"
+    >
+      @for (
+        item of navigation;
+        track item.route
+      ) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="portal-navigation__link--active"
+          [routerLinkActiveOptions]="{
+            exact: item.exact ?? false
+          }"
+          class="portal-navigation__link"
+          (click)="closeMobileMenu()"
+        >
+          <i
+            class="bi"
+            [class]="
+              'bi ' + item.icon
+            "
+          ></i>
+
+          <span>
+            {{ item.label }}
+          </span>
+        </a>
+      }
+    </nav>
+
+    <div class="portal-sidebar__footer">
+      <div class="portal-user">
+        <div class="portal-user__avatar">
+          {{ initials() }}
+        </div>
+
+        <div class="portal-user__info">
+          <strong>
+            {{ studentName() }}
+          </strong>
+
+          <span>
+            Aluno
+          </span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="portal-logout"
+        [disabled]="
+          isLoggingOut()
+        "
+        (click)="signOut()"
+      >
+        @if (
+          isLoggingOut()
+        ) {
+          <span
+            class="
+              spinner-border
+              spinner-border-sm
+            "
+          ></span>
+
+          Saindo...
+        } @else {
+          <i
+            class="bi bi-box-arrow-right"
+          ></i>
+
+          Sair
+        }
+      </button>
+    </div>
+  </aside>
+
+  @if (
+    mobileMenuOpen()
+  ) {
+    <button
+      type="button"
+      class="portal-backdrop"
+      aria-label="Fechar menu"
+      (click)="closeMobileMenu()"
+    ></button>
+  }
+
+  <section class="portal-content">
+    <header class="portal-mobile-header">
+      <a
+        routerLink="/portal"
+        class="portal-mobile-brand"
+      >
+        <span>
+          FB
+        </span>
+
+        <strong>
+          Portal
+        </strong>
+      </a>
+
+      <button
+        type="button"
+        class="portal-menu-button"
+        aria-label="Abrir menu"
+        (click)="toggleMobileMenu()"
+      >
+        <i
+          class="bi bi-list"
+        ></i>
+      </button>
+    </header>
+
+    <main class="portal-main">
+      <router-outlet />
+    </main>
+  </section>
+</div>

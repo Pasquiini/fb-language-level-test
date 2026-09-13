@@ -1,0 +1,471 @@
+<section class="whatsapp-page">
+
+  <div class="whatsapp-shell">
+
+    <header class="page-heading">
+      <div>
+        <span class="eyebrow">
+          Administração
+        </span>
+
+        <h1>
+          WhatsApp
+        </h1>
+
+        <p>
+          Gerencie a conexão da FB Language Center
+          com o WhatsApp e valide o envio de mensagens.
+        </p>
+      </div>
+
+      <button type="button" class="btn-refresh" [disabled]="loading()" (click)="loadStatus()">
+        <i class="bi bi-arrow-clockwise"></i>
+
+        Atualizar
+      </button>
+    </header>
+
+
+    @if (error()) {
+    <div class="feedback feedback-error">
+      <i class="bi bi-exclamation-circle"></i>
+
+      <span>
+        {{ error() }}
+      </span>
+    </div>
+    }
+
+    @if (success()) {
+    <div class="feedback feedback-success">
+      <i class="bi bi-check-circle"></i>
+
+      <span>
+        {{ success() }}
+      </span>
+    </div>
+    }
+    <section class="connection-card">
+
+      <div class="connection-header">
+
+        <div class="connection-title">
+          <div class="icon-box">
+            <i class="bi bi-whatsapp"></i>
+          </div>
+
+          <div>
+            <span class="section-label">
+              Integração
+            </span>
+
+            <h2>
+              Conexão do WhatsApp
+            </h2>
+          </div>
+        </div>
+
+
+        @if (status(); as currentStatus) {
+
+        @switch (currentStatus.state) {
+
+        @case ('open') {
+        <span class="status-badge status-online">
+          <span class="status-dot"></span>
+          Conectado
+        </span>
+        }
+
+        @case ('connecting') {
+        <span class="status-badge status-connecting">
+          <span class="status-dot"></span>
+          Conectando
+        </span>
+        }
+
+        @case ('close') {
+        <span class="status-badge status-offline">
+          <span class="status-dot"></span>
+          Desconectado
+        </span>
+        }
+
+        @default {
+        <span class="status-badge status-unknown">
+          <span class="status-dot"></span>
+          Status desconhecido
+        </span>
+        }
+
+        }
+
+        }
+
+      </div>
+
+
+      <div class="connection-body">
+
+        <div class="instance-info">
+
+          <span class="info-label">
+            Instância
+          </span>
+
+          <strong>
+            {{ status()?.instance ?? 'fblanguagecenter' }}
+          </strong>
+
+        </div>
+
+
+        <p class="connection-description">
+          Esta conexão é utilizada para o envio das
+          notificações automáticas da escola e dos alunos.
+        </p>
+
+
+        <div class="actions">
+
+          @if (
+          status()?.state !== 'open'
+          ) {
+          <button type="button" class="btn-primary-fb" [disabled]="loading()" (click)="connect()">
+            <i class="bi bi-qr-code"></i>
+
+            Conectar WhatsApp
+          </button>
+          }
+
+
+          <button type="button" class="btn-secondary-fb" [disabled]="loading()" (click)="restart()">
+            <i class="bi bi-arrow-repeat"></i>
+
+            Reiniciar
+          </button>
+
+
+          @if (
+          status()?.state === 'open'
+          ) {
+          <button type="button" class="btn-danger-soft" [disabled]="loading()" (click)="logout()">
+            <i class="bi bi-box-arrow-right"></i>
+
+            Desconectar
+          </button>
+          }
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    @if (qrCodeImage; as image) {
+
+    <section class="qr-card">
+
+      <div class="qr-content">
+
+        <span class="section-label">
+          Conectar aparelho
+        </span>
+
+        <h2>
+          Escaneie o QR Code
+        </h2>
+
+        <p>
+          No WhatsApp da escola, acesse
+          <strong>Aparelhos conectados</strong>
+          e escolha
+          <strong>Conectar um aparelho</strong>.
+        </p>
+
+
+        <div class="qr-frame">
+          <img [src]="image" alt="QR Code para conectar WhatsApp">
+        </div>
+
+      </div>
+
+    </section>
+
+    }
+    <section class="queue-card">
+
+      <div class="queue-heading">
+
+        <div class="queue-icon">
+          <i class="bi bi-inbox"></i>
+        </div>
+
+        <div>
+          <span class="section-label">
+            Mensageria
+          </span>
+
+          <h2>
+            Fila de notificações
+          </h2>
+
+          <p>
+            Processe manualmente as mensagens que
+            estão aguardando envio para alunos e escola.
+          </p>
+        </div>
+
+      </div>
+
+
+      <div class="queue-body">
+
+        <div class="queue-info">
+
+          <div>
+            <span>
+              Status da integração
+            </span>
+
+            <strong>
+              @if (
+              status()?.state === 'open'
+              ) {
+              Pronta para envio
+              } @else {
+              WhatsApp desconectado
+              }
+            </strong>
+          </div>
+
+
+          @if (
+          lastProcessedCount() !== null
+          ) {
+          <div>
+            <span>
+              Último processamento
+            </span>
+
+            <strong>
+              {{ lastProcessedCount() }}
+              mensagem(ns)
+            </strong>
+          </div>
+          }
+          @if (
+          lastPreparedCount() !== null
+          ) {
+          <div>
+            <span>
+              Última preparação
+            </span>
+
+            <strong>
+              {{ lastPreparedCount() }}
+              evento(s)
+            </strong>
+          </div>
+          }
+
+
+          @if (
+          lastProcessedCount() !== null
+          ) {
+          <div>
+            <span>
+              Último envio
+            </span>
+
+            <strong>
+              {{ lastProcessedCount() }}
+              mensagem(ns)
+            </strong>
+          </div>
+          }
+
+        </div>
+
+
+        <div class="queue-action">
+
+          <div class="queue-explanation">
+
+            <p>
+              Primeiro, os eventos são transformados
+              em mensagens pendentes.
+              Depois, as mensagens são enviadas
+              pelo WhatsApp.
+            </p>
+
+            <div class="queue-steps">
+
+              <span>
+                <strong>1</strong>
+                Preparar
+              </span>
+
+              <i class="bi bi-arrow-right"></i>
+
+              <span>
+                <strong>2</strong>
+                Enviar
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="queue-buttons">
+
+            <button type="button" class="btn-secondary-fb" [disabled]="
+        preparingQueue()
+        || processingQueue()
+        || loading()
+      " (click)="prepareQueue()">
+
+              @if (
+              preparingQueue()
+              ) {
+              <span class="spinner-border spinner-border-sm"></span>
+
+              Preparando...
+              } @else {
+              <i class="bi bi-inbox-arrow-down"></i>
+
+              Preparar mensagens
+              }
+
+            </button>
+
+
+            <button type="button" class="btn-primary-fb" [disabled]="
+        processingQueue()
+        || preparingQueue()
+        || loading()
+        || status()?.state !== 'open'
+      " (click)="processQueue()">
+
+              @if (
+              processingQueue()
+              ) {
+              <span class="spinner-border spinner-border-sm"></span>
+
+              Enviando...
+              } @else {
+              <i class="bi bi-send-check"></i>
+
+              Enviar pendentes
+              }
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="test-card">
+
+      <div class="test-heading">
+
+        <div>
+          <span class="section-label">
+            Diagnóstico
+          </span>
+
+          <h2>
+            Enviar mensagem de teste
+          </h2>
+
+          <p>
+            Use este envio somente para validar
+            se a integração está funcionando corretamente.
+          </p>
+        </div>
+
+        <i class="bi bi-chat-dots test-icon"></i>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <div class="field-group">
+
+          <label for="test-number">
+            WhatsApp
+          </label>
+
+          <div class="input-shell">
+
+            <i class="bi bi-phone"></i>
+
+            <input id="test-number" type="text" [(ngModel)]="testNumber" placeholder="5517999999999">
+
+          </div>
+
+          <small>
+            Informe DDI, DDD e número.
+          </small>
+
+        </div>
+
+
+        <div class="field-group">
+
+          <label for="test-message">
+            Mensagem
+          </label>
+
+          <textarea id="test-message" rows="5" [(ngModel)]="testMessage"></textarea>
+
+        </div>
+
+      </div>
+
+
+      <div class="test-footer">
+
+        <p>
+          A mensagem será enviada pela instância
+          conectada da FB Language Center.
+        </p>
+
+        <button type="button" class="btn-primary-fb" [disabled]="
+            loading()
+            || status()?.state !== 'open'
+          " (click)="sendTest()">
+          <i class="bi bi-send"></i>
+
+          Enviar mensagem
+        </button>
+
+      </div>
+
+    </section>
+
+
+    @if (loading()) {
+    <div class="loading-layer">
+
+      <div class="loading-box">
+
+        <span class="spinner-border spinner-border-sm"></span>
+
+        Processando...
+
+      </div>
+
+    </div>
+    }
+
+  </div>
+
+</section>

@@ -2,14 +2,23 @@ import {
   ChangeDetectionStrategy,
   Component,
   HostListener,
+  computed,
+  inject,
   signal,
 } from '@angular/core';
 
 import {
+  NavigationEnd,
   Router,
   RouterLink,
   RouterLinkActive,
 } from '@angular/router';
+
+import {
+  filter,
+} from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
+
 
 interface NavigationItem {
   label: string;
@@ -18,43 +27,200 @@ interface NavigationItem {
 }
 
 @Component({
-  selector: 'app-header',
+  selector:
+    'app-header',
+
+  standalone:
+    true,
+
   imports: [
     RouterLink,
     RouterLinkActive,
   ],
-  templateUrl: './header.component.html',
-  styleUrl: './header.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+
+  templateUrl:
+    './header.component.html',
+
+  styleUrl:
+    './header.component.scss',
+
+  changeDetection:
+    ChangeDetectionStrategy.OnPush,
 })
 export class Header {
-  readonly isMenuOpen = signal<boolean>(false);
 
-  readonly navigationItems: readonly NavigationItem[] = [
-    {
-      label: 'Início',
-      route: '/',
-    },
-    {
-      label: 'Como funciona',
-      route: '/',
-      fragment: 'como-funciona',
-    },
-    {
-      label: 'Sobre a FB',
-      route: '/',
-      fragment: 'sobre',
-    },
-  ];
+  private readonly router =
+    inject(Router);
 
-  constructor(private readonly router: Router) {}
+  readonly authService =
+    inject(AuthService);
 
-  toggleMenu(): void {
-    this.isMenuOpen.update((isOpen) => !isOpen);
+  readonly isMenuOpen =
+    signal(false);
+
+  readonly currentUrl =
+    signal(
+      this.router.url,
+    );
+
+  readonly navigationItems:
+    readonly NavigationItem[] = [
+      {
+        label:
+          'Início',
+
+        route:
+          '/',
+      },
+
+      {
+        label:
+          'Como funciona',
+
+        route:
+          '/',
+
+        fragment:
+          'como-funciona',
+      },
+
+      {
+        label:
+          'Sobre a FB',
+
+        route:
+          '/',
+
+        fragment:
+          'sobre',
+      },
+    ];
+
+  readonly hideHeader =
+    computed(
+      () => {
+        const url =
+          this.currentUrl()
+            .split('?')[0]
+            .split('#')[0];
+
+        return (
+          url === '/login'
+          ||
+          url === '/primeiro-acesso'
+          ||
+          url === '/teste'
+          ||
+          url.startsWith(
+            '/teste/',
+          )
+          ||
+          url === '/admin'
+          ||
+          url.startsWith(
+            '/admin/',
+          )
+          ||
+          url === '/portal'
+          ||
+          url.startsWith(
+            '/portal/',
+          )
+        );
+      },
+    );
+
+  readonly hasPermanentSession =
+    computed(
+      () =>
+        this.authService
+          .isAuthenticated()
+        &&
+        !this.authService
+          .isAnonymous(),
+    );
+
+  readonly portalRoute =
+    computed(
+      () => {
+        if (
+          this.authService
+            .isStaff()
+        ) {
+          return '/admin';
+        }
+
+        if (
+          this.authService
+            .isStudent()
+        ) {
+          return '/portal';
+        }
+
+        return '/login';
+      },
+    );
+
+  readonly portalLabel =
+    computed(
+      () => {
+        if (
+          this.authService
+            .isStaff()
+        ) {
+          return 'Painel administrativo';
+        }
+
+        if (
+          this.authService
+            .isStudent()
+        ) {
+          return 'Meu portal';
+        }
+
+        return 'Acessar portal';
+      },
+    );
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter(
+          (
+            event,
+          ): event is NavigationEnd =>
+            event instanceof
+            NavigationEnd,
+        ),
+      )
+      .subscribe(
+        (
+          event,
+        ) => {
+          this.currentUrl.set(
+            event.urlAfterRedirects,
+          );
+
+          this.closeMenu();
+        },
+      );
   }
 
-  closeMenu(): void {
-    this.isMenuOpen.set(false);
+  toggleMenu():
+    void {
+    this.isMenuOpen.update(
+      (
+        isOpen,
+      ) =>
+        !isOpen,
+    );
+  }
+
+  closeMenu():
+    void {
+    this.isMenuOpen.set(
+      false,
+    );
   }
 
   async navigateToSection(
@@ -64,7 +230,9 @@ export class Header {
     this.closeMenu();
 
     await this.router.navigate(
-      [route],
+      [
+        route,
+      ],
       fragment
         ? {
             fragment,
@@ -73,18 +241,43 @@ export class Header {
     );
   }
 
-  @HostListener('document:keydown.escape')
-  handleEscapeKey(): void {
-    if (this.isMenuOpen()) {
+  async signOut():
+    Promise<void> {
+    this.closeMenu();
+
+    await this.authService
+      .signOut();
+
+    await this.router
+      .navigateByUrl(
+        '/',
+      );
+  }
+
+  @HostListener(
+    'document:keydown.escape',
+  )
+  handleEscapeKey():
+    void {
+    if (
+      this.isMenuOpen()
+    ) {
       this.closeMenu();
     }
   }
 
-  @HostListener('window:resize')
-  handleWindowResize(): void {
+  @HostListener(
+    'window:resize',
+  )
+  handleWindowResize():
+    void {
     if (
-      typeof window !== 'undefined' &&
-      window.innerWidth >= 992 &&
+      typeof window !==
+        'undefined'
+      &&
+      window.innerWidth >=
+        992
+      &&
       this.isMenuOpen()
     ) {
       this.closeMenu();

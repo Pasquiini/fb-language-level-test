@@ -1,0 +1,355 @@
+<section class="portal-tests">
+  <div class="portal-container">
+    <header class="portal-header">
+      <div>
+        <span class="portal-eyebrow">
+          Histórico
+        </span>
+
+        <h1>
+          Meus testes
+        </h1>
+
+        <p>
+          Consulte suas avaliações,
+          acompanhe o status de cada teste
+          e veja seus resultados.
+        </p>
+      </div>
+
+      @if (
+        !isLoading() &&
+        attempts().length > 0
+      ) {
+        <div class="tests-counter">
+          <strong>
+            {{ attempts().length }}
+          </strong>
+
+          <span>
+            {{
+              attempts().length === 1
+                ? 'avaliação'
+                : 'avaliações'
+            }}
+          </span>
+        </div>
+      }
+    </header>
+
+    @if (isLoading()) {
+      <div class="tests-state">
+        <span
+          class="
+            spinner-border
+            spinner-border-sm
+          "
+          aria-hidden="true"
+        ></span>
+
+        <span>
+          Carregando seus testes...
+        </span>
+      </div>
+    } @else if (errorMessage()) {
+      <div
+        class="
+          tests-state
+          tests-state--error
+        "
+        role="alert"
+      >
+        <i
+          class="
+            bi
+            bi-exclamation-circle
+          "
+        ></i>
+
+        <span>
+          {{ errorMessage() }}
+        </span>
+      </div>
+    } @else if (
+      attempts().length === 0
+    ) {
+      <div class="tests-empty">
+        <div class="tests-empty__icon">
+          <i
+            class="
+              bi
+              bi-journal-plus
+            "
+          ></i>
+        </div>
+
+        <span class="portal-eyebrow">
+          Teste de nivelamento
+        </span>
+
+        <h2>
+          Seu histórico começa aqui.
+        </h2>
+
+        <p>
+          Faça seu teste de nivelamento
+          para descobrir seu nível atual
+          e receber uma orientação
+          personalizada.
+        </p>
+
+        <a
+          routerLink="/teste"
+          class="tests-empty__action"
+        >
+          Fazer teste
+
+          <i
+            class="
+              bi
+              bi-arrow-right
+            "
+          ></i>
+        </a>
+      </div>
+    } @else {
+      <div class="tests-list">
+        @for (
+          attempt of attempts();
+          track attempt.id
+        ) {
+          <article
+            class="test-card"
+            [class.test-card--completed]="
+              attempt.status ===
+              'completed'
+            "
+          >
+            <div class="test-card__top">
+              <div>
+                <span class="test-date">
+                  <i
+                    class="
+                      bi
+                      bi-calendar3
+                    "
+                  ></i>
+
+                  {{
+                    attempt.submittedAt
+                      ?? attempt.startedAt
+                      | date:'dd/MM/yyyy'
+                  }}
+                </span>
+
+                <h2>
+                  Teste de nivelamento
+                </h2>
+              </div>
+
+              <span
+                [class]="
+                  'status-pill '
+                  + statusClass(
+                    attempt.status
+                  )
+                "
+              >
+                {{
+                  statusLabel(
+                    attempt.status
+                  )
+                }}
+              </span>
+            </div>
+
+            @if (
+              attempt.status ===
+              'under_review'
+            ) {
+              <div class="test-progress-note">
+                <i
+                  class="
+                    bi
+                    bi-hourglass-split
+                  "
+                ></i>
+
+                <div>
+                  <strong>
+                    Sua avaliação está em análise
+                  </strong>
+
+                  <span>
+                    A equipe pedagógica está
+                    avaliando seu teste,
+                    incluindo o Speaking.
+                  </span>
+                </div>
+              </div>
+            } @else if (
+              attempt.status ===
+              'in_progress'
+            ) {
+              <div class="test-progress-note">
+                <i
+                  class="
+                    bi
+                    bi-pencil-square
+                  "
+                ></i>
+
+                <div>
+                  <strong>
+                    Teste em andamento
+                  </strong>
+
+                  <span>
+                    Este teste ainda não
+                    foi finalizado.
+                  </span>
+                </div>
+              </div>
+            }
+
+            <div class="test-card__metrics">
+              <div>
+                <span>
+                  Nível
+                </span>
+
+                <strong>
+                  @if (
+                    attempt.status ===
+                      'completed' &&
+                    attempt.result
+                      ?.estimatedLevel &&
+                    attempt.result
+                      ?.estimatedLevel !==
+                      'Pendente'
+                  ) {
+                    {{
+                      attempt.result
+                        ?.estimatedLevel
+                    }}
+                  } @else {
+                    —
+                  }
+                </strong>
+              </div>
+
+              <div>
+                <span>
+                  Desempenho objetivo
+                </span>
+
+                <strong>
+                  @if (attempt.result) {
+                    {{
+                      attempt.result
+                        .percentage
+                        | number:'1.0-1'
+                    }}%
+                  } @else {
+                    —
+                  }
+                </strong>
+              </div>
+
+              <div>
+                <span>
+                  Speaking
+                </span>
+
+                <strong>
+                  @if (
+                    attempt.result
+                      ?.speakingScore
+                      !== null
+                    &&
+                    attempt.result
+                      ?.speakingScore
+                      !== undefined
+                  ) {
+                    {{
+                      attempt.result
+                        ?.speakingScore
+                    }}
+                  } @else {
+                    —
+                  }
+                </strong>
+              </div>
+            </div>
+
+            @if (
+              attempt.status ===
+                'completed' &&
+              attempt.result?.summary
+            ) {
+              <div class="test-card__detail">
+                <div class="detail-icon">
+                  <i
+                    class="
+                      bi
+                      bi-chat-quote
+                    "
+                  ></i>
+                </div>
+
+                <div>
+                  <span>
+                    Sua análise
+                  </span>
+
+                  <p>
+                    {{
+                      attempt.result
+                        ?.summary
+                    }}
+                  </p>
+                </div>
+              </div>
+            }
+
+            @if (
+              attempt.status ===
+                'completed' &&
+              attempt.result
+                ?.recommendation
+            ) {
+              <div
+                class="
+                  test-card__detail
+                  test-card__detail--recommendation
+                "
+              >
+                <div class="detail-icon">
+                  <i
+                    class="
+                      bi
+                      bi-compass
+                    "
+                  ></i>
+                </div>
+
+                <div>
+                  <span>
+                    Próximos passos
+                  </span>
+
+                  <p>
+                    {{
+                      attempt.result
+                        ?.recommendation
+                    }}
+                  </p>
+                </div>
+              </div>
+            }
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>

@@ -1,0 +1,1378 @@
+:host {
+  display: block;
+}
+
+
+.whatsapp-page {
+  min-height: calc(100vh - 72px);
+
+  background:
+    var(--fb-cream);
+
+  color:
+    var(--fb-charcoal);
+
+  padding:
+    2rem 1rem 4rem;
+}
+
+
+.whatsapp-shell {
+  width: 100%;
+  max-width: 1080px;
+
+  margin:
+    0 auto;
+}
+
+
+/*
+ * =========================================================
+ * Page heading
+ * =========================================================
+ */
+
+.page-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  margin-bottom:
+    2rem;
+}
+
+
+.eyebrow,
+.section-label {
+  display: block;
+
+  margin-bottom:
+    0.4rem;
+
+  color:
+    var(--fb-terracotta);
+
+  font-family:
+    'Inter',
+    sans-serif;
+
+  font-size:
+    0.75rem;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.12em;
+
+  text-transform:
+    uppercase;
+}
+
+
+.page-heading h1 {
+  margin:
+    0;
+
+  color:
+    var(--fb-olive-dark);
+
+  font-family:
+    'Playfair Display',
+    serif;
+
+  font-size:
+    clamp(2.25rem,
+      7vw,
+      3.5rem);
+
+  line-height:
+    1.05;
+}
+
+
+.page-heading p {
+  max-width:
+    620px;
+
+  margin:
+    0.75rem 0 0;
+
+  color:
+    var(--fb-gray);
+
+  font-family:
+    'Inter',
+    sans-serif;
+
+  font-size:
+    0.98rem;
+
+  line-height:
+    1.7;
+}
+
+
+/*
+ * =========================================================
+ * Cards
+ * =========================================================
+ */
+
+.connection-card,
+.qr-card,
+.queue-card,
+.test-card {
+  background:
+    var(--fb-white);
+
+  border:
+    1px solid rgba(69,
+      69,
+      28,
+      0.08);
+
+  border-radius:
+    1.4rem;
+
+  box-shadow:
+    0 12px 32px rgba(32,
+      32,
+      28,
+      0.055);
+}
+
+/*
+ * =========================================================
+ * Communication queue
+ * =========================================================
+ */
+
+.queue-card {
+  margin-bottom:
+    1.5rem;
+
+  padding:
+    1.5rem;
+}
+
+
+.queue-heading {
+  display:
+    flex;
+
+  align-items:
+    flex-start;
+
+  gap:
+    1rem;
+
+  padding-bottom:
+    1.4rem;
+
+  border-bottom:
+    1px solid rgba(69,
+      69,
+      28,
+      0.08);
+}
+
+
+.queue-icon {
+  display:
+    grid;
+
+  flex:
+    0 0 auto;
+
+  width:
+    3rem;
+
+  height:
+    3rem;
+
+  place-items:
+    center;
+
+  border-radius:
+    1rem;
+
+  background:
+    rgba(197,
+      154,
+      91,
+      0.14);
+
+  color:
+    var(--fb-brown);
+
+  font-size:
+    1.25rem;
+}
+
+
+.queue-heading h2 {
+  margin:
+    0;
+
+  color:
+    var(--fb-olive-dark);
+
+  font-family:
+    'Playfair Display',
+    serif;
+
+  font-size:
+    1.5rem;
+}
+
+
+.queue-heading p {
+  max-width:
+    620px;
+
+  margin:
+    0.55rem 0 0;
+
+  color:
+    var(--fb-gray);
+
+  font-size:
+    0.9rem;
+
+  line-height:
+    1.6;
+}
+
+
+.queue-body {
+  padding-top:
+    1.4rem;
+}
+
+
+.queue-info {
+  display:
+    grid;
+
+  gap:
+    1rem;
+
+  margin-bottom:
+    1.4rem;
+}
+
+
+.queue-info>div {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    0.25rem;
+
+  padding:
+    1rem;
+
+  border-radius:
+    0.9rem;
+
+  background:
+    rgba(233,
+      223,
+      207,
+      0.34);
+}
+
+
+.queue-info span {
+  color:
+    var(--fb-gray);
+
+  font-size:
+    0.74rem;
+
+  font-weight:
+    650;
+
+  letter-spacing:
+    0.06em;
+
+  text-transform:
+    uppercase;
+}
+
+
+.queue-info strong {
+  color:
+    var(--fb-charcoal);
+
+  font-size:
+    0.95rem;
+}
+
+
+.queue-action {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    1rem;
+}
+
+
+.queue-action p {
+  margin:
+    0;
+
+  color:
+    var(--fb-gray);
+
+  font-size:
+    0.82rem;
+
+  line-height:
+    1.55;
+}
+
+.connection-card {
+  overflow:
+    hidden;
+
+  margin-bottom:
+    1.5rem;
+}
+
+
+.connection-header {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    1.25rem;
+
+  padding:
+    1.5rem;
+
+  background:
+    linear-gradient(135deg,
+      rgba(233,
+        223,
+        207,
+        0.55),
+      rgba(255,
+        253,
+        248,
+        0.6));
+
+  border-bottom:
+    1px solid rgba(69,
+      69,
+      28,
+      0.08);
+}
+
+
+.connection-title {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    1rem;
+}
+
+
+.icon-box {
+  display:
+    grid;
+
+  flex:
+    0 0 auto;
+
+  width:
+    3rem;
+
+  height:
+    3rem;
+
+  place-items:
+    center;
+
+  border-radius:
+    1rem;
+
+  background:
+    var(--fb-olive-dark);
+
+  color:
+    var(--fb-white);
+
+  font-size:
+    1.35rem;
+}
+
+
+.connection-title h2,
+.qr-card h2,
+.test-heading h2 {
+  margin:
+    0;
+
+  color:
+    var(--fb-olive-dark);
+
+  font-family:
+    'Playfair Display',
+    serif;
+
+  font-size:
+    1.5rem;
+}
+
+
+.connection-body {
+  padding:
+    1.5rem;
+}
+
+
+.instance-info {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    0.3rem;
+
+  margin-bottom:
+    1rem;
+}
+
+
+.info-label {
+  color:
+    var(--fb-gray);
+
+  font-size:
+    0.75rem;
+
+  font-weight:
+    600;
+
+  text-transform:
+    uppercase;
+
+  letter-spacing:
+    0.08em;
+}
+
+
+.instance-info strong {
+  color:
+    var(--fb-charcoal);
+
+  font-size:
+    1rem;
+}
+
+
+.connection-description {
+  max-width:
+    650px;
+
+  margin:
+    0 0 1.5rem;
+
+  color:
+    var(--fb-gray);
+
+  font-size:
+    0.92rem;
+
+  line-height:
+    1.65;
+}
+
+
+/*
+ * =========================================================
+ * Status
+ * =========================================================
+ */
+
+.status-badge {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  width:
+    fit-content;
+
+  gap:
+    0.45rem;
+
+  padding:
+    0.5rem 0.75rem;
+
+  border-radius:
+    999px;
+
+  font-family:
+    'Inter',
+    sans-serif;
+
+  font-size:
+    0.78rem;
+
+  font-weight:
+    700;
+}
+
+
+.status-dot {
+  width:
+    0.5rem;
+
+  height:
+    0.5rem;
+
+  border-radius:
+    50%;
+
+  background:
+    currentColor;
+}
+
+
+.status-online {
+  background:
+    rgba(69,
+      69,
+      28,
+      0.1);
+
+  color:
+    var(--fb-olive-dark);
+}
+
+
+.status-connecting {
+  background:
+    rgba(197,
+      154,
+      91,
+      0.16);
+
+  color:
+    var(--fb-brown);
+}
+
+
+.status-offline {
+  background:
+    rgba(167,
+      83,
+      23,
+      0.1);
+
+  color:
+    var(--fb-terracotta);
+}
+
+
+.status-unknown {
+  background:
+    rgba(101,
+      100,
+      94,
+      0.1);
+
+  color:
+    var(--fb-gray);
+}
+
+
+/*
+ * =========================================================
+ * Buttons
+ * =========================================================
+ */
+
+.actions {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    0.75rem;
+}
+
+
+button {
+  font-family:
+    'Inter',
+    sans-serif;
+
+  font-weight:
+    600;
+}
+
+
+.btn-primary-fb,
+.btn-secondary-fb,
+.btn-danger-soft,
+.btn-refresh {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    0.55rem;
+
+  min-height:
+    46px;
+
+  padding:
+    0.75rem 1.1rem;
+
+  border-radius:
+    0.8rem;
+
+  transition:
+    160ms ease;
+}
+
+
+.btn-primary-fb {
+  border:
+    1px solid var(--fb-olive-dark);
+
+  background:
+    var(--fb-olive-dark);
+
+  color:
+    var(--fb-white);
+}
+
+
+.btn-primary-fb:hover:not(:disabled) {
+  background:
+    var(--fb-olive);
+
+  border-color:
+    var(--fb-olive);
+}
+
+
+.btn-secondary-fb,
+.btn-refresh {
+  border:
+    1px solid rgba(69,
+      69,
+      28,
+      0.24);
+
+  background:
+    transparent;
+
+  color:
+    var(--fb-olive-dark);
+}
+
+
+.btn-secondary-fb:hover:not(:disabled),
+.btn-refresh:hover:not(:disabled) {
+  background:
+    rgba(69,
+      69,
+      28,
+      0.06);
+}
+
+
+.btn-danger-soft {
+  border:
+    1px solid rgba(167,
+      83,
+      23,
+      0.28);
+
+  background:
+    rgba(167,
+      83,
+      23,
+      0.05);
+
+  color:
+    var(--fb-terracotta);
+}
+
+
+button:disabled {
+  opacity:
+    0.55;
+
+  cursor:
+    not-allowed;
+}
+
+
+/*
+ * =========================================================
+ * QR
+ * =========================================================
+ */
+
+.qr-card {
+  margin-bottom:
+    1.5rem;
+
+  padding:
+    1.75rem;
+}
+
+
+.qr-content {
+  max-width:
+    580px;
+
+  margin:
+    0 auto;
+
+  text-align:
+    center;
+}
+
+
+.qr-content p {
+  margin:
+    0.75rem auto 1.5rem;
+
+  color:
+    var(--fb-gray);
+
+  line-height:
+    1.65;
+}
+
+
+.qr-frame {
+  display:
+    inline-flex;
+
+  padding:
+    1rem;
+
+  border:
+    1px solid rgba(197,
+      154,
+      91,
+      0.32);
+
+  border-radius:
+    1.25rem;
+
+  background:
+    #fff;
+}
+
+
+.qr-frame img {
+  display:
+    block;
+
+  width:
+    min(100%,
+      300px);
+
+  height:
+    auto;
+}
+
+
+/*
+ * =========================================================
+ * Test message
+ * =========================================================
+ */
+
+.test-card {
+  padding:
+    1.5rem;
+}
+
+
+.test-heading {
+  display:
+    flex;
+
+  align-items:
+    flex-start;
+
+  justify-content:
+    space-between;
+
+  gap:
+    1.5rem;
+
+  margin-bottom:
+    1.75rem;
+}
+
+
+.test-heading p {
+  max-width:
+    620px;
+
+  margin:
+    0.6rem 0 0;
+
+  color:
+    var(--fb-gray);
+
+  line-height:
+    1.6;
+}
+
+
+.test-icon {
+  display:
+    none;
+
+  color:
+    var(--fb-gold);
+
+  font-size:
+    2rem;
+}
+
+
+.form-grid {
+  display:
+    grid;
+
+  gap:
+    1.4rem;
+}
+
+
+.field-group {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    0.5rem;
+}
+
+
+.field-group label {
+  color:
+    var(--fb-charcoal);
+
+  font-size:
+    0.88rem;
+
+  font-weight:
+    650;
+}
+
+
+.field-group small {
+  color:
+    var(--fb-gray);
+
+  font-size:
+    0.76rem;
+}
+
+
+.input-shell {
+  position:
+    relative;
+}
+
+
+.input-shell i {
+  position:
+    absolute;
+
+  top:
+    50%;
+
+  left:
+    1rem;
+
+  transform:
+    translateY(-50%);
+
+  color:
+    var(--fb-olive);
+}
+
+
+.input-shell input {
+  padding-left:
+    2.8rem;
+}
+
+
+input,
+textarea {
+  width:
+    100%;
+
+  border:
+    1px solid rgba(69,
+      69,
+      28,
+      0.16);
+
+  border-radius:
+    0.8rem;
+
+  background:
+    #fffefb;
+
+  color:
+    var(--fb-charcoal);
+
+  font-family:
+    'Inter',
+    sans-serif;
+
+  font-size:
+    0.92rem;
+
+  outline:
+    none;
+
+  transition:
+    160ms ease;
+}
+
+
+input {
+  min-height:
+    48px;
+
+  padding:
+    0.75rem 1rem;
+}
+
+
+textarea {
+  resize:
+    vertical;
+
+  padding:
+    0.9rem 1rem;
+
+  line-height:
+    1.6;
+}
+
+
+input:focus,
+textarea:focus {
+  border-color:
+    var(--fb-gold);
+
+  box-shadow:
+    0 0 0 4px rgba(197,
+      154,
+      91,
+      0.12);
+}
+
+
+.test-footer {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    1rem;
+
+  margin-top:
+    1.5rem;
+}
+
+
+.test-footer p {
+  margin:
+    0;
+
+  color:
+    var(--fb-gray);
+
+  font-size:
+    0.8rem;
+}
+
+
+/*
+ * =========================================================
+ * Feedback
+ * =========================================================
+ */
+
+.feedback {
+  display:
+    flex;
+
+  align-items:
+    flex-start;
+
+  gap:
+    0.7rem;
+
+  margin-bottom:
+    1.5rem;
+
+  padding:
+    0.9rem 1rem;
+
+  border-radius:
+    0.9rem;
+
+  font-size:
+    0.88rem;
+}
+
+
+.feedback-error {
+  border:
+    1px solid rgba(167,
+      83,
+      23,
+      0.15);
+
+  background:
+    rgba(167,
+      83,
+      23,
+      0.07);
+
+  color:
+    var(--fb-brown);
+}
+
+
+/*
+ * =========================================================
+ * Loading
+ * =========================================================
+ */
+
+.loading-layer {
+  position:
+    fixed;
+
+  inset:
+    0;
+
+  z-index:
+    1000;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  padding:
+    1rem;
+
+  background:
+    rgba(247,
+      243,
+      234,
+      0.66);
+
+  backdrop-filter:
+    blur(3px);
+}
+
+
+.loading-box {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    0.7rem;
+
+  padding:
+    1rem 1.25rem;
+
+  border:
+    1px solid rgba(69,
+      69,
+      28,
+      0.08);
+
+  border-radius:
+    1rem;
+
+  background:
+    var(--fb-white);
+
+  box-shadow:
+    0 12px 32px rgba(32,
+      32,
+      28,
+      0.08);
+
+  color:
+    var(--fb-olive-dark);
+
+  font-size:
+    0.9rem;
+
+  font-weight:
+    600;
+}
+
+
+/*
+ * =========================================================
+ * Desktop
+ * =========================================================
+ */
+
+@media (min-width: 768px) {
+
+  .whatsapp-page {
+    padding:
+      3.5rem 2rem 5rem;
+  }
+
+  .queue-card {
+    padding:
+      2rem;
+  }
+
+
+  .queue-info {
+    grid-template-columns:
+      repeat(2,
+        minmax(0,
+          1fr));
+  }
+
+
+  .queue-action {
+    flex-direction:
+      row;
+
+    align-items:
+      center;
+
+    justify-content:
+      space-between;
+  }
+
+
+  .queue-action p {
+    max-width:
+      520px;
+  }
+
+  .page-heading {
+    flex-direction:
+      row;
+
+    align-items:
+      flex-start;
+
+    justify-content:
+      space-between;
+  }
+
+
+  .connection-header {
+    flex-direction:
+      row;
+
+    align-items:
+      center;
+
+    justify-content:
+      space-between;
+
+    padding:
+      1.75rem 2rem;
+  }
+
+
+  .connection-body,
+  .test-card {
+    padding:
+      2rem;
+  }
+
+
+  .actions {
+    flex-direction:
+      row;
+
+    flex-wrap:
+      wrap;
+  }
+
+
+  .test-icon {
+    display:
+      block;
+  }
+
+
+  .test-footer {
+    flex-direction:
+      row;
+
+    align-items:
+      center;
+
+    justify-content:
+      space-between;
+  }
+
+
+  .test-footer p {
+    max-width:
+      480px;
+  }
+
+}
+
+.feedback-success {
+  border:
+    1px solid rgba(69,
+      69,
+      28,
+      0.15);
+
+  background:
+    rgba(69,
+      69,
+      28,
+      0.07);
+
+  color:
+    var(--fb-olive-dark);
+}
+.queue-explanation {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    0.8rem;
+}
+
+
+.queue-steps {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    0.65rem;
+
+  color:
+    var(--fb-gray);
+
+  font-size:
+    0.78rem;
+}
+
+
+.queue-steps span {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    0.4rem;
+}
+
+
+.queue-steps strong {
+  display:
+    grid;
+
+  width:
+    1.45rem;
+
+  height:
+    1.45rem;
+
+  place-items:
+    center;
+
+  border-radius:
+    50%;
+
+  background:
+    var(--fb-beige);
+
+  color:
+    var(--fb-olive-dark);
+
+  font-size:
+    0.7rem;
+}
+
+
+.queue-steps i {
+  color:
+    var(--fb-gold);
+}
+
+
+.queue-buttons {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    0.75rem;
+}

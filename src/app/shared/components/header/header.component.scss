@@ -298,3 +298,28 @@
     height: 2.5rem;
   }
 }
+.site-header__portal-button {
+  display: none;
+}
+
+.site-header__mobile-portal {
+  margin-bottom: 0.75rem;
+}
+
+@media (
+  min-width: 992px
+) {
+  .site-header__portal-button {
+    display: inline-flex;
+  }
+}
+.site-header__logout-button,
+.site-header__mobile-logout {
+  font-family: inherit;
+
+  cursor: pointer;
+}
+
+.site-header__mobile-logout {
+  width: 100%;
+}

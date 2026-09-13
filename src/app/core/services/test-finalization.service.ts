@@ -6,9 +6,11 @@ import {
 import {
   SupabaseService,
 } from './supabase.service';
+import { environment } from '../../../environments/environment';
 
 export interface FinalizedTestResult {
   attemptId: string;
+
   status:
     | 'in_progress'
     | 'submitted'
@@ -18,6 +20,8 @@ export interface FinalizedTestResult {
   objectiveScore: number;
   percentage: number;
   estimatedLevel: string;
+
+  communicationTriggered: boolean;
 }
 
 interface FinalizeTestAttemptRow {
@@ -37,6 +41,16 @@ interface FinalizeTestAttemptRow {
 
   estimated_level:
     string;
+}
+
+interface HandleTestSubmittedResponse {
+  success: boolean;
+  attemptId?: string;
+  eventId?: string;
+  processed?: number;
+  sent?: number;
+  failed?: number;
+  error?: string;
 }
 
 @Injectable({
@@ -88,6 +102,11 @@ export class TestFinalizationService {
       );
     }
 
+    const communicationTriggered =
+      await this.triggerTestSubmittedCommunication(
+        result.attempt_id,
+      );
+
     return {
       attemptId:
         result.attempt_id,
@@ -107,8 +126,65 @@ export class TestFinalizationService {
 
       estimatedLevel:
         result.estimated_level,
+
+      communicationTriggered,
     };
   }
+
+private async triggerTestSubmittedCommunication(
+  attemptId: string,
+): Promise<boolean> {
+  try {
+    const response =
+      await fetch(
+        `${environment.functions.baseUrl}/handle-test-submitted`,
+        {
+          method: 'POST',
+
+          headers: {
+            'Content-Type':
+              'application/json',
+          },
+
+          body:
+            JSON.stringify({
+              attemptId,
+            }),
+        },
+      );
+
+    const data =
+      await response
+        .json() as
+        HandleTestSubmittedResponse;
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      console.error(
+        'handle-test-submitted returned failure:',
+        data,
+      );
+
+      return false;
+    }
+
+    console.log(
+      'Test submitted communication processed:',
+      data,
+    );
+
+    return true;
+  } catch (error) {
+    console.error(
+      'Could not trigger test submitted communication:',
+      error,
+    );
+
+    return false;
+  }
+}
 
   private getFinalizeErrorMessage(
     message: string,

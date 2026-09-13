@@ -193,11 +193,11 @@ export class AuthService {
           .signInAnonymously({
             options: fullName
               ? {
-                  data: {
-                    full_name:
-                      fullName.trim(),
-                  },
-                }
+                data: {
+                  full_name:
+                    fullName.trim(),
+                },
+              }
               : undefined,
           });
 
@@ -568,5 +568,58 @@ export class AuthService {
         user.is_anonymous ===
         true,
     });
+  }
+  async updatePassword(
+    password: string,
+  ): Promise<AuthOperationResult> {
+    const currentUser =
+      this.user();
+
+    if (!currentUser) {
+      return {
+        success: false,
+        message:
+          'Nenhuma sessão válida foi encontrada.',
+      };
+    }
+
+    this.loadingState.set(
+      true,
+    );
+
+    try {
+      const {
+        data,
+        error,
+      } =
+        await this.supabase.client.auth
+          .updateUser({
+            password,
+          });
+
+      if (error) {
+        return {
+          success: false,
+          message:
+            error.message,
+        };
+      }
+
+      if (data.user) {
+        await this.loadProfile(
+          data.user,
+        );
+      }
+
+      return {
+        success: true,
+        message:
+          'Senha criada com sucesso.',
+      };
+    } finally {
+      this.loadingState.set(
+        false,
+      );
+    }
   }
 }

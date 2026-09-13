@@ -1,0 +1,175 @@
+<div
+  class="admin-shell"
+  [class.admin-shell--menu-open]="
+    mobileMenuOpen()
+  "
+>
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__header">
+      <a
+        routerLink="/admin"
+        class="admin-brand"
+        (click)="closeMobileMenu()"
+      >
+        <span class="admin-brand__mark">
+          FB
+        </span>
+
+        <span class="admin-brand__copy">
+          <strong>
+            Language Center
+          </strong>
+
+          <small>
+            Administração
+          </small>
+        </span>
+      </a>
+
+      <button
+        type="button"
+        class="admin-sidebar__close"
+        aria-label="Fechar menu"
+        (click)="closeMobileMenu()"
+      >
+        <i
+          class="
+            bi
+            bi-x-lg
+          "
+        ></i>
+      </button>
+    </div>
+
+    <nav
+      class="admin-navigation"
+      aria-label="Navegação administrativa"
+    >
+      @for (
+        item of navigation;
+        track item.route
+      ) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="admin-navigation__link--active"
+          [routerLinkActiveOptions]="{
+            exact: item.exact ?? false
+          }"
+          class="admin-navigation__link"
+          (click)="closeMobileMenu()"
+        >
+          <i
+            class="bi"
+            [class]="
+              'bi ' + item.icon
+            "
+          ></i>
+
+          <span>
+            {{ item.label }}
+          </span>
+        </a>
+      }
+    </nav>
+
+    <div class="admin-sidebar__footer">
+      <div class="admin-user">
+        <div class="admin-user__avatar">
+          {{ userInitials() }}
+        </div>
+
+        <div class="admin-user__info">
+          <strong>
+            {{ userName() }}
+          </strong>
+
+          <span>
+            {{ roleLabel() }}
+          </span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="admin-logout"
+        [disabled]="
+          isLoggingOut()
+        "
+        (click)="signOut()"
+      >
+        @if (
+          isLoggingOut()
+        ) {
+          <span
+            class="
+              spinner-border
+              spinner-border-sm
+            "
+            aria-hidden="true"
+          ></span>
+
+          <span>
+            Saindo...
+          </span>
+        } @else {
+          <i
+            class="
+              bi
+              bi-box-arrow-right
+            "
+          ></i>
+
+          <span>
+            Sair
+          </span>
+        }
+      </button>
+    </div>
+  </aside>
+
+  @if (
+    mobileMenuOpen()
+  ) {
+    <button
+      type="button"
+      class="admin-backdrop"
+      aria-label="Fechar menu"
+      (click)="closeMobileMenu()"
+    ></button>
+  }
+
+  <section class="admin-content">
+    <header class="admin-mobile-header">
+      <a
+        routerLink="/admin"
+        class="admin-mobile-brand"
+      >
+        <span>
+          FB
+        </span>
+
+        <strong>
+          Admin
+        </strong>
+      </a>
+
+      <button
+        type="button"
+        class="admin-menu-button"
+        aria-label="Abrir menu"
+        (click)="toggleMobileMenu()"
+      >
+        <i
+          class="
+            bi
+            bi-list
+          "
+        ></i>
+      </button>
+    </header>
+
+    <main class="admin-main">
+      <router-outlet />
+    </main>
+  </section>
+</div>

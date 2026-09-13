@@ -1,0 +1,467 @@
+<section class="student-detail-page">
+  <div class="student-detail-container">
+    <a
+      routerLink="/admin/alunos"
+      class="back-link"
+    >
+      <i class="bi bi-arrow-left"></i>
+
+      Voltar para alunos
+    </a>
+
+    @if (isLoading()) {
+      <div class="state-card">
+        <span
+          class="
+            spinner-border
+            spinner-border-sm
+          "
+        ></span>
+
+        Carregando aluno...
+      </div>
+    } @else if (errorMessage()) {
+      <div class="state-card state-card--error">
+        <i class="bi bi-exclamation-circle"></i>
+
+        {{ errorMessage() }}
+      </div>
+    } @else {
+      @if (student(); as student) {
+        <header class="student-header">
+          <div class="student-header__identity">
+            <div class="student-header__avatar">
+              {{
+                student.fullName
+                  .slice(0, 2)
+                  .toUpperCase()
+              }}
+            </div>
+
+            <div>
+              <span class="student-eyebrow">
+                Perfil do aluno
+              </span>
+
+              <h1>
+                {{ student.fullName }}
+              </h1>
+
+              <div class="student-contact">
+                @if (student.email) {
+                  <span>
+                    <i class="bi bi-envelope"></i>
+
+                    {{ student.email }}
+                  </span>
+                }
+
+                @if (student.whatsapp) {
+                  <span>
+                    <i class="bi bi-whatsapp"></i>
+
+                    {{ student.whatsapp }}
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="contact-button"
+            disabled
+            title="Integração será adicionada posteriormente"
+          >
+            <i class="bi bi-chat-dots"></i>
+
+            Entrar em contato
+          </button>
+        </header>
+
+        <div class="summary-grid">
+          <article class="summary-card">
+            <span>
+              Testes realizados
+            </span>
+
+            <strong>
+              {{ totalTests() }}
+            </strong>
+          </article>
+
+          <article class="summary-card">
+            <span>
+              Nível atual
+            </span>
+
+            <strong>
+              {{ currentLevel() ?? 'Pendente' }}
+            </strong>
+          </article>
+
+          <article class="summary-card">
+            <span>
+              Último teste
+            </span>
+
+            <strong class="summary-card__date">
+              @if (lastTest()) {
+                {{
+                  lastTest()!.submittedAt
+                    ?? lastTest()!.startedAt
+                    | date:'dd/MM/yyyy'
+                }}
+              } @else {
+                Nenhum
+              }
+            </strong>
+          </article>
+
+          <article class="summary-card">
+            <span>
+              Status
+            </span>
+
+            <strong class="summary-card__status">
+              {{
+                student.leadStatus
+                ?? 'Não informado'
+              }}
+            </strong>
+          </article>
+        </div>
+
+        <div class="content-grid">
+          <section class="content-card">
+            <div class="section-heading">
+              <span>
+                Perfil
+              </span>
+
+              <h2>
+                Informações do aluno
+              </h2>
+            </div>
+
+            <dl class="student-data">
+              <div>
+                <dt>
+                  Nível percebido
+                </dt>
+
+                <dd>
+                  {{
+                    student.perceivedLevel
+                    ?? 'Não informado'
+                  }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>
+                  Tempo de estudo
+                </dt>
+
+                <dd>
+                  {{
+                    student.studyDuration
+                    ?? 'Não informado'
+                  }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>
+                  Escola anterior
+                </dt>
+
+                <dd>
+                  {{
+                    student.previousSchool
+                    ?? 'Não informado'
+                  }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>
+                  Objetivo principal
+                </dt>
+
+                <dd>
+                  {{
+                    student.mainGoal
+                    ?? 'Não informado'
+                  }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>
+                  Modalidade preferida
+                </dt>
+
+                <dd>
+                  {{
+                    student.preferredModality
+                    ?? 'Não informado'
+                  }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>
+                  Disponibilidade
+                </dt>
+
+                <dd>
+                  {{
+                    student.availabilityPeriod
+                    ?? 'Não informado'
+                  }}
+                </dd>
+              </div>
+            </dl>
+
+            @if (student.notes) {
+              <div class="student-notes">
+                <span>
+                  Observações
+                </span>
+
+                <p>
+                  {{ student.notes }}
+                </p>
+              </div>
+            }
+          </section>
+
+          <section class="content-card">
+            <div class="section-heading">
+              <span>
+                Histórico
+              </span>
+
+              <h2>
+                Testes realizados
+              </h2>
+            </div>
+
+            @if (tests().length === 0) {
+              <div class="empty-state">
+                <i class="bi bi-journal-text"></i>
+
+                <p>
+                  Nenhum teste encontrado.
+                </p>
+              </div>
+            } @else {
+              <div class="tests-list">
+                @for (
+                  test of tests();
+                  track test.id
+                ) {
+                  <article class="test-row">
+                    <div class="test-row__main">
+                      <span class="test-date">
+                        {{
+                          test.submittedAt
+                            ?? test.startedAt
+                            | date:'dd/MM/yyyy'
+                        }}
+                      </span>
+
+                      <span
+                        [class]="
+                          'status-badge '
+                          + statusClass(
+                            test.status
+                          )
+                        "
+                      >
+                        {{
+                          statusLabel(
+                            test.status
+                          )
+                        }}
+                      </span>
+                    </div>
+
+                    <div class="test-result">
+                      @if (test.result) {
+                        <div>
+                          <span>
+                            Nível
+                          </span>
+
+                          <strong>
+                            {{
+                              test.result
+                                .estimatedLevel
+                            }}
+                          </strong>
+                        </div>
+
+                        <div>
+                          <span>
+                            Desempenho
+                          </span>
+
+                          <strong>
+                            {{
+                              test.result
+                                .percentage
+                                | number:'1.0-1'
+                            }}%
+                          </strong>
+                        </div>
+                      } @else {
+                        <span class="test-result__pending">
+                          Resultado ainda
+                          não disponível
+                        </span>
+                      }
+                    </div>
+
+                    <a
+                      [routerLink]="[
+                        '/admin/avaliacoes',
+                        test.id
+                      ]"
+                      class="test-action"
+                    >
+                      Ver avaliação
+
+                      <i class="bi bi-arrow-right"></i>
+                    </a>
+                  </article>
+                }
+              </div>
+            }
+          </section>
+
+          <section class="content-card communication-card">
+            <div class="section-heading">
+              <span>
+                Comunicação
+              </span>
+
+              <h2>
+                Histórico de mensagens
+              </h2>
+            </div>
+
+            @if (messages().length === 0) {
+              <div class="empty-state">
+                <i class="bi bi-chat-dots"></i>
+
+                <p>
+                  Nenhuma comunicação foi
+                  registrada para este aluno.
+                </p>
+              </div>
+            } @else {
+              <div class="communication-list">
+                @for (
+                  message of messages();
+                  track message.id
+                ) {
+                  <article class="communication-item">
+                    <div class="communication-item__header">
+                      <div>
+                        <span class="communication-channel">
+                          @if (
+                            message.channel ===
+                            'whatsapp'
+                          ) {
+                            <i class="bi bi-whatsapp"></i>
+                          } @else {
+                            <i class="bi bi-chat"></i>
+                          }
+
+                          {{ message.channel }}
+                        </span>
+
+                        <span class="communication-date">
+                          {{
+                            message.sentAt
+                              ?? message.createdAt
+                              | date:'dd/MM/yyyy HH:mm'
+                          }}
+                        </span>
+                      </div>
+
+                      <span
+                        [class]="
+                          'message-status '
+                          + messageStatusClass(
+                            message.status
+                          )
+                        "
+                      >
+                        {{
+                          messageStatusLabel(
+                            message.status
+                          )
+                        }}
+                      </span>
+                    </div>
+
+                    <div class="communication-body">
+                      {{ message.messageBody }}
+                    </div>
+
+                    <div class="communication-meta">
+                      <span>
+                        Destinatário:
+                        <strong>
+                          {{ message.recipient }}
+                        </strong>
+                      </span>
+
+                      @if (message.provider) {
+                        <span>
+                          Provider:
+                          <strong>
+                            {{ message.provider }}
+                          </strong>
+                        </span>
+                      }
+
+                      @if (
+                        message.attemptCount > 1
+                      ) {
+                        <span>
+                          Tentativas:
+                          <strong>
+                            {{ message.attemptCount }}
+                          </strong>
+                        </span>
+                      }
+                    </div>
+
+                    @if (message.lastError) {
+                      <div class="communication-error">
+                        <i
+                          class="
+                            bi
+                            bi-exclamation-triangle
+                          "
+                        ></i>
+
+                        <span>
+                          {{ message.lastError }}
+                        </span>
+                      </div>
+                    }
+                  </article>
+                }
+              </div>
+            }
+          </section>
+        </div>
+      }
+    }
+  </div>
+</section>

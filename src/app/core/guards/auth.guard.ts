@@ -15,13 +15,13 @@ export const authGuard: CanActivateFn =
     const router =
       inject(Router);
 
-    while (!authService.initialized()) {
-      await new Promise<void>((resolve) => {
-        window.setTimeout(resolve, 25);
-      });
-    }
+    await authService
+      .waitUntilInitialized();
 
-    if (authService.isAuthenticated()) {
+    if (
+      authService
+        .isAuthenticated()
+    ) {
       return true;
     }
 

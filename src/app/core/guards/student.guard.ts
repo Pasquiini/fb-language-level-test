@@ -15,20 +15,29 @@ export const studentGuard: CanActivateFn =
     const router =
       inject(Router);
 
-    while (!authService.initialized()) {
-      await new Promise<void>((resolve) => {
-        window.setTimeout(resolve, 25);
-      });
+    await authService
+      .waitUntilInitialized();
+
+    if (
+      !authService
+        .isAuthenticated()
+    ) {
+      return router.createUrlTree([
+        '/login',
+      ]);
     }
 
     if (
-      authService.isAuthenticated() &&
-      authService.isStudent()
+      authService
+        .isStudent()
     ) {
       return true;
     }
 
-    if (authService.isStaff()) {
+    if (
+      authService
+        .isStaff()
+    ) {
       return router.createUrlTree([
         '/admin',
       ]);

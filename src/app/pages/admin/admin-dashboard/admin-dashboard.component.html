@@ -1,0 +1,502 @@
+<section class="dashboard-page">
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <div>
+        <span class="dashboard-eyebrow">
+          Visão geral
+        </span>
+
+        <h1>
+          Olá, {{ firstName() }}.
+        </h1>
+
+        <p>
+          Acompanhe avaliações,
+          alunos e comunicações
+          da FB Language Center.
+        </p>
+      </div>
+
+      <a
+        routerLink="/admin/avaliacoes"
+        class="dashboard-primary-action"
+      >
+        <i
+          class="
+            bi
+            bi-clipboard-check
+          "
+        ></i>
+
+        Ver avaliações
+      </a>
+    </header>
+
+    @if (errorMessage()) {
+      <div
+        class="dashboard-alert"
+        role="alert"
+      >
+        <i
+          class="
+            bi
+            bi-exclamation-circle
+          "
+        ></i>
+
+        <span>
+          {{ errorMessage() }}
+        </span>
+      </div>
+    }
+
+    <div class="dashboard-stats">
+      <a
+        routerLink="/admin/avaliacoes"
+        class="dashboard-stat"
+      >
+        <div class="dashboard-stat__icon">
+          <i
+            class="
+              bi
+              bi-hourglass-split
+            "
+          ></i>
+        </div>
+
+        <div>
+          <span>
+            Aguardando revisão
+          </span>
+
+          <strong>
+            @if (isLoading()) {
+              <span
+                class="
+                  spinner-border
+                  spinner-border-sm
+                "
+                aria-hidden="true"
+              ></span>
+            } @else {
+              {{ stats().underReview }}
+            }
+          </strong>
+
+          <small>
+            Avaliações pendentes
+          </small>
+        </div>
+      </a>
+
+      <a
+        routerLink="/admin/avaliacoes"
+        class="dashboard-stat"
+      >
+        <div class="dashboard-stat__icon">
+          <i
+            class="
+              bi
+              bi-check2-circle
+            "
+          ></i>
+        </div>
+
+        <div>
+          <span>
+            Concluídas
+          </span>
+
+          <strong>
+            @if (isLoading()) {
+              <span
+                class="
+                  spinner-border
+                  spinner-border-sm
+                "
+                aria-hidden="true"
+              ></span>
+            } @else {
+              {{ stats().completed }}
+            }
+          </strong>
+
+          <small>
+            Avaliações finalizadas
+          </small>
+        </div>
+      </a>
+
+      <a
+        routerLink="/admin/avaliacoes"
+        class="dashboard-stat"
+      >
+        <div class="dashboard-stat__icon">
+          <i
+            class="
+              bi
+              bi-journal-text
+            "
+          ></i>
+        </div>
+
+        <div>
+          <span>
+            Testes realizados
+          </span>
+
+          <strong>
+            @if (isLoading()) {
+              <span
+                class="
+                  spinner-border
+                  spinner-border-sm
+                "
+                aria-hidden="true"
+              ></span>
+            } @else {
+              {{ stats().totalTests }}
+            }
+          </strong>
+
+          <small>
+            Total registrado
+          </small>
+        </div>
+      </a>
+
+      <a
+        routerLink="/admin/whatsapp"
+        class="dashboard-stat"
+        [class.dashboard-stat--attention]="
+          stats().communicationIssues > 0
+        "
+      >
+        <div class="dashboard-stat__icon">
+          <i
+            class="
+              bi
+              bi-chat-dots
+            "
+          ></i>
+        </div>
+
+        <div>
+          <span>
+            Comunicação
+          </span>
+
+          <strong>
+            @if (isLoading()) {
+              <span
+                class="
+                  spinner-border
+                  spinner-border-sm
+                "
+                aria-hidden="true"
+              ></span>
+            } @else {
+              {{
+                stats()
+                  .communicationIssues
+              }}
+            }
+          </strong>
+
+          <small>
+            Pendentes ou falhas
+          </small>
+        </div>
+      </a>
+    </div>
+
+    <section class="dashboard-section">
+      <div class="dashboard-section__heading">
+        <div>
+          <span>
+            Navegação
+          </span>
+
+          <h2>
+            Atalhos
+          </h2>
+        </div>
+      </div>
+
+      <div class="dashboard-shortcuts">
+        @for (
+          shortcut of shortcuts;
+          track shortcut.route
+        ) {
+          <a
+            [routerLink]="shortcut.route"
+            class="dashboard-shortcut"
+          >
+            <div class="dashboard-shortcut__icon">
+              <i
+                [class]="
+                  'bi '
+                  + shortcut.icon
+                "
+              ></i>
+            </div>
+
+            <div class="dashboard-shortcut__content">
+              <h3>
+                {{ shortcut.title }}
+              </h3>
+
+              <p>
+                {{ shortcut.description }}
+              </p>
+            </div>
+
+            <i
+              class="
+                bi
+                bi-arrow-up-right
+                dashboard-shortcut__arrow
+              "
+            ></i>
+          </a>
+        }
+      </div>
+    </section>
+
+    <div class="dashboard-lower-grid">
+      <section class="dashboard-panel">
+        <div class="dashboard-panel__heading">
+          <div>
+            <span>
+              Atividade
+            </span>
+
+            <h2>
+              Alunos recentes
+            </h2>
+          </div>
+
+          <a routerLink="/admin/alunos">
+            Ver todos
+          </a>
+        </div>
+
+        @if (isLoading()) {
+          <div class="dashboard-empty">
+            <span
+              class="
+                spinner-border
+                spinner-border-sm
+              "
+              aria-hidden="true"
+            ></span>
+
+            <p>
+              Carregando alunos...
+            </p>
+          </div>
+        } @else if (
+          recentStudents().length ===
+          0
+        ) {
+          <div class="dashboard-empty">
+            <div class="dashboard-empty__icon">
+              <i
+                class="
+                  bi
+                  bi-people
+                "
+              ></i>
+            </div>
+
+            <strong>
+              Nenhum aluno encontrado
+            </strong>
+
+            <p>
+              Os novos alunos aparecerão
+              aqui assim que forem
+              cadastrados.
+            </p>
+          </div>
+        } @else {
+          <div class="recent-students">
+            @for (
+              student
+              of recentStudents();
+              track student.id
+            ) {
+              <a
+                [routerLink]="[
+                  '/admin/alunos',
+                  student.id
+                ]"
+                class="recent-student"
+              >
+                <div class="recent-student__avatar">
+                  {{
+                    initials(
+                      student.fullName
+                    )
+                  }}
+                </div>
+
+                <div class="recent-student__content">
+                  <strong>
+                    {{ student.fullName }}
+                  </strong>
+
+                  <span>
+                    {{
+                      student.email
+                      ?? student.whatsapp
+                      ?? 'Sem contato'
+                    }}
+                  </span>
+                </div>
+
+                <div class="recent-student__meta">
+                  <span>
+                    {{
+                      student.level
+                      ?? 'Nível não informado'
+                    }}
+                  </span>
+
+                  <small>
+                    {{
+                      student.createdAt
+                        | date:'dd/MM/yyyy'
+                    }}
+                  </small>
+                </div>
+
+                <i
+                  class="
+                    bi
+                    bi-chevron-right
+                  "
+                ></i>
+              </a>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="dashboard-panel">
+        <div class="dashboard-panel__heading">
+          <div>
+            <span>
+              Operação
+            </span>
+
+            <h2>
+              Prioridades
+            </h2>
+          </div>
+        </div>
+
+        <div class="dashboard-tasks">
+          <a
+            routerLink="/admin/avaliacoes"
+            class="dashboard-task"
+          >
+            <i
+              class="
+                bi
+                bi-clipboard-check
+              "
+            ></i>
+
+            <div>
+              <strong>
+                Revisar avaliações
+              </strong>
+
+              <span>
+                @if (
+                  stats().underReview >
+                  0
+                ) {
+                  {{
+                    stats().underReview
+                  }}
+                  {{
+                    stats().underReview ===
+                    1
+                      ? 'avaliação aguarda'
+                      : 'avaliações aguardam'
+                  }}
+                  revisão.
+                } @else {
+                  Nenhuma avaliação
+                  aguardando revisão.
+                }
+              </span>
+            </div>
+          </a>
+
+          <a
+            routerLink="/admin/whatsapp"
+            class="dashboard-task"
+          >
+            <i
+              class="
+                bi
+                bi-whatsapp
+              "
+            ></i>
+
+            <div>
+              <strong>
+                Conferir comunicação
+              </strong>
+
+              <span>
+                @if (
+                  stats()
+                    .communicationIssues >
+                  0
+                ) {
+                  {{
+                    stats()
+                      .communicationIssues
+                  }}
+                  mensagens precisam
+                  de atenção.
+                } @else {
+                  Nenhuma pendência
+                  de comunicação.
+                }
+              </span>
+            </div>
+          </a>
+
+          <a
+            routerLink="/admin/alunos"
+            class="dashboard-task"
+          >
+            <i
+              class="
+                bi
+                bi-people
+              "
+            ></i>
+
+            <div>
+              <strong>
+                Consultar alunos
+              </strong>
+
+              <span>
+                Veja perfis,
+                testes e histórico
+                de comunicação.
+              </span>
+            </div>
+          </a>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>

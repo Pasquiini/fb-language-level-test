@@ -1,0 +1,382 @@
+<section class="portal-dashboard">
+  <div class="portal-container">
+    <header class="dashboard-header">
+      <div>
+        <span class="dashboard-eyebrow">
+          Seu espaço
+        </span>
+
+        <h1>
+          Olá, {{ firstName() }}.
+        </h1>
+
+        <p>
+          Acompanhe seu teste,
+          resultado e próximos passos
+          com a FB Language Center.
+        </p>
+      </div>
+    </header>
+
+    @if (isLoading()) {
+      <div class="portal-state">
+        <span
+          class="
+            spinner-border
+            spinner-border-sm
+          "
+        ></span>
+
+        Carregando seu portal...
+      </div>
+    } @else if (errorMessage()) {
+      <div
+        class="
+          portal-state
+          portal-state--error
+        "
+      >
+        <i
+          class="
+            bi
+            bi-exclamation-circle
+          "
+        ></i>
+
+        {{ errorMessage() }}
+      </div>
+    } @else {
+      @if (latestAttempt(); as attempt) {
+        <section class="test-status-card">
+          <div class="test-status-card__icon">
+            @if (
+              attempt.status ===
+              'completed'
+            ) {
+              <i
+                class="
+                  bi
+                  bi-check2-circle
+                "
+              ></i>
+            } @else {
+              <i
+                class="
+                  bi
+                  bi-hourglass-split
+                "
+              ></i>
+            }
+          </div>
+
+          <div class="test-status-card__content">
+            <span>
+              Seu último teste
+            </span>
+
+            @if (
+              attempt.status ===
+              'completed'
+            ) {
+              <h2>
+                Sua avaliação está pronta
+              </h2>
+
+              <p>
+                Seu teste foi concluído
+                pela equipe pedagógica.
+              </p>
+            } @else if (
+              attempt.status ===
+              'under_review'
+            ) {
+              <h2>
+                Resultado em análise
+              </h2>
+
+              <p>
+                Sua avaliação foi recebida
+                e está sendo analisada pela
+                nossa equipe pedagógica.
+              </p>
+            } @else {
+              <h2>
+                Teste em andamento
+              </h2>
+
+              <p>
+                Você ainda possui um teste
+                em andamento.
+              </p>
+            }
+          </div>
+
+          <span
+            [class]="
+              'status-pill '
+              + statusClass(
+                attempt.status
+              )
+            "
+          >
+            {{
+              statusLabel(
+                attempt.status
+              )
+            }}
+          </span>
+        </section>
+
+        <div class="dashboard-grid">
+          <section class="dashboard-card">
+            <div class="dashboard-card__heading">
+              <span>
+                Nível atual
+              </span>
+
+              <i
+                class="
+                  bi
+                  bi-bar-chart
+                "
+              ></i>
+            </div>
+
+            <strong class="level-placeholder">
+              {{
+                currentLevel()
+                ?? 'Pendente'
+              }}
+            </strong>
+
+            @if (currentLevel()) {
+              <p>
+                Este é o nível definido
+                após a avaliação pedagógica
+                do seu teste.
+              </p>
+            } @else {
+              <p>
+                Seu nível será disponibilizado
+                após a avaliação completa
+                do teste.
+              </p>
+            }
+          </section>
+
+          <section class="dashboard-card">
+            <div class="dashboard-card__heading">
+              <span>
+                Desempenho
+              </span>
+
+              <i
+                class="
+                  bi
+                  bi-graph-up
+                "
+              ></i>
+            </div>
+
+            @if (attempt.result) {
+              <strong>
+                {{
+                  attempt.result.percentage
+                    | number:'1.0-1'
+                }}%
+              </strong>
+
+              <p>
+                Resultado objetivo registrado
+                no seu teste de nivelamento.
+              </p>
+            } @else {
+              <strong>
+                Em análise
+              </strong>
+
+              <p>
+                O resultado completo ainda
+                não está disponível.
+              </p>
+            }
+          </section>
+        </div>
+
+        @if (summary()) {
+          <section class="result-card">
+            <span class="dashboard-eyebrow">
+              Sua análise
+            </span>
+
+            <h2>
+              Sobre seu resultado
+            </h2>
+
+            <p>
+              {{ summary() }}
+            </p>
+          </section>
+        }
+
+        <section class="portal-section">
+          <div class="portal-section__heading">
+            <span>
+              Acesso rápido
+            </span>
+
+            <h2>
+              Continue por aqui
+            </h2>
+          </div>
+
+          <div class="shortcut-grid">
+            <a
+              routerLink="/portal/testes"
+              class="shortcut-card"
+            >
+              <div class="shortcut-card__icon">
+                <i
+                  class="
+                    bi
+                    bi-journal-check
+                  "
+                ></i>
+              </div>
+
+              <div>
+                <h3>
+                  Meus testes
+                </h3>
+
+                <p>
+                  Consulte seu histórico
+                  de avaliações.
+                </p>
+              </div>
+
+              <i
+                class="
+                  bi
+                  bi-arrow-right
+                  shortcut-card__arrow
+                "
+              ></i>
+            </a>
+
+            <a
+              routerLink="/portal/perfil"
+              class="shortcut-card"
+            >
+              <div class="shortcut-card__icon">
+                <i
+                  class="
+                    bi
+                    bi-person
+                  "
+                ></i>
+              </div>
+
+              <div>
+                <h3>
+                  Meu perfil
+                </h3>
+
+                <p>
+                  Consulte seus dados
+                  pessoais.
+                </p>
+              </div>
+
+              <i
+                class="
+                  bi
+                  bi-arrow-right
+                  shortcut-card__arrow
+                "
+              ></i>
+            </a>
+          </div>
+        </section>
+
+        <section class="recommendation-card">
+          <span class="dashboard-eyebrow">
+            Próximos passos
+          </span>
+
+          @if (recommendation()) {
+            <h2>
+              Recomendação para você
+            </h2>
+
+            <p>
+              {{ recommendation() }}
+            </p>
+          } @else if (
+            attempt.status ===
+            'under_review'
+          ) {
+            <h2>
+              Sua recomendação está sendo preparada.
+            </h2>
+
+            <p>
+              Assim que a avaliação for
+              concluída, as próximas
+              orientações aparecerão aqui.
+            </p>
+          } @else {
+            <h2>
+              Continue sua jornada.
+            </h2>
+
+            <p>
+              Consulte seus testes e acompanhe
+              as próximas orientações da
+              FB Language Center.
+            </p>
+          }
+        </section>
+      } @else {
+        <section class="no-test-card">
+          <div class="no-test-card__icon">
+            <i
+              class="
+                bi
+                bi-journal-plus
+              "
+            ></i>
+          </div>
+
+          <span class="dashboard-eyebrow">
+            Teste de nivelamento
+          </span>
+
+          <h2>
+            Você ainda não possui um teste.
+          </h2>
+
+          <p>
+            Faça seu teste de nivelamento
+            para descobrir seu nível atual
+            de inglês.
+          </p>
+
+          <a
+            routerLink="/teste"
+            class="start-test-button"
+          >
+            Fazer teste
+
+            <i
+              class="
+                bi
+                bi-arrow-right
+              "
+            ></i>
+          </a>
+        </section>
+      }
+    }
+  </div>
+</section>

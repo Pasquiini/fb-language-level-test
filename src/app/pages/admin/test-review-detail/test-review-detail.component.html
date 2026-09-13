@@ -1,0 +1,975 @@
+<main
+  class="review-page"
+  id="main-content"
+>
+  <header class="review-header">
+    <div class="container">
+      <a
+        routerLink="/admin/avaliacoes"
+        class="review-back"
+      >
+        <i
+          class="bi bi-arrow-left"
+          aria-hidden="true"
+        ></i>
+
+        Voltar para avaliações
+      </a>
+
+      @if (review(); as reviewData) {
+        <div class="review-header__content">
+          <div>
+            <span class="review-eyebrow">
+              Avaliação pedagógica
+            </span>
+
+            <h1>
+              {{ reviewData.studentName }}
+            </h1>
+
+            <p>
+              Teste enviado em
+              {{
+                formatDate(
+                  reviewData.createdAt
+                )
+              }}
+            </p>
+          </div>
+
+          <span
+            class="review-status"
+            [class.review-status--completed]="
+              reviewData.status ===
+              'completed'
+            "
+          >
+            @if (
+              reviewData.status ===
+              'completed'
+            ) {
+              <i
+                class="bi bi-check-circle"
+                aria-hidden="true"
+              ></i>
+
+              Concluída
+            } @else {
+              <i
+                class="bi bi-hourglass-split"
+                aria-hidden="true"
+              ></i>
+
+              Aguardando revisão
+            }
+          </span>
+        </div>
+      }
+    </div>
+  </header>
+
+  <section class="review-content">
+    <div class="container">
+      @if (loading()) {
+        <div
+          class="review-state"
+          role="status"
+          aria-live="polite"
+        >
+          <span
+            class="spinner-border"
+            aria-hidden="true"
+          ></span>
+
+          <h2>
+            Carregando avaliação
+          </h2>
+
+          <p>
+            Recuperando resultado,
+            Speaking e dados do aluno.
+          </p>
+        </div>
+      } @else if (error()) {
+        <div
+          class="
+            review-state
+            review-state--error
+          "
+          role="alert"
+        >
+          <i
+            class="bi bi-exclamation-circle"
+            aria-hidden="true"
+          ></i>
+
+          <h2>
+            Não foi possível carregar
+          </h2>
+
+          <p>
+            {{ error() }}
+          </p>
+
+          <button
+            type="button"
+            class="
+              fb-button
+              fb-button--outline
+            "
+            (click)="reload()"
+          >
+            Tentar novamente
+          </button>
+        </div>
+      } @else {
+        @if (review(); as reviewData) {
+
+          @if (
+            completionWarning()
+          ) {
+            <section
+              class="review-warning"
+              role="alert"
+            >
+              <div class="review-warning__icon">
+                <i
+                  class="
+                    bi
+                    bi-exclamation-triangle
+                  "
+                  aria-hidden="true"
+                ></i>
+              </div>
+
+              <div>
+                <strong>
+                  Avaliação concluída
+                </strong>
+
+                <p>
+                  {{
+                    completionWarning()
+                  }}
+                </p>
+
+                <p>
+                  O resultado pedagógico foi
+                  salvo normalmente.
+                </p>
+              </div>
+            </section>
+          }
+
+          @if (
+            reviewData.status ===
+            'completed'
+          ) {
+            <section class="review-completed">
+              <div
+                class="review-completed__icon"
+                aria-hidden="true"
+              >
+                <i
+                  class="bi bi-check2"
+                ></i>
+              </div>
+
+              <div>
+                <strong>
+                  Avaliação concluída
+                </strong>
+
+                <p>
+                  O resultado pedagógico
+                  desta avaliação já foi
+                  definido.
+                </p>
+              </div>
+            </section>
+          }
+
+          <div class="review-layout">
+            <section class="review-main">
+
+              <!-- RESULTADO OBJETIVO -->
+
+              <article class="review-panel">
+                <div class="review-panel__heading">
+                  <div>
+                    <span class="review-eyebrow">
+                      Resultado objetivo
+                    </span>
+
+                    <h2>
+                      Grammar + Listening
+                    </h2>
+
+                    <p class="review-panel__description">
+                      Resultado calculado a partir
+                      das questões objetivas do
+                      teste.
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  class="
+                    objective-grid
+                    objective-grid--two
+                  "
+                >
+                  <div>
+                    <span>
+                      Pontuação
+                    </span>
+
+                    <strong>
+                      {{
+                        reviewData.objectiveScore
+                        ?? '—'
+                      }}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Desempenho
+                    </span>
+
+                    <strong>
+                      {{
+                        formatPercentage(
+                          reviewData.percentage
+                        )
+                      }}
+                    </strong>
+                  </div>
+                </div>
+              </article>
+
+              <!-- SPEAKING -->
+
+              <article class="review-panel">
+                <div class="review-panel__heading">
+                  <div>
+                    <span class="review-eyebrow">
+                      Speaking
+                    </span>
+
+                    <h2>
+                      Respostas em áudio
+                    </h2>
+
+                    <p class="review-panel__description">
+                      Ouça as respostas do aluno
+                      e considere fluência,
+                      compreensão, vocabulário
+                      e capacidade de comunicação.
+                    </p>
+                  </div>
+                </div>
+
+                @if (speakingLoading()) {
+                  <div
+                    class="speaking-placeholder"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <span
+                      class="spinner-border"
+                      aria-hidden="true"
+                    ></span>
+
+                    <h3>
+                      Carregando gravações
+                    </h3>
+
+                    <p>
+                      Recuperando as respostas
+                      de Speaking do aluno.
+                    </p>
+                  </div>
+                } @else if (
+                  speakingError()
+                ) {
+                  <div
+                    class="
+                      speaking-placeholder
+                      speaking-placeholder--error
+                    "
+                    role="alert"
+                  >
+                    <i
+                      class="
+                        bi
+                        bi-exclamation-circle
+                      "
+                      aria-hidden="true"
+                    ></i>
+
+                    <h3>
+                      Não foi possível carregar
+                      os áudios
+                    </h3>
+
+                    <p>
+                      {{ speakingError() }}
+                    </p>
+                  </div>
+                } @else if (
+                  speakingAnswers().length ===
+                  0
+                ) {
+                  <div class="speaking-placeholder">
+                    <i
+                      class="bi bi-mic-mute"
+                      aria-hidden="true"
+                    ></i>
+
+                    <h3>
+                      Nenhuma gravação encontrada
+                    </h3>
+
+                    <p>
+                      Esta tentativa não possui
+                      respostas de Speaking
+                      salvas.
+                    </p>
+                  </div>
+                } @else {
+                  <div class="speaking-list">
+                    @for (
+                      answer of speakingAnswers();
+                      track answer.questionId;
+                      let index = $index
+                    ) {
+                      <article class="speaking-answer">
+                        <div class="speaking-answer__header">
+                          <div>
+                            <span class="speaking-answer__number">
+                              Speaking
+                              {{ index + 1 }}
+                            </span>
+
+                            <strong>
+                              Resposta gravada
+                            </strong>
+                          </div>
+
+                          <span class="speaking-answer__duration">
+                            {{
+                              formatDuration(
+                                answer.durationSeconds
+                              )
+                            }}
+                          </span>
+                        </div>
+
+                        @if (answer.audioUrl) {
+                          <audio
+                            class="speaking-answer__audio"
+                            controls
+                            preload="metadata"
+                            [src]="answer.audioUrl"
+                          >
+                            Seu navegador não
+                            oferece suporte para
+                            reprodução de áudio.
+                          </audio>
+                        } @else {
+                          <div class="speaking-answer__error">
+                            <i
+                              class="
+                                bi
+                                bi-exclamation-circle
+                              "
+                              aria-hidden="true"
+                            ></i>
+
+                            {{
+                              answer.error ||
+                              'Áudio indisponível.'
+                            }}
+                          </div>
+                        }
+                      </article>
+                    }
+                  </div>
+                }
+              </article>
+
+              <!-- ANÁLISE COMPLEMENTAR -->
+
+              @if (
+                reviewData.summary ||
+                reviewData.recommendation
+              ) {
+                <article class="review-panel">
+                  <span class="review-eyebrow">
+                    Análise complementar
+                  </span>
+
+                  <h2>
+                    Análise da avaliação
+                  </h2>
+
+                  <div class="analysis-notice">
+                    <i
+                      class="
+                        bi
+                        bi-lightbulb
+                      "
+                      aria-hidden="true"
+                    ></i>
+
+                    <span>
+                      Use esta análise como
+                      apoio. A definição do
+                      nível final é uma decisão
+                      pedagógica.
+                    </span>
+                  </div>
+
+                  @if (
+                    reviewData.summary
+                  ) {
+                    <div class="analysis-block">
+                      <h3>
+                        Visão geral
+                      </h3>
+
+                      <p>
+                        {{ reviewData.summary }}
+                      </p>
+                    </div>
+                  }
+
+                  @if (
+                    reviewData.recommendation
+                  ) {
+                    <div class="analysis-block">
+                      <h3>
+                        Recomendação
+                      </h3>
+
+                      <p>
+                        {{
+                          reviewData.recommendation
+                        }}
+                      </p>
+                    </div>
+                  }
+                </article>
+              }
+
+              <!-- OBSERVAÇÕES FINALIZADAS -->
+
+              @if (
+                reviewData.status ===
+                  'completed' &&
+                reviewData.reviewNotes
+              ) {
+                <article class="review-panel">
+                  <span class="review-eyebrow">
+                    Registro pedagógico
+                  </span>
+
+                  <h2>
+                    Observações do professor
+                  </h2>
+
+                  <p class="review-notes">
+                    {{
+                      reviewData.reviewNotes
+                    }}
+                  </p>
+                </article>
+              }
+            </section>
+
+            <aside class="review-sidebar">
+
+              <!-- ALUNO -->
+
+              <article class="review-panel">
+                <span class="review-eyebrow">
+                  Aluno
+                </span>
+
+                <h2>
+                  Dados de contato
+                </h2>
+
+                <dl class="student-data">
+                  <div>
+                    <dt>
+                      Nome
+                    </dt>
+
+                    <dd>
+                      {{
+                        reviewData.studentName
+                      }}
+                    </dd>
+                  </div>
+
+                  <div>
+                    <dt>
+                      WhatsApp
+                    </dt>
+
+                    <dd>
+                      {{
+                        reviewData.whatsapp
+                        || 'Não informado'
+                      }}
+                    </dd>
+                  </div>
+
+                  <div>
+                    <dt>
+                      Status
+                    </dt>
+
+                    <dd>
+                      @if (
+                        reviewData.status ===
+                        'completed'
+                      ) {
+                        Concluída
+                      } @else {
+                        Aguardando revisão
+                      }
+                    </dd>
+                  </div>
+                </dl>
+              </article>
+
+              <!-- CONCLUSÃO PEDAGÓGICA -->
+
+              <article
+                class="
+                  review-panel
+                  review-panel--action
+                "
+              >
+                <span class="review-eyebrow">
+                  Conclusão pedagógica
+                </span>
+
+                @if (
+                  reviewData.status ===
+                  'completed'
+                ) {
+                  <h2>
+                    Resultado final
+                  </h2>
+
+                  <p class="review-action-intro">
+                    O nível abaixo foi definido
+                    como resultado final desta
+                    avaliação.
+                  </p>
+
+                  <div class="final-level">
+                    <span>
+                      Nível CEFR
+                    </span>
+
+                    <strong>
+                      {{
+                        reviewData.estimatedLevel
+                        || '—'
+                      }}
+                    </strong>
+
+                    @if (
+                      reviewData.estimatedLevel
+                    ) {
+                      <small>
+                        {{
+                          levelLabel(
+                            reviewData
+                              .estimatedLevel
+                          )
+                        }}
+                      </small>
+                    }
+                  </div>
+                } @else {
+                  <h2>
+                    Definir resultado
+                  </h2>
+
+                  <p class="review-action-intro">
+                    Considere o resultado
+                    objetivo, as respostas de
+                    Speaking e sua avaliação
+                    pedagógica.
+                  </p>
+
+                  <form
+                    class="review-form"
+                    [formGroup]="reviewForm"
+                    (ngSubmit)="openConfirmation()"
+                    novalidate
+                  >
+                    <div class="review-field">
+                      <label for="estimatedLevel">
+                        Nível final (CEFR)
+                      </label>
+
+                      <select
+                        id="estimatedLevel"
+                        formControlName="estimatedLevel"
+                      >
+                        <option value="">
+                          Selecione o nível final
+                        </option>
+
+                        @for (
+                          level of levelOptions;
+                          track level.value
+                        ) {
+                          <option
+                            [value]="level.value"
+                          >
+                            {{ level.value }}
+                            ·
+                            {{ level.label }}
+                          </option>
+                        }
+                      </select>
+
+                      @if (
+                        reviewForm.controls
+                          .estimatedLevel.touched &&
+                        reviewForm.controls
+                          .estimatedLevel.invalid
+                      ) {
+                        <small class="field-error">
+                          Selecione o nível final.
+                        </small>
+                      }
+
+                      <div class="level-help">
+                        <i
+                          class="
+                            bi
+                            bi-info-circle
+                          "
+                          aria-hidden="true"
+                        ></i>
+
+                        <span>
+                          CEFR é a escala
+                          internacional de níveis
+                          de proficiência, de A1
+                          a C2.
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="cefr-guide">
+                      <span class="cefr-guide__title">
+                        Referência rápida
+                      </span>
+
+                      <div class="cefr-guide__levels">
+                        @for (
+                          level of levelOptions;
+                          track level.value
+                        ) {
+                          <div>
+                            <strong>
+                              {{ level.value }}
+                            </strong>
+
+                            <span>
+                              {{ level.label }}
+                            </span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+
+                    <div class="review-field">
+                      <label for="notes">
+                        Observações pedagógicas
+                      </label>
+
+                      <textarea
+                        id="notes"
+                        rows="5"
+                        formControlName="notes"
+                        placeholder="Registre observações relevantes sobre o desempenho do aluno"
+                      ></textarea>
+
+                      <small class="field-hint">
+                        Opcional. Use este espaço
+                        para registrar informações
+                        úteis para o acompanhamento
+                        do aluno.
+                      </small>
+                    </div>
+
+                    @if (saveError()) {
+                      <div
+                        class="review-save-error"
+                        role="alert"
+                      >
+                        <i
+                          class="
+                            bi
+                            bi-exclamation-circle
+                          "
+                          aria-hidden="true"
+                        ></i>
+
+                        <span>
+                          {{ saveError() }}
+                        </span>
+                      </div>
+                    }
+
+                    <div class="review-submit-note">
+                      <i
+                        class="
+                          bi
+                          bi-shield-check
+                        "
+                        aria-hidden="true"
+                      ></i>
+
+                      <p>
+                        O nível selecionado será
+                        registrado como resultado
+                        final e ficará disponível
+                        no Portal do Aluno.
+                      </p>
+                    </div>
+
+                    <button
+                      type="submit"
+                      class="
+                        fb-button
+                        fb-button--primary
+                        review-submit
+                      "
+                      [disabled]="
+                        reviewForm.invalid ||
+                        saving()
+                      "
+                    >
+                      <span>
+                        Revisar e concluir
+                      </span>
+
+                      <i
+                        class="
+                          bi
+                          bi-arrow-right
+                        "
+                        aria-hidden="true"
+                      ></i>
+                    </button>
+                  </form>
+                }
+              </article>
+            </aside>
+          </div>
+
+          <!-- CONFIRMAÇÃO -->
+
+          @if (confirmationOpen()) {
+            <div
+              class="confirmation-backdrop"
+              role="presentation"
+            >
+              <section
+                class="confirmation-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="confirmationTitle"
+              >
+                <div class="confirmation-dialog__icon">
+                  <i
+                    class="
+                      bi
+                      bi-check2-circle
+                    "
+                    aria-hidden="true"
+                  ></i>
+                </div>
+
+                <span class="review-eyebrow">
+                  Confirmar resultado
+                </span>
+
+                <h2 id="confirmationTitle">
+                  Concluir avaliação?
+                </h2>
+
+                <p class="confirmation-intro">
+                  Revise os dados abaixo antes
+                  de registrar o resultado
+                  pedagógico final.
+                </p>
+
+                <div class="confirmation-summary">
+                  <div>
+                    <span>
+                      Aluno
+                    </span>
+
+                    <strong>
+                      {{
+                        reviewData.studentName
+                      }}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Nível final
+                    </span>
+
+                    <strong>
+                      {{
+                        reviewForm.controls
+                          .estimatedLevel.value
+                      }}
+                      ·
+                      {{
+                        levelLabel(
+                          reviewForm.controls
+                            .estimatedLevel.value
+                        )
+                      }}
+                    </strong>
+                  </div>
+                </div>
+
+                <div class="confirmation-effects">
+                  <span>
+                    Ao confirmar:
+                  </span>
+
+                  <ul>
+                    <li>
+                      <i
+                        class="
+                          bi
+                          bi-check2
+                        "
+                        aria-hidden="true"
+                      ></i>
+
+                      A avaliação será marcada
+                      como concluída.
+                    </li>
+
+                    <li>
+                      <i
+                        class="
+                          bi
+                          bi-check2
+                        "
+                        aria-hidden="true"
+                      ></i>
+
+                      O resultado ficará
+                      disponível no Portal
+                      do Aluno.
+                    </li>
+
+                    <li>
+                      <i
+                        class="
+                          bi
+                          bi-check2
+                        "
+                        aria-hidden="true"
+                      ></i>
+
+                      O sistema tentará
+                      notificar o aluno
+                      pelo WhatsApp.
+                    </li>
+                  </ul>
+                </div>
+
+                @if (saveError()) {
+                  <div
+                    class="review-save-error"
+                    role="alert"
+                  >
+                    <i
+                      class="
+                        bi
+                        bi-exclamation-circle
+                      "
+                    ></i>
+
+                    <span>
+                      {{ saveError() }}
+                    </span>
+                  </div>
+                }
+
+                <div class="confirmation-actions">
+                  <button
+                    type="button"
+                    class="
+                      fb-button
+                      fb-button--outline
+                    "
+                    [disabled]="saving()"
+                    (click)="closeConfirmation()"
+                  >
+                    Continuar avaliando
+                  </button>
+
+                  <button
+                    type="button"
+                    class="
+                      fb-button
+                      fb-button--primary
+                    "
+                    [disabled]="saving()"
+                    (click)="completeReview()"
+                  >
+                    @if (saving()) {
+                      <span
+                        class="
+                          spinner-border
+                          spinner-border-sm
+                        "
+                        aria-hidden="true"
+                      ></span>
+
+                      Concluindo...
+                    } @else {
+                      <span>
+                        Confirmar conclusão
+                      </span>
+
+                      <i
+                        class="
+                          bi
+                          bi-check2
+                        "
+                        aria-hidden="true"
+                      ></i>
+                    }
+                  </button>
+                </div>
+              </section>
+            </div>
+          }
+        }
+      }
+    </div>
+  </section>
+</main>

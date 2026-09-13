@@ -1,0 +1,603 @@
+<main
+  class="admin-page"
+  id="main-content"
+>
+  <header class="admin-header">
+    <div class="container">
+      <div class="admin-header__content">
+        <div>
+          <span class="admin-eyebrow">
+            Gestão pedagógica
+          </span>
+
+          <h1>
+            Avaliações
+          </h1>
+
+          <p>
+            Revise os testes enviados,
+            avalie o Speaking e acompanhe
+            os resultados já concluídos.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="admin-refresh"
+          [disabled]="loading()"
+          (click)="reload()"
+        >
+          @if (loading()) {
+            <span
+              class="
+                spinner-border
+                spinner-border-sm
+              "
+              aria-hidden="true"
+            ></span>
+
+            Atualizando...
+          } @else {
+            <i
+              class="
+                bi
+                bi-arrow-clockwise
+              "
+              aria-hidden="true"
+            ></i>
+
+            Atualizar
+          }
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="admin-content">
+    <div class="container">
+      @if (loading()) {
+        <div
+          class="admin-state"
+          role="status"
+          aria-live="polite"
+        >
+          <span
+            class="spinner-border"
+            aria-hidden="true"
+          ></span>
+
+          <h2>
+            Carregando avaliações
+          </h2>
+
+          <p>
+            Buscando os testes enviados
+            pelos alunos.
+          </p>
+        </div>
+      } @else if (error()) {
+        <div
+          class="
+            admin-state
+            admin-state--error
+          "
+          role="alert"
+        >
+          <i
+            class="
+              bi
+              bi-exclamation-circle
+            "
+            aria-hidden="true"
+          ></i>
+
+          <h2>
+            Não foi possível carregar
+          </h2>
+
+          <p>
+            {{ error() }}
+          </p>
+
+          <button
+            type="button"
+            class="
+              fb-button
+              fb-button--outline
+            "
+            (click)="reload()"
+          >
+            <i
+              class="
+                bi
+                bi-arrow-clockwise
+              "
+            ></i>
+
+            Tentar novamente
+          </button>
+        </div>
+      } @else {
+        <div class="admin-summary">
+          <button
+            type="button"
+            class="admin-summary__item"
+            [class.admin-summary__item--active]="
+              statusFilter() ===
+              'under_review'
+            "
+            (click)="
+              statusFilter.set(
+                'under_review'
+              )
+            "
+          >
+            <div class="summary-icon">
+              <i
+                class="
+                  bi
+                  bi-hourglass-split
+                "
+              ></i>
+            </div>
+
+            <div>
+              <span>
+                Aguardando revisão
+              </span>
+
+              <strong>
+                {{ pendingCount() }}
+              </strong>
+
+              <small>
+                Exigem análise pedagógica
+              </small>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            class="admin-summary__item"
+            [class.admin-summary__item--active]="
+              statusFilter() ===
+              'completed'
+            "
+            (click)="
+              statusFilter.set(
+                'completed'
+              )
+            "
+          >
+            <div class="summary-icon">
+              <i
+                class="
+                  bi
+                  bi-check2-circle
+                "
+              ></i>
+            </div>
+
+            <div>
+              <span>
+                Concluídas
+              </span>
+
+              <strong>
+                {{ completedCount() }}
+              </strong>
+
+              <small>
+                Resultados finalizados
+              </small>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            class="admin-summary__item"
+            [class.admin-summary__item--active]="
+              statusFilter() ===
+              'all'
+            "
+            (click)="
+              statusFilter.set(
+                'all'
+              )
+            "
+          >
+            <div class="summary-icon">
+              <i
+                class="
+                  bi
+                  bi-journal-text
+                "
+              ></i>
+            </div>
+
+            <div>
+              <span>
+                Total
+              </span>
+
+              <strong>
+                {{ reviews().length }}
+              </strong>
+
+              <small>
+                Avaliações registradas
+              </small>
+            </div>
+          </button>
+        </div>
+
+        <section
+          class="review-filters"
+          aria-label="Filtros das avaliações"
+        >
+          <div class="review-filters__search">
+            <label for="reviewSearch">
+              Buscar aluno
+            </label>
+
+            <div class="review-search">
+              <i
+                class="
+                  bi
+                  bi-search
+                "
+                aria-hidden="true"
+              ></i>
+
+              <input
+                id="reviewSearch"
+                type="search"
+                placeholder="Nome, WhatsApp ou nível"
+                [value]="search()"
+                (input)="setSearch($event)"
+              >
+            </div>
+          </div>
+
+          <div class="review-filter-field">
+            <label for="reviewStatus">
+              Status
+            </label>
+
+            <select
+              id="reviewStatus"
+              [value]="statusFilter()"
+              (change)="setStatus($event)"
+            >
+              <option value="under_review">
+                Aguardando revisão
+              </option>
+
+              <option value="completed">
+                Concluídas
+              </option>
+
+              <option value="all">
+                Todas
+              </option>
+            </select>
+          </div>
+
+          <div class="review-filter-field">
+            <label for="dateFrom">
+              De
+            </label>
+
+            <input
+              id="dateFrom"
+              type="date"
+              [value]="dateFrom()"
+              (change)="setDateFrom($event)"
+            >
+          </div>
+
+          <div class="review-filter-field">
+            <label for="dateTo">
+              Até
+            </label>
+
+            <input
+              id="dateTo"
+              type="date"
+              [value]="dateTo()"
+              (change)="setDateTo($event)"
+            >
+          </div>
+
+          <button
+            type="button"
+            class="review-filter-clear"
+            (click)="clearFilters()"
+          >
+            <i
+              class="
+                bi
+                bi-x-circle
+              "
+              aria-hidden="true"
+            ></i>
+
+            Limpar
+
+            @if (
+              activeFilterCount() > 0
+            ) {
+              <span class="filter-count">
+                {{ activeFilterCount() }}
+              </span>
+            }
+          </button>
+        </section>
+
+        <div class="review-result-info">
+          <span>
+            <strong>
+              {{
+                filteredReviews()
+                  .length
+              }}
+            </strong>
+
+            @if (
+              filteredReviews()
+                .length === 1
+            ) {
+              avaliação encontrada
+            } @else {
+              avaliações encontradas
+            }
+          </span>
+
+          @if (
+            statusFilter() ===
+            'under_review' &&
+            pendingCount() > 0
+          ) {
+            <span class="review-result-info__priority">
+              <i
+                class="
+                  bi
+                  bi-clock
+                "
+              ></i>
+
+              Fila de revisão
+            </span>
+          }
+        </div>
+
+        @if (
+          filteredReviews()
+            .length === 0
+        ) {
+          <div class="admin-empty">
+            <div class="admin-empty__icon">
+              <i
+                class="
+                  bi
+                  bi-search
+                "
+                aria-hidden="true"
+              ></i>
+            </div>
+
+            <h2>
+              Nenhuma avaliação encontrada
+            </h2>
+
+            <p>
+              Não existem avaliações que
+              correspondam aos filtros atuais.
+            </p>
+
+            <button
+              type="button"
+              class="
+                fb-button
+                fb-button--outline
+              "
+              (click)="clearFilters()"
+            >
+              Limpar filtros
+            </button>
+          </div>
+        } @else {
+          <div class="review-list">
+            @for (
+              review
+              of filteredReviews();
+              track review.attemptId
+            ) {
+              <article
+                class="review-item"
+                [class.review-item--completed]="
+                  review.status ===
+                  'completed'
+                "
+              >
+                <div class="review-item__main">
+                  <div
+                    class="review-item__avatar"
+                    aria-hidden="true"
+                  >
+                    {{
+                      initials(
+                        review.studentName
+                      )
+                    }}
+                  </div>
+
+                  <div>
+                    <span
+                      class="review-item__status"
+                      [class.review-item__status--completed]="
+                        review.status ===
+                        'completed'
+                      "
+                    >
+                      @if (
+                        review.status ===
+                        'completed'
+                      ) {
+                        <i
+                          class="
+                            bi
+                            bi-check-circle
+                          "
+                          aria-hidden="true"
+                        ></i>
+                      } @else {
+                        <i
+                          class="
+                            bi
+                            bi-hourglass-split
+                          "
+                          aria-hidden="true"
+                        ></i>
+                      }
+
+                      {{
+                        statusLabel(
+                          review.status
+                        )
+                      }}
+                    </span>
+
+                    <h2>
+                      {{
+                        review.studentName
+                      }}
+                    </h2>
+
+                    @if (review.whatsapp) {
+                      <p>
+                        <i
+                          class="
+                            bi
+                            bi-whatsapp
+                          "
+                          aria-hidden="true"
+                        ></i>
+
+                        {{
+                          review.whatsapp
+                        }}
+                      </p>
+                    }
+                  </div>
+                </div>
+
+                <div class="review-item__details">
+                  <div>
+                    <span>
+                      Objetivo
+                    </span>
+
+                    <strong>
+                      {{
+                        review.objectiveScore
+                        ?? '—'
+                      }}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Desempenho
+                    </span>
+
+                    <strong>
+                      {{
+                        formatPercentage(
+                          review.percentage
+                        )
+                      }}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Nível
+                    </span>
+
+                    <strong>
+                      {{
+                        review.estimatedLevel &&
+                        review.estimatedLevel !==
+                          'Pendente'
+                          ? review.estimatedLevel
+                          : 'Em definição'
+                      }}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Enviado em
+                    </span>
+
+                    <strong>
+                      {{
+                        formatDate(
+                          review.createdAt
+                        )
+                      }}
+                    </strong>
+                  </div>
+                </div>
+
+                <div class="review-item__actions">
+                  <a
+                    class="fb-button"
+                    [class.fb-button--primary]="
+                      review.status ===
+                      'under_review'
+                    "
+                    [class.fb-button--outline]="
+                      review.status ===
+                      'completed'
+                    "
+                    [routerLink]="[
+                      '/admin/avaliacoes',
+                      review.attemptId
+                    ]"
+                  >
+                    @if (
+                      review.status ===
+                      'completed'
+                    ) {
+                      Ver avaliação
+
+                      <i
+                        class="
+                          bi
+                          bi-eye
+                        "
+                        aria-hidden="true"
+                      ></i>
+                    } @else {
+                      Avaliar Speaking
+
+                      <i
+                        class="
+                          bi
+                          bi-arrow-right
+                        "
+                        aria-hidden="true"
+                      ></i>
+                    }
+                  </a>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      }
+    </div>
+  </section>
+</main>

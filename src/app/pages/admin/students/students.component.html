@@ -1,0 +1,319 @@
+<section class="students-page">
+  <div class="students-container">
+    <header class="students-header">
+      <div>
+        <span class="students-eyebrow">
+          Gestão de alunos
+        </span>
+
+        <h1>
+          Alunos
+        </h1>
+
+        <p>
+          Consulte os alunos cadastrados,
+          dados de contato e, em breve,
+          o histórico completo de cada
+          jornada.
+        </p>
+      </div>
+
+      <div class="students-header__counter">
+        <span>
+          Total
+        </span>
+
+        <strong>
+          {{ totalStudents() }}
+        </strong>
+      </div>
+    </header>
+
+    <section class="students-toolbar">
+      <div class="students-search">
+        <i
+          class="
+            bi
+            bi-search
+          "
+          aria-hidden="true"
+        ></i>
+
+        <input
+          type="search"
+          [formControl]="searchControl"
+          placeholder="Buscar por nome, e-mail ou WhatsApp"
+          aria-label="Buscar alunos"
+        >
+
+        @if (
+          searchControl.value
+        ) {
+          <button
+            type="button"
+            aria-label="Limpar busca"
+            (click)="clearSearch()"
+          >
+            <i
+              class="
+                bi
+                bi-x-lg
+              "
+              aria-hidden="true"
+            ></i>
+          </button>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="students-refresh"
+        [disabled]="
+          isLoading()
+        "
+        (click)="reload()"
+      >
+        <i
+          class="
+            bi
+            bi-arrow-clockwise
+          "
+          aria-hidden="true"
+        ></i>
+
+        Atualizar
+      </button>
+    </section>
+
+    @if (
+      errorMessage()
+    ) {
+      <div
+        class="students-alert"
+        role="alert"
+      >
+        <i
+          class="
+            bi
+            bi-exclamation-circle
+          "
+        ></i>
+
+        <div>
+          <strong>
+            Não foi possível carregar.
+          </strong>
+
+          <span>
+            {{ errorMessage() }}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          (click)="reload()"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    }
+
+    @if (
+      isLoading()
+    ) {
+      <div class="students-loading">
+        <span
+          class="
+            spinner-border
+            spinner-border-sm
+          "
+          aria-hidden="true"
+        ></span>
+
+        <span>
+          Carregando alunos...
+        </span>
+      </div>
+    } @else if (
+      filteredStudents().length === 0
+    ) {
+      <div class="students-empty">
+        <div class="students-empty__icon">
+          <i
+            class="
+              bi
+              bi-people
+            "
+          ></i>
+        </div>
+
+        @if (
+          searchTerm()
+        ) {
+          <h2>
+            Nenhum aluno encontrado
+          </h2>
+
+          <p>
+            Não encontramos resultados
+            para sua busca.
+          </p>
+
+          <button
+            type="button"
+            (click)="clearSearch()"
+          >
+            Limpar busca
+          </button>
+        } @else {
+          <h2>
+            Nenhum aluno cadastrado
+          </h2>
+
+          <p>
+            Quando alunos com perfil
+            student forem criados, eles
+            aparecerão aqui.
+          </p>
+        }
+      </div>
+    } @else {
+      <div class="students-results-header">
+        <span>
+          @if (
+            searchTerm()
+          ) {
+            {{ filteredTotal() }}
+            resultado(s)
+          } @else {
+            {{ totalStudents() }}
+            aluno(s)
+          }
+        </span>
+      </div>
+
+      <div class="students-list">
+        @for (
+          student of filteredStudents();
+          track student.id
+        ) {
+          <article class="student-card">
+            <div class="student-card__profile">
+              @if (
+                student.avatarUrl
+              ) {
+                <img
+                  [src]="student.avatarUrl"
+                  [alt]="student.fullName"
+                  class="student-card__avatar"
+                >
+              } @else {
+                <div class="student-card__avatar-placeholder">
+                  {{ initials(student) }}
+                </div>
+              }
+
+              <div class="student-card__identity">
+                <h2>
+                  {{ student.fullName }}
+                </h2>
+
+                <span class="student-card__role">
+                  Aluno
+                </span>
+              </div>
+            </div>
+
+            <div class="student-card__details">
+              <div class="student-card__field">
+                <span>
+                  E-mail
+                </span>
+
+                @if (
+                  student.email
+                ) {
+                  <strong>
+                    {{ student.email }}
+                  </strong>
+                } @else {
+                  <strong class="is-muted">
+                    Não informado
+                  </strong>
+                }
+              </div>
+
+              <div class="student-card__field">
+                <span>
+                  WhatsApp
+                </span>
+
+                @if (
+                  student.whatsapp
+                ) {
+                  <strong>
+                    {{ student.whatsapp }}
+                  </strong>
+                } @else {
+                  <strong class="is-muted">
+                    Não informado
+                  </strong>
+                }
+              </div>
+
+              <div class="student-card__field">
+                <span>
+                  Último teste
+                </span>
+
+                <strong class="is-muted">
+                  Em breve
+                </strong>
+              </div>
+
+              <div class="student-card__field">
+                <span>
+                  Nível atual
+                </span>
+
+                <strong class="is-muted">
+                  Em breve
+                </strong>
+              </div>
+            </div>
+
+            <div class="student-card__footer">
+              <div class="student-card__access">
+                <span>
+                  Acesso ao portal
+                </span>
+
+                <small>
+                  Status será integrado
+                  posteriormente
+                </small>
+              </div>
+
+              <a
+                [routerLink]="[
+                  '/admin/alunos',
+                  student.id
+                ]"
+                class="student-card__action"
+              >
+                Ver aluno
+
+                <i
+                  class="
+                    bi
+                    bi-arrow-right
+                  "
+                ></i>
+              </a>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>

@@ -1,181 +1,424 @@
-<a
-  class="fb-skip-link"
-  href="#main-content"
->
-  Ir para o conteúdo principal
-</a>
-
-<header class="site-header">
-  <div class="fb-container site-header__container">
-    <a
-      class="site-header__brand"
-      routerLink="/"
-      aria-label="FB Language Center, página inicial"
-      (click)="closeMenu()"
-    >
-      <img
-        class="site-header__logo"
-        src="/images/logo.jpeg"
-        alt="FB Language Center"
-        width="160"
-        height="64"
-      >
-    </a>
-
-    <nav
-      class="site-header__desktop-navigation"
-      aria-label="Navegação principal"
-    >
-      <ul class="site-header__navigation-list">
-        @for (
-          item of navigationItems;
-          track item.label
-        ) {
-          <li>
-            @if (item.fragment) {
-              <button
-                class="site-header__navigation-link"
-                type="button"
-                (click)="
-                  navigateToSection(
-                    item.route,
-                    item.fragment
-                  )
-                "
-              >
-                {{ item.label }}
-              </button>
-            } @else {
-              <a
-                class="site-header__navigation-link"
-                [routerLink]="item.route"
-                routerLinkActive="is-active"
-                [routerLinkActiveOptions]="{
-                  exact: true
-                }"
-              >
-                {{ item.label }}
-              </a>
-            }
-          </li>
-        }
-      </ul>
-    </nav>
-
-    <div class="site-header__actions">
-      <a
-        class="fb-button fb-button--primary site-header__test-button"
-        routerLink="/teste"
-      >
-        Fazer teste
-
-        <i
-          class="bi bi-arrow-right"
-          aria-hidden="true"
-        ></i>
-      </a>
-
-      <button
-        class="site-header__menu-button"
-        type="button"
-        aria-label="Abrir ou fechar menu de navegação"
-        aria-controls="mobile-navigation"
-        [attr.aria-expanded]="isMenuOpen()"
-        (click)="toggleMenu()"
-      >
-        <span class="site-header__menu-button-box">
-          <span
-            class="site-header__menu-line"
-            [class.is-open]="isMenuOpen()"
-          ></span>
-
-          <span
-            class="site-header__menu-line"
-            [class.is-open]="isMenuOpen()"
-          ></span>
-
-          <span
-            class="site-header__menu-line"
-            [class.is-open]="isMenuOpen()"
-          ></span>
-        </span>
-      </button>
-    </div>
-  </div>
-
-  <div
-    id="mobile-navigation"
-    class="site-header__mobile-panel"
-    [class.is-open]="isMenuOpen()"
-    [attr.aria-hidden]="!isMenuOpen()"
+@if (!hideHeader()) {
+  <a
+    class="fb-skip-link"
+    href="#main-content"
   >
-    <nav
-      class="fb-container site-header__mobile-navigation"
-      aria-label="Navegação para dispositivos móveis"
+    Ir para o conteúdo principal
+  </a>
+
+  <header class="site-header">
+    <div
+      class="
+        fb-container
+        site-header__container
+      "
     >
-      <ul class="site-header__mobile-list">
-        @for (
-          item of navigationItems;
-          track item.label
-        ) {
-          <li>
-            @if (item.fragment) {
-              <button
-                class="site-header__mobile-link"
-                type="button"
-                [attr.tabindex]="
-                  isMenuOpen() ? 0 : -1
-                "
-                (click)="
-                  navigateToSection(
-                    item.route,
-                    item.fragment
-                  )
-                "
-              >
-                {{ item.label }}
-
-                <i
-                  class="bi bi-arrow-up-right"
-                  aria-hidden="true"
-                ></i>
-              </button>
-            } @else {
-              <a
-                class="site-header__mobile-link"
-                [routerLink]="item.route"
-                [attr.tabindex]="
-                  isMenuOpen() ? 0 : -1
-                "
-                (click)="closeMenu()"
-              >
-                {{ item.label }}
-
-                <i
-                  class="bi bi-arrow-up-right"
-                  aria-hidden="true"
-                ></i>
-              </a>
-            }
-          </li>
-        }
-      </ul>
-
       <a
-        class="fb-button fb-button--primary fb-button--block"
-        routerLink="/teste"
-        [attr.tabindex]="
-          isMenuOpen() ? 0 : -1
+        class="site-header__brand"
+        routerLink="/"
+        aria-label="
+          FB Language Center,
+          página inicial
         "
         (click)="closeMenu()"
       >
-        Começar teste
-
-        <i
-          class="bi bi-arrow-right"
-          aria-hidden="true"
-        ></i>
+        <img
+          class="site-header__logo"
+          src="/images/logo.jpeg"
+          alt="FB Language Center"
+          width="160"
+          height="64"
+        >
       </a>
-    </nav>
-  </div>
-</header>
+
+      <nav
+        class="
+          site-header__desktop-navigation
+        "
+        aria-label="
+          Navegação principal
+        "
+      >
+        <ul
+          class="
+            site-header__navigation-list
+          "
+        >
+          @for (
+            item of navigationItems;
+            track item.label
+          ) {
+            <li>
+              @if (item.fragment) {
+                <button
+                  class="
+                    site-header__navigation-link
+                  "
+                  type="button"
+                  (click)="
+                    navigateToSection(
+                      item.route,
+                      item.fragment
+                    )
+                  "
+                >
+                  {{ item.label }}
+                </button>
+              } @else {
+                <a
+                  class="
+                    site-header__navigation-link
+                  "
+                  [routerLink]="
+                    item.route
+                  "
+                  routerLinkActive="
+                    is-active
+                  "
+                  [routerLinkActiveOptions]="{
+                    exact: true
+                  }"
+                >
+                  {{ item.label }}
+                </a>
+              }
+            </li>
+          }
+        </ul>
+      </nav>
+
+      <div class="site-header__actions">
+        @if (hasPermanentSession()) {
+          <a
+            class="
+              fb-button
+              fb-button--primary
+              site-header__portal-button
+            "
+            [routerLink]="
+              portalRoute()
+            "
+          >
+            {{ portalLabel() }}
+
+            <i
+              class="
+                bi
+                bi-arrow-right
+              "
+              aria-hidden="true"
+            ></i>
+          </a>
+
+          <button
+            type="button"
+            class="
+              fb-button
+              fb-button--outline
+              site-header__logout-button
+            "
+            (click)="signOut()"
+          >
+            Sair
+
+            <i
+              class="
+                bi
+                bi-box-arrow-right
+              "
+              aria-hidden="true"
+            ></i>
+          </button>
+        } @else {
+          <a
+            class="
+              fb-button
+              fb-button--outline
+              site-header__portal-button
+            "
+            routerLink="/login"
+          >
+            Acessar portal
+
+            <i
+              class="
+                bi
+                bi-person
+              "
+              aria-hidden="true"
+            ></i>
+          </a>
+
+          <a
+            class="
+              fb-button
+              fb-button--primary
+              site-header__test-button
+            "
+            routerLink="/teste"
+          >
+            Fazer teste
+
+            <i
+              class="
+                bi
+                bi-arrow-right
+              "
+              aria-hidden="true"
+            ></i>
+          </a>
+        }
+
+        <button
+          class="
+            site-header__menu-button
+          "
+          type="button"
+          aria-label="
+            Abrir ou fechar menu
+            de navegação
+          "
+          aria-controls="
+            mobile-navigation
+          "
+          [attr.aria-expanded]="
+            isMenuOpen()
+          "
+          (click)="toggleMenu()"
+        >
+          <span
+            class="
+              site-header__menu-button-box
+            "
+          >
+            <span
+              class="
+                site-header__menu-line
+              "
+              [class.is-open]="
+                isMenuOpen()
+              "
+            ></span>
+
+            <span
+              class="
+                site-header__menu-line
+              "
+              [class.is-open]="
+                isMenuOpen()
+              "
+            ></span>
+
+            <span
+              class="
+                site-header__menu-line
+              "
+              [class.is-open]="
+                isMenuOpen()
+              "
+            ></span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div
+      id="mobile-navigation"
+      class="
+        site-header__mobile-panel
+      "
+      [class.is-open]="
+        isMenuOpen()
+      "
+      [attr.aria-hidden]="
+        !isMenuOpen()
+      "
+    >
+      <nav
+        class="
+          fb-container
+          site-header__mobile-navigation
+        "
+        aria-label="
+          Navegação para
+          dispositivos móveis
+        "
+      >
+        <ul
+          class="
+            site-header__mobile-list
+          "
+        >
+          @for (
+            item of navigationItems;
+            track item.label
+          ) {
+            <li>
+              @if (item.fragment) {
+                <button
+                  class="
+                    site-header__mobile-link
+                  "
+                  type="button"
+                  [attr.tabindex]="
+                    isMenuOpen()
+                      ? 0
+                      : -1
+                  "
+                  (click)="
+                    navigateToSection(
+                      item.route,
+                      item.fragment
+                    )
+                  "
+                >
+                  {{ item.label }}
+
+                  <i
+                    class="
+                      bi
+                      bi-arrow-up-right
+                    "
+                    aria-hidden="true"
+                  ></i>
+                </button>
+              } @else {
+                <a
+                  class="
+                    site-header__mobile-link
+                  "
+                  [routerLink]="
+                    item.route
+                  "
+                  [attr.tabindex]="
+                    isMenuOpen()
+                      ? 0
+                      : -1
+                  "
+                  (click)="closeMenu()"
+                >
+                  {{ item.label }}
+
+                  <i
+                    class="
+                      bi
+                      bi-arrow-up-right
+                    "
+                    aria-hidden="true"
+                  ></i>
+                </a>
+              }
+            </li>
+          }
+        </ul>
+
+        @if (hasPermanentSession()) {
+          <a
+            class="
+              fb-button
+              fb-button--primary
+              fb-button--block
+              site-header__mobile-portal
+            "
+            [routerLink]="
+              portalRoute()
+            "
+            [attr.tabindex]="
+              isMenuOpen()
+                ? 0
+                : -1
+            "
+            (click)="closeMenu()"
+          >
+            {{ portalLabel() }}
+
+            <i
+              class="
+                bi
+                bi-arrow-right
+              "
+              aria-hidden="true"
+            ></i>
+          </a>
+
+          <button
+            type="button"
+            class="
+              fb-button
+              fb-button--outline
+              fb-button--block
+              site-header__mobile-logout
+            "
+            [attr.tabindex]="
+              isMenuOpen()
+                ? 0
+                : -1
+            "
+            (click)="signOut()"
+          >
+            Sair
+
+            <i
+              class="
+                bi
+                bi-box-arrow-right
+              "
+              aria-hidden="true"
+            ></i>
+          </button>
+        } @else {
+          <a
+            class="
+              fb-button
+              fb-button--outline
+              fb-button--block
+              site-header__mobile-portal
+            "
+            routerLink="/login"
+            [attr.tabindex]="
+              isMenuOpen()
+                ? 0
+                : -1
+            "
+            (click)="closeMenu()"
+          >
+            Acessar portal
+
+            <i
+              class="
+                bi
+                bi-person
+              "
+              aria-hidden="true"
+            ></i>
+          </a>
+
+          <a
+            class="
+              fb-button
+              fb-button--primary
+              fb-button--block
+            "
+            routerLink="/teste"
+            [attr.tabindex]="
+              isMenuOpen()
+                ? 0
+                : -1
+            "
+            (click)="closeMenu()"
+          >
+            Começar teste
+
+            <i
+              class="
+                bi
+                bi-arrow-right
+              "
+              aria-hidden="true"
+            ></i>
+          </a>
+        }
+      </nav>
+    </div>
+  </header>
+}
