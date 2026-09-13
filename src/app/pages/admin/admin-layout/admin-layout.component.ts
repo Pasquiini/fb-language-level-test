@@ -167,27 +167,27 @@ export class AdminLayoutComponent {
           '/admin/whatsapp',
       },
 
-      {
-        label:
-          'Agenda',
+      // {
+      //   label:
+      //     'Agenda',
 
-        icon:
-          'bi-calendar3',
+      //   icon:
+      //     'bi-calendar3',
 
-        route:
-          '/admin/agenda',
-      },
+      //   route:
+      //     '/admin/agenda',
+      // },
 
-      {
-        label:
-          'Configurações',
+      // {
+      //   label:
+      //     'Configurações',
 
-        icon:
-          'bi-sliders',
+      //   icon:
+      //     'bi-sliders',
 
-        route:
-          '/admin/configuracoes',
-      },
+      //   route:
+      //     '/admin/configuracoes',
+      // },
     ];
 
   toggleMobileMenu():
