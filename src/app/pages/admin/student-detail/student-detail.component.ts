@@ -143,6 +143,91 @@ export class StudentDetailComponent
     );
   }
 
+  profileValueLabel(
+    value: string | null,
+  ): string {
+    if (!value) {
+      return 'Não informado';
+    }
+
+    const labels:
+      Record<string, string> = {
+      // Nível percebido
+      beginner:
+        'Iniciante',
+      basic:
+        'Básico',
+      intermediate:
+        'Intermediário',
+      advanced:
+        'Avançado',
+      unsure:
+        'Não sei informar',
+
+      // Tempo de estudo
+      never:
+        'Nunca estudou inglês',
+      less_than_6_months:
+        'Menos de 6 meses',
+      '6_to_12_months':
+        'De 6 meses a 1 ano',
+      '1_to_2_years':
+        'De 1 a 2 anos',
+      '2_to_5_years':
+        'De 2 a 5 anos',
+      more_than_5_years:
+        'Mais de 5 anos',
+
+      // Objetivo
+      travel:
+        'Viagens',
+      work:
+        'Trabalho',
+      studies:
+        'Estudos',
+      conversation:
+        'Conversação',
+      certification:
+        'Prova / certificação',
+      personal_development:
+        'Desenvolvimento pessoal',
+      general_english:
+        'Inglês geral',
+
+      // Modalidade
+      individual:
+        'Individual',
+      pair:
+        'Dupla',
+      group:
+        'Grupo',
+      recorded_course:
+        'Curso gravado',
+
+      // Frequência
+      once_per_week:
+        '1 vez por semana',
+      twice_per_week:
+        '2 vezes por semana',
+
+      // Período
+      morning:
+        'Manhã',
+      afternoon:
+        'Tarde',
+      evening:
+        'Noite',
+    };
+
+    return (
+      labels[value]
+      ?? value.replaceAll(
+        '_',
+        ' ',
+      )
+    );
+  }
+
   messageStatusLabel(
     status: string,
   ): string {

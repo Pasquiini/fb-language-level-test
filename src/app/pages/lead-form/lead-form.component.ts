@@ -95,7 +95,7 @@ const whatsappValidator: ValidatorFn = (
   if (
     digits.length < 6 ||
     digits.length >
-      maxNationalLength
+    maxNationalLength
   ) {
     return {
       internationalWhatsappLength:
@@ -126,8 +126,8 @@ const noWhitespaceValidator:
 
     return /\s/.test(value)
       ? {
-          whitespace: true,
-        }
+        whitespace: true,
+      }
       : null;
   };
 
@@ -398,7 +398,16 @@ export class LeadFormComponent {
       label: 'Noite',
     },
   ];
-
+  readonly weeklyFrequencyOptions = [
+    {
+      value: 'once_per_week',
+      label: '1 vez por semana',
+    },
+    {
+      value: 'twice_per_week',
+      label: '2 vezes por semana',
+    },
+  ];
   readonly form =
     this.formBuilder
       .nonNullable
@@ -464,6 +473,10 @@ export class LeadFormComponent {
           '',
           Validators.required,
         ],
+        weeklyFrequency: [
+          '',
+          Validators.required,
+        ],
       });
 
   submitted = false;
@@ -494,6 +507,11 @@ export class LeadFormComponent {
   get perceivedLevel() {
     return this.form.controls
       .perceivedLevel;
+  }
+
+  get weeklyFrequency() {
+    return this.form.controls
+      .weeklyFrequency;
   }
 
   get studyDuration() {
@@ -548,7 +566,7 @@ export class LeadFormComponent {
   ): boolean {
     const control =
       this.form.controls[
-        controlName
+      controlName
       ];
 
     return (
@@ -569,8 +587,8 @@ export class LeadFormComponent {
     const formattedValue =
       this.isBrazil
         ? this.formatBrazilWhatsapp(
-            digits,
-          )
+          digits,
+        )
         : digits;
 
     this.whatsapp.setValue(
@@ -595,11 +613,11 @@ export class LeadFormComponent {
     const formattedValue =
       this.isBrazil
         ? this.formatBrazilWhatsapp(
-            input.value,
-          )
+          input.value,
+        )
         : this.formatInternationalWhatsapp(
-            input.value,
-          );
+          input.value,
+        );
 
     this.whatsapp.setValue(
       formattedValue,

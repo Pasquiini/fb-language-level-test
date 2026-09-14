@@ -38,7 +38,7 @@ export interface AdminStudentProfile {
   email: string | null;
   whatsapp: string | null;
   avatarUrl: string | null;
-
+  weeklyFrequency: string | null;
   perceivedLevel: string | null;
   studyDuration: string | null;
   previousSchool: string | null;
@@ -98,6 +98,7 @@ interface StudentExtraProfileRow {
   previous_school: string | null;
   main_goal: string | null;
   preferred_modality: string | null;
+  weekly_frequency: string | null;
   availability_period: string | null;
   notes: string | null;
   current_lead_status: string;
@@ -231,16 +232,17 @@ export class AdminStudentService {
         this.supabase.client
           .from('student_profiles')
           .select(`
-            user_id,
-            perceived_level,
-            study_duration,
-            previous_school,
-            main_goal,
-            preferred_modality,
-            availability_period,
-            notes,
-            current_lead_status
-          `)
+  user_id,
+  perceived_level,
+  study_duration,
+  previous_school,
+  main_goal,
+  preferred_modality,
+  weekly_frequency,
+  availability_period,
+  notes,
+  current_lead_status
+`)
           .eq(
             'user_id',
             studentId,
@@ -326,11 +328,11 @@ export class AdminStudentService {
 
     const profile =
       profileResponse.data as
-        StudentProfileRow;
+      StudentProfileRow;
 
     const extraProfile =
       studentProfileResponse.data as
-        StudentExtraProfileRow | null;
+      StudentExtraProfileRow | null;
 
     const attempts =
       (
@@ -384,7 +386,7 @@ export class AdminStudentService {
 
       results =
         (data ?? []) as
-          TestResultRow[];
+        TestResultRow[];
     }
 
     const resultByAttempt =
@@ -454,11 +456,15 @@ export class AdminStudentService {
           extraProfile
             ?.notes
           ?? null,
-
+        weeklyFrequency:
+          extraProfile
+            ?.weekly_frequency
+          ?? null,
         leadStatus:
           extraProfile
             ?.current_lead_status
           ?? null,
+
       },
 
       tests:
@@ -488,47 +494,47 @@ export class AdminStudentService {
               result:
                 result
                   ? {
-                      id:
-                        result.id,
+                    id:
+                      result.id,
 
-                      objectiveScore:
-                        Number(
-                          result.objective_score,
+                    objectiveScore:
+                      Number(
+                        result.objective_score,
+                      ),
+
+                    speakingScore:
+                      result.speaking_score
+                        === null
+                        ? null
+                        : Number(
+                          result.speaking_score,
                         ),
 
-                      speakingScore:
-                        result.speaking_score
-                          === null
-                          ? null
-                          : Number(
-                              result.speaking_score,
-                            ),
+                    totalScore:
+                      Number(
+                        result.total_score,
+                      ),
 
-                      totalScore:
-                        Number(
-                          result.total_score,
-                        ),
+                    percentage:
+                      Number(
+                        result.percentage,
+                      ),
 
-                      percentage:
-                        Number(
-                          result.percentage,
-                        ),
+                    estimatedLevel:
+                      result.estimated_level,
 
-                      estimatedLevel:
-                        result.estimated_level,
+                    summary:
+                      result.summary,
 
-                      summary:
-                        result.summary,
+                    recommendation:
+                      result.recommendation,
 
-                      recommendation:
-                        result.recommendation,
+                    reviewNotes:
+                      result.review_notes,
 
-                      reviewNotes:
-                        result.review_notes,
-
-                      generatedAt:
-                        result.generated_at,
-                    }
+                    generatedAt:
+                      result.generated_at,
+                  }
                   : null,
             };
           },

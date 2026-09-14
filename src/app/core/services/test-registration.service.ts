@@ -24,6 +24,7 @@ interface TestRegistrationData {
   previousSchool: string;
   mainGoal: string;
   preferredModality: string;
+  weeklyFrequency: string;
   availabilityPeriod: string;
 }
 
@@ -128,6 +129,11 @@ export class TestRegistrationService {
        * 3. Cria ou atualiza student_profiles.
        *
        * user_id é a PK e FK para profiles.id.
+       *
+       * Aqui também salvamos:
+       * - modalidade preferida
+       * - frequência semanal desejada
+       * - período de disponibilidade
        */
       const {
         error: studentProfileError,
@@ -153,6 +159,9 @@ export class TestRegistrationService {
 
             preferred_modality:
               data.preferredModality,
+
+            weekly_frequency:
+              data.weeklyFrequency,
 
             availability_period:
               data.availabilityPeriod,
