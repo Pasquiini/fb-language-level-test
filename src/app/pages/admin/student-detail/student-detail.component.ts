@@ -252,7 +252,25 @@ export class StudentDetailComponent
           );
     }
   }
+  profileValuesLabel(
+    values: string[] | null,
+  ): string {
+    if (
+      !values ||
+      values.length === 0
+    ) {
+      return 'Não informado';
+    }
 
+    return values
+      .map(
+        value =>
+          this.profileValueLabel(
+            value,
+          ),
+      )
+      .join(', ');
+  }
   messageStatusClass(
     status: string,
   ): string {
