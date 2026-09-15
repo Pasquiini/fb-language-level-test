@@ -431,36 +431,46 @@
 
                 <div>
                   <h2>
-                    Seu objetivo
+                    Seus objetivos
                   </h2>
 
                   <p>
-                    Qual é hoje a
-                    principal razão
-                    para você
-                    desenvolver seu
-                    inglês?
+                    Quais são hoje as
+                    principais razões para
+                    você desenvolver seu inglês?
+
+                    <strong>
+                      Mais de uma opção pode
+                      ser selecionada.
+                    </strong>
                   </p>
                 </div>
               </div>
 
               <fieldset>
                 <legend class="visually-hidden">
-                  Selecione seu
-                  principal objetivo
-                  com o inglês
+                  Selecione seus principais
+                  objetivos com o inglês.
+                  Mais de uma opção pode
+                  ser selecionada.
                 </legend>
 
                 <div class="choice-grid">
                   @for (
-                  option of
-                  goalOptions;
+                  option of goalOptions;
                   track option.value
                   ) {
                   <label class="choice-card">
-                    <input type="radio" formControlName="mainGoal" [value]="
-                          option.value
-                        ">
+                    <input type="checkbox" [checked]="
+              mainGoal.value.includes(
+                option.value
+              )
+            " (change)="
+              toggleMainGoal(
+                option.value,
+                $event
+              )
+            ">
 
                     <span class="choice-indicator"></span>
 
@@ -479,8 +489,8 @@
                 )
                 ) {
                 <p class="field-error" role="alert">
-                  Escolha seu
-                  principal objetivo.
+                  Escolha pelo menos
+                  um objetivo.
                 </p>
                 }
               </fieldset>
@@ -592,9 +602,13 @@
               <div class="preference-group">
                 <fieldset>
                   <legend class="form-label">
-                    Qual período
-                    funciona melhor
-                    para você?
+                    Quais períodos
+                    funcionam melhor para você?
+
+                    <span class="multiple-choice-note">
+                      Mais de uma opção pode
+                      ser selecionada.
+                    </span>
                   </legend>
 
                   <div class="choice-grid availability">
@@ -604,9 +618,18 @@
                     track option.value
                     ) {
                     <label class="choice-card">
-                      <input type="radio" formControlName="availabilityPeriod" [value]="
-                            option.value
-                          ">
+                      <input type="checkbox" [checked]="
+              availabilityPeriod
+                .value
+                .includes(
+                  option.value
+                )
+            " (change)="
+              toggleAvailabilityPeriod(
+                option.value,
+                $event
+              )
+            ">
 
                       <span class="choice-indicator"></span>
 
@@ -625,8 +648,8 @@
                   )
                   ) {
                   <p class="field-error" role="alert">
-                    Escolha um
-                    período.
+                    Escolha pelo menos
+                    um período.
                   </p>
                   }
                 </fieldset>

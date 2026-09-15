@@ -2,36 +2,54 @@ import {
   createClient,
 } from 'npm:@supabase/supabase-js@2';
 
+
 const corsHeaders = {
   'Access-Control-Allow-Origin':
     '*',
 
   'Access-Control-Allow-Headers':
     'authorization, x-client-info, apikey, content-type',
+
+  'Access-Control-Allow-Methods':
+    'POST, OPTIONS',
 };
+
 
 interface ProfileRow {
   id: string;
-  full_name: string | null;
-  email: string | null;
-  whatsapp: string | null;
-  role: string | null;
+
+  full_name:
+    string | null;
+
+  email:
+    string | null;
+
+  whatsapp:
+    string | null;
+
+  role:
+    string | null;
 }
+
 
 function getErrorMessage(
   error: unknown,
 ): string {
+
   if (
     error instanceof Error
   ) {
     return error.message;
   }
 
+
   if (
-    typeof error === 'string'
+    typeof error ===
+    'string'
   ) {
     return error;
   }
+
 
   try {
     return JSON.stringify(
@@ -42,34 +60,50 @@ function getErrorMessage(
   }
 }
 
+
 function normalizePhone(
   phone: string,
 ): string {
+
   return phone.replace(
     /\D/g,
     '',
   );
 }
 
+
 function normalizeEmail(
   email: string,
 ): string {
+
   return email
     .trim()
     .toLowerCase();
 }
 
+
 function isValidEmail(
   email: string,
 ): boolean {
+
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    .test(email);
+    .test(
+      email,
+    );
 }
+
 
 Deno.serve(
   async (
     req: Request,
   ) => {
+
+    /*
+     * =========================================
+     * CORS
+     * =========================================
+     */
+
     if (
       req.method ===
       'OPTIONS'
@@ -77,68 +111,133 @@ Deno.serve(
       return new Response(
         'ok',
         {
+          status: 200,
+
           headers:
             corsHeaders,
         },
       );
     }
 
+
+    if (
+      req.method !==
+      'POST'
+    ) {
+      return Response.json(
+        {
+          success: false,
+
+          error:
+            'Método não permitido.',
+        },
+        {
+          status: 405,
+
+          headers:
+            corsHeaders,
+        },
+      );
+    }
+
+
     try {
-      if (
-        req.method !==
-        'POST'
-      ) {
+
+      /*
+       * =========================================
+       * AUTENTICAÇÃO DO CHAMADOR
+       * =========================================
+       */
+
+      const authorization =
+        req.headers.get(
+          'Authorization',
+        );
+
+
+      if (!authorization) {
         return Response.json(
           {
             success: false,
+
             error:
-              'Método não permitido.',
+              'Não autenticado.',
           },
           {
-            status: 405,
+            status: 401,
+
             headers:
               corsHeaders,
           },
         );
       }
 
+
+      /*
+       * =========================================
+       * CONFIGURAÇÃO
+       * =========================================
+       */
+
       const supabaseUrl =
         Deno.env.get(
-          'FB_SUPABASE_URL',
+          'SUPABASE_URL',
         );
+
+
+      const anonKey =
+        Deno.env.get(
+          'SUPABASE_ANON_KEY',
+        );
+
 
       const serviceRoleKey =
         Deno.env.get(
-          'FB_SUPABASE_SERVICE_ROLE_KEY',
+          'SUPABASE_SERVICE_ROLE_KEY',
         );
+
 
       const schoolWhatsapp =
         Deno.env.get(
           'FB_SCHOOL_WHATSAPP',
         );
 
+
       const evolutionApiUrl =
         Deno.env.get(
           'EVOLUTION_API_URL',
-        );
+        )
+          ?.replace(
+            /\/+$/,
+            '',
+          );
+
 
       const evolutionApiKey =
         Deno.env.get(
           'EVOLUTION_API_KEY',
         );
 
+
       const evolutionInstance =
         Deno.env.get(
           'EVOLUTION_INSTANCE',
         );
 
+
       const appUrl =
         Deno.env.get(
           'FB_APP_URL',
-        );
+        )
+          ?.replace(
+            /\/+$/,
+            '',
+          );
+
 
       if (
         !supabaseUrl ||
+        !anonKey ||
         !serviceRoleKey ||
         !schoolWhatsapp ||
         !evolutionApiUrl ||
@@ -146,34 +245,110 @@ Deno.serve(
         !evolutionInstance ||
         !appUrl
       ) {
+        const missing:
+          string[] =
+          [];
+
+
+        if (!supabaseUrl) {
+          missing.push(
+            'SUPABASE_URL',
+          );
+        }
+
+
+        if (!anonKey) {
+          missing.push(
+            'SUPABASE_ANON_KEY',
+          );
+        }
+
+
+        if (!serviceRoleKey) {
+          missing.push(
+            'SUPABASE_SERVICE_ROLE_KEY',
+          );
+        }
+
+
+        if (!schoolWhatsapp) {
+          missing.push(
+            'FB_SCHOOL_WHATSAPP',
+          );
+        }
+
+
+        if (!evolutionApiUrl) {
+          missing.push(
+            'EVOLUTION_API_URL',
+          );
+        }
+
+
+        if (!evolutionApiKey) {
+          missing.push(
+            'EVOLUTION_API_KEY',
+          );
+        }
+
+
+        if (!evolutionInstance) {
+          missing.push(
+            'EVOLUTION_INSTANCE',
+          );
+        }
+
+
+        if (!appUrl) {
+          missing.push(
+            'FB_APP_URL',
+          );
+        }
+
+
         throw new Error(
-          'Configuração de ambiente incompleta.',
+          `Configuração de ambiente incompleta: ${missing.join(', ')}.`,
         );
       }
+
+
+      /*
+       * =========================================
+       * BODY
+       * =========================================
+       */
 
       const body =
         await req.json();
 
+
       const attemptId =
-        typeof body?.attemptId ===
-        'string'
-          ? body.attemptId
+        typeof body
+          ?.attemptId ===
+          'string'
+          ? body
+              .attemptId
+              .trim()
           : null;
+
 
       if (!attemptId) {
         return Response.json(
           {
             success: false,
+
             error:
               'attemptId é obrigatório.',
           },
           {
             status: 400,
+
             headers:
               corsHeaders,
           },
         );
       }
+
 
       console.log(
         '[handle-test-submitted] start',
@@ -181,6 +356,102 @@ Deno.serve(
           attemptId,
         },
       );
+
+
+      /*
+       * =========================================
+       * VALIDAR JWT DO ALUNO
+       * =========================================
+       *
+       * Neste ponto o aluno pode ainda
+       * possuir uma sessão anônima.
+       *
+       * Isso é esperado.
+       */
+
+      const authClient =
+        createClient(
+          supabaseUrl,
+          anonKey,
+          {
+            global: {
+              headers: {
+                Authorization:
+                  authorization,
+              },
+            },
+
+            auth: {
+              persistSession:
+                false,
+
+              autoRefreshToken:
+                false,
+
+              detectSessionInUrl:
+                false,
+            },
+          },
+        );
+
+
+      const {
+        data:
+          callerData,
+
+        error:
+          callerError,
+      } =
+        await authClient
+          .auth
+          .getUser();
+
+
+      if (
+        callerError ||
+        !callerData.user
+      ) {
+        console.error(
+          '[handle-test-submitted] caller-auth-error',
+          callerError,
+        );
+
+
+        return Response.json(
+          {
+            success: false,
+
+            error:
+              'Não foi possível validar o usuário da avaliação.',
+          },
+          {
+            status: 401,
+
+            headers:
+              corsHeaders,
+          },
+        );
+      }
+
+
+      const callerUserId =
+        callerData
+          .user
+          .id;
+
+
+      /*
+       * =========================================
+       * CLIENT PRIVILEGIADO
+       * =========================================
+       *
+       * A partir daqui temos acesso
+       * administrativo ao banco/Auth.
+       *
+       * Por isso validaremos ownership
+       * antes de promover a conta ou
+       * disparar qualquer mensagem.
+       */
 
       const supabase =
         createClient(
@@ -200,13 +471,18 @@ Deno.serve(
           },
         );
 
+
       /*
-       * 1. Localiza o evento
-       * TEST_SUBMITTED.
+       * =========================================
+       * 1. LOCALIZAR EVENTO TEST_SUBMITTED
+       * =========================================
        */
+
       const {
         data: event,
-        error: eventError,
+
+        error:
+          eventError,
       } =
         await supabase
           .from(
@@ -228,14 +504,17 @@ Deno.serve(
           )
           .maybeSingle();
 
+
       if (eventError) {
         throw eventError;
       }
+
 
       if (!event) {
         return Response.json(
           {
             success: false,
+
             stage:
               'find-event',
 
@@ -244,11 +523,13 @@ Deno.serve(
           },
           {
             status: 404,
+
             headers:
               corsHeaders,
           },
         );
       }
+
 
       if (
         !event.student_id
@@ -257,6 +538,7 @@ Deno.serve(
           'Evento TEST_SUBMITTED não possui student_id.',
         );
       }
+
 
       console.log(
         '[handle-test-submitted] event-found',
@@ -269,14 +551,18 @@ Deno.serve(
         },
       );
 
+
       /*
-       * 2. Confirma que a tentativa
-       * realmente pertence ao aluno
-       * indicado pelo evento.
+       * =========================================
+       * 2. VALIDAR TENTATIVA E OWNERSHIP
+       * =========================================
        */
+
       const {
         data: attempt,
-        error: attemptError,
+
+        error:
+          attemptError,
       } =
         await supabase
           .from(
@@ -293,15 +579,62 @@ Deno.serve(
           )
           .maybeSingle();
 
+
       if (attemptError) {
         throw attemptError;
       }
+
 
       if (!attempt) {
         throw new Error(
           'Tentativa não encontrada.',
         );
       }
+
+
+      /*
+       * O JWT precisa pertencer ao
+       * proprietário da tentativa.
+       */
+
+      if (
+        callerUserId !==
+        attempt.student_id
+      ) {
+        console.error(
+          '[handle-test-submitted] ownership-denied',
+          {
+            callerUserId,
+
+            attemptId,
+
+            studentId:
+              attempt.student_id,
+          },
+        );
+
+
+        return Response.json(
+          {
+            success: false,
+
+            error:
+              'Você não possui acesso a esta avaliação.',
+          },
+          {
+            status: 403,
+
+            headers:
+              corsHeaders,
+          },
+        );
+      }
+
+
+      /*
+       * O evento também precisa apontar
+       * para exatamente o mesmo aluno.
+       */
 
       if (
         attempt.student_id !==
@@ -311,6 +644,7 @@ Deno.serve(
           'O aluno do evento não corresponde ao proprietário da tentativa.',
         );
       }
+
 
       if (
         attempt.status !==
@@ -323,13 +657,18 @@ Deno.serve(
         );
       }
 
+
       /*
-       * 3. Carrega o perfil oficial
-       * do aluno.
+       * =========================================
+       * 3. PERFIL DO ALUNO
+       * =========================================
        */
+
       const {
         data: profile,
-        error: profileError,
+
+        error:
+          profileError,
       } =
         await supabase
           .from(
@@ -346,17 +685,32 @@ Deno.serve(
             'id',
             event.student_id,
           )
-          .maybeSingle<ProfileRow>();
+          .maybeSingle<
+            ProfileRow
+          >();
+
 
       if (profileError) {
         throw profileError;
       }
+
 
       if (!profile) {
         throw new Error(
           'Perfil do aluno não encontrado.',
         );
       }
+
+
+      if (
+        profile.id !==
+        event.student_id
+      ) {
+        throw new Error(
+          'O perfil retornado não corresponde ao aluno da tentativa.',
+        );
+      }
+
 
       if (
         profile.role !==
@@ -367,6 +721,7 @@ Deno.serve(
         );
       }
 
+
       if (
         !profile.email ||
         !profile.email.trim()
@@ -376,10 +731,12 @@ Deno.serve(
         );
       }
 
+
       const studentEmail =
         normalizeEmail(
           profile.email,
         );
+
 
       if (
         !isValidEmail(
@@ -391,31 +748,53 @@ Deno.serve(
         );
       }
 
+
       /*
-       * 4. Busca a identidade Auth
-       * pelo MESMO student_id.
+       * =========================================
+       * 4. IDENTIDADE AUTH DO MESMO ALUNO
+       * =========================================
        */
+
       const {
-        data: authData,
-        error: authError,
+        data:
+          authData,
+
+        error:
+          authError,
       } =
-        await supabase.auth.admin
+        await supabase
+          .auth
+          .admin
           .getUserById(
             event.student_id,
           );
+
 
       if (authError) {
         throw authError;
       }
 
+
       const authUser =
         authData.user;
+
 
       if (!authUser) {
         throw new Error(
           'Usuário Auth do aluno não encontrado.',
         );
       }
+
+
+      if (
+        authUser.id !==
+        event.student_id
+      ) {
+        throw new Error(
+          'A identidade Auth não corresponde ao aluno original.',
+        );
+      }
+
 
       const authEmail =
         authUser.email
@@ -424,11 +803,13 @@ Deno.serve(
             )
           : null;
 
+
       /*
-       * Nunca sobrescrevemos uma
-       * identidade permanente que
-       * pertence a outro e-mail.
+       * Nunca sobrescrevemos uma conta
+       * permanente associada a outro
+       * endereço de e-mail.
        */
+
       if (
         authEmail &&
         authEmail !==
@@ -439,17 +820,23 @@ Deno.serve(
         );
       }
 
+
       /*
-       * 5. Promove/vincula a identidade
-       * existente.
+       * =========================================
+       * 5. PROMOVER IDENTIDADE ANÔNIMA
+       * =========================================
        *
-       * O UUID NÃO muda.
+       * O UUID permanece exatamente
+       * o mesmo.
        */
+
       if (
-        authUser.is_anonymous ===
+        authUser
+          .is_anonymous ===
           true ||
         !authEmail
       ) {
+
         console.log(
           '[handle-test-submitted] promoting-user',
           {
@@ -458,9 +845,11 @@ Deno.serve(
           },
         );
 
+
         const {
           data:
             updatedAuthData,
+
           error:
             updateAuthError,
         } =
@@ -478,23 +867,28 @@ Deno.serve(
               },
             );
 
+
         if (
           updateAuthError
         ) {
           throw updateAuthError;
         }
 
+
         if (
-          !updatedAuthData.user
+          !updatedAuthData
+            .user
         ) {
           throw new Error(
             'O Supabase não retornou o usuário após a atualização da identidade.',
           );
         }
 
+
         if (
           updatedAuthData
-            .user.id !==
+            .user
+            .id !==
           event.student_id
         ) {
           throw new Error(
@@ -502,14 +896,18 @@ Deno.serve(
           );
         }
 
+
         const updatedEmail =
           updatedAuthData
-            .user.email
+            .user
+            .email
             ? normalizeEmail(
                 updatedAuthData
-                  .user.email,
+                  .user
+                  .email,
               )
             : null;
+
 
         if (
           updatedEmail !==
@@ -520,14 +918,7 @@ Deno.serve(
           );
         }
 
-        /*
-         * Esta verificação é
-         * proposital.
-         *
-         * Não queremos seguir para
-         * WhatsApp se a conta continuar
-         * anônima após a promoção.
-         */
+
         if (
           updatedAuthData
             .user
@@ -538,29 +929,43 @@ Deno.serve(
             'A identidade Auth permaneceu anônima após a vinculação do e-mail.',
           );
         }
+
+
+        console.log(
+          '[handle-test-submitted] user-promoted',
+          {
+            studentId:
+              event.student_id,
+          },
+        );
       }
 
+
       /*
-       * 6. Gera um link de recovery
-       * para a identidade JÁ existente.
+       * =========================================
+       * 6. GERAR LINK DE PRIMEIRO ACESSO
+       * =========================================
        *
-       * O Supabase não envia e-mail
-       * aqui. Nós usaremos o link
-       * pelo WhatsApp.
+       * O link é gerado para a MESMA
+       * identidade Auth.
+       *
+       * Nenhum e-mail é enviado pelo
+       * Supabase nesta etapa.
        */
+
       const firstAccessRedirectUrl =
-        `${
-          appUrl.replace(
-            /\/+$/,
-            '',
-          )
-        }/primeiro-acesso`;
+        `${appUrl}/primeiro-acesso`;
+
 
       const {
         data: linkData,
-        error: linkError,
+
+        error:
+          linkError,
       } =
-        await supabase.auth.admin
+        await supabase
+          .auth
+          .admin
           .generateLink({
             type:
               'recovery',
@@ -574,40 +979,56 @@ Deno.serve(
             },
           });
 
+
       if (linkError) {
         throw linkError;
       }
+
 
       const firstAccessUrl =
         linkData
           ?.properties
           ?.action_link;
 
-      if (
-        !firstAccessUrl
-      ) {
+
+      if (!firstAccessUrl) {
         throw new Error(
           'Não foi possível gerar o link seguro de primeiro acesso.',
         );
       }
+
+
+      /*
+       * Não logamos o action_link.
+       *
+       * Ele funciona como credencial
+       * temporária.
+       */
 
       console.log(
         '[handle-test-submitted] first-access-ready',
         {
           studentId:
             event.student_id,
+
+          redirectTo:
+            firstAccessRedirectUrl,
         },
       );
 
+
       /*
-       * 7. Prepara as mensagens.
-       *
-       * A RPC continua responsável
-       * pela idempotência das mensagens.
+       * =========================================
+       * 7. PREPARAR MENSAGENS
+       * =========================================
        */
+
       const {
-        data: enqueueData,
-        error: enqueueError,
+        data:
+          enqueueData,
+
+        error:
+          enqueueError,
       } =
         await supabase.rpc(
           'enqueue_test_submitted_messages',
@@ -623,6 +1044,7 @@ Deno.serve(
           },
         );
 
+
       if (enqueueError) {
         console.error(
           '[handle-test-submitted] enqueue-error',
@@ -631,6 +1053,7 @@ Deno.serve(
 
         throw enqueueError;
       }
+
 
       console.log(
         '[handle-test-submitted] enqueue-success',
@@ -643,13 +1066,18 @@ Deno.serve(
         },
       );
 
+
       /*
-       * 8. Busca apenas mensagens
-       * pendentes deste evento.
+       * =========================================
+       * 8. BUSCAR MENSAGENS PENDENTES
+       * =========================================
        */
+
       const {
         data: messages,
-        error: messagesError,
+
+        error:
+          messagesError,
       } =
         await supabase
           .from(
@@ -679,11 +1107,11 @@ Deno.serve(
             },
           );
 
-      if (
-        messagesError
-      ) {
+
+      if (messagesError) {
         throw messagesError;
       }
+
 
       console.log(
         '[handle-test-submitted] pending-messages',
@@ -694,50 +1122,89 @@ Deno.serve(
         },
       );
 
+
+      /*
+       * Idempotência:
+       *
+       * se já foram preparadas/enviadas
+       * anteriormente, não reenviamos.
+       */
+
       if (
         !messages?.length
       ) {
         return Response.json(
           {
             success: true,
+
             attemptId,
+
             eventId:
               event.id,
 
             processed:
               0,
 
+            sent:
+              0,
+
+            failed:
+              0,
+
             message:
               'As mensagens já foram preparadas ou processadas anteriormente.',
           },
           {
+            status: 200,
+
             headers:
               corsHeaders,
           },
         );
       }
 
+
       /*
-       * 9. Envia pela Evolution.
+       * =========================================
+       * 9. ENVIAR PELA EVOLUTION
+       * =========================================
        */
+
       const results:
         Array<{
           id: string;
+
           recipientType:
             string;
-          success: boolean;
+
+          success:
+            boolean;
+
           providerMessageId?:
             string | null;
-          error?: string;
+
+          error?:
+            string;
         }> = [];
 
+
       for (
-        const message
-        of messages
+        const message of
+        messages
       ) {
+
+        /*
+         * Reserva atômica simples.
+         *
+         * Só uma execução consegue
+         * transformar pending em
+         * processing.
+         */
+
         const {
           data:
             lockedMessage,
+
           error:
             lockError,
         } =
@@ -750,9 +1217,11 @@ Deno.serve(
                 'processing',
 
               attempt_count:
-                message
-                  .attempt_count +
-                1,
+                (
+                  message
+                    .attempt_count ??
+                  0
+                ) + 1,
 
               last_error:
                 null,
@@ -769,6 +1238,7 @@ Deno.serve(
               'id',
             )
             .maybeSingle();
+
 
         if (lockError) {
           results.push({
@@ -791,13 +1261,14 @@ Deno.serve(
           continue;
         }
 
-        if (
-          !lockedMessage
-        ) {
+
+        if (!lockedMessage) {
           continue;
         }
 
+
         try {
+
           const recipient =
             normalizePhone(
               String(
@@ -806,11 +1277,13 @@ Deno.serve(
               ),
             );
 
+
           if (!recipient) {
             throw new Error(
               'Número de WhatsApp inválido.',
             );
           }
+
 
           console.log(
             '[handle-test-submitted] sending',
@@ -821,10 +1294,9 @@ Deno.serve(
               recipientType:
                 message
                   .recipient_type,
-
-              recipient,
             },
           );
+
 
           const response =
             await fetch(
@@ -853,24 +1325,37 @@ Deno.serve(
               },
             );
 
+
           const responseText =
             await response
               .text();
 
-          let responseData:
-            unknown = null;
 
-          try {
-            responseData =
-              responseText
-                ? JSON.parse(
-                    responseText,
-                  )
-                : null;
-          } catch {
-            responseData =
-              responseText;
+          let responseData:
+            unknown =
+            null;
+
+
+          if (responseText) {
+            try {
+              responseData =
+                JSON.parse(
+                  responseText,
+                );
+            } catch {
+              responseData =
+                responseText;
+            }
           }
+
+
+          /*
+           * Não logamos a resposta inteira.
+           *
+           * Dependendo da Evolution, ela
+           * pode conter informações do
+           * destinatário/mensagem.
+           */
 
           console.log(
             '[handle-test-submitted] evolution-response',
@@ -880,27 +1365,23 @@ Deno.serve(
 
               httpStatus:
                 response.status,
-
-              data:
-                responseData,
             },
           );
 
-          if (
-            !response.ok
-          ) {
+
+          if (!response.ok) {
             throw new Error(
-              `Evolution API HTTP ${response.status}: ${
-                getErrorMessage(
-                  responseData,
-                )
-              }`,
+              `Evolution API HTTP ${response.status}: ${getErrorMessage(
+                responseData,
+              )}`,
             );
           }
 
+
           let providerMessageId:
             string | null =
-              null;
+            null;
+
 
           if (
             responseData &&
@@ -908,15 +1389,18 @@ Deno.serve(
               'object'
           ) {
             const responseRecord =
-              responseData as Record<
-                string,
-                unknown
-              >;
+              responseData as
+                Record<
+                  string,
+                  unknown
+                >;
+
 
             const key =
               responseRecord[
                 'key'
               ];
+
 
             if (
               key &&
@@ -924,16 +1408,18 @@ Deno.serve(
                 'object'
             ) {
               const keyRecord =
-                key as Record<
-                  string,
-                  unknown
-                >;
+                key as
+                  Record<
+                    string,
+                    unknown
+                  >;
+
 
               if (
                 typeof keyRecord[
                   'id'
                 ] ===
-                'string'
+                  'string'
               ) {
                 providerMessageId =
                   keyRecord[
@@ -941,6 +1427,7 @@ Deno.serve(
                   ] as string;
               }
             }
+
 
             if (
               !providerMessageId &&
@@ -955,6 +1442,7 @@ Deno.serve(
                 ] as string;
             }
 
+
             if (
               !providerMessageId &&
               typeof responseRecord[
@@ -968,6 +1456,13 @@ Deno.serve(
                 ] as string;
             }
           }
+
+
+          /*
+           * =====================================
+           * MARCAR COMO ENVIADA
+           * =====================================
+           */
 
           const {
             error:
@@ -1002,9 +1497,11 @@ Deno.serve(
                 message.id,
               );
 
+
           if (sentError) {
             throw sentError;
           }
+
 
           results.push({
             id:
@@ -1019,11 +1516,14 @@ Deno.serve(
 
             providerMessageId,
           });
+
         } catch (error) {
+
           const errorMessage =
             getErrorMessage(
               error,
             );
+
 
           console.error(
             '[handle-test-submitted] send-error',
@@ -1031,18 +1531,27 @@ Deno.serve(
               messageId:
                 message.id,
 
+              recipientType:
+                message
+                  .recipient_type,
+
               error:
                 errorMessage,
             },
           );
 
+
           const retryAt =
             new Date(
               Date.now() +
+              (
                 5 *
-                  60 *
-                  1000,
-            ).toISOString();
+                60 *
+                1000
+              ),
+            )
+              .toISOString();
+
 
           const {
             error:
@@ -1070,6 +1579,7 @@ Deno.serve(
                 message.id,
               );
 
+
           if (
             failureUpdateError
           ) {
@@ -1078,6 +1588,7 @@ Deno.serve(
               failureUpdateError,
             );
           }
+
 
           results.push({
             id:
@@ -1096,6 +1607,13 @@ Deno.serve(
         }
       }
 
+
+      /*
+       * =========================================
+       * 10. RESULTADO
+       * =========================================
+       */
+
       const sent =
         results.filter(
           (
@@ -1104,9 +1622,11 @@ Deno.serve(
             result.success,
         ).length;
 
+
       const failed =
         results.length -
         sent;
+
 
       console.log(
         '[handle-test-submitted] completed',
@@ -1125,8 +1645,19 @@ Deno.serve(
         },
       );
 
+
       return Response.json(
         {
+          /*
+           * A função executou o fluxo,
+           * mas reportamos false se algum
+           * envio efetivamente falhou.
+           *
+           * O TestFinalizationService já
+           * trata comunicação como
+           * best-effort e não desfaz a
+           * finalização do teste.
+           */
           success:
             failed === 0,
 
@@ -1145,15 +1676,20 @@ Deno.serve(
           results,
         },
         {
+          status: 200,
+
           headers:
             corsHeaders,
         },
       );
+
     } catch (error) {
+
       const errorMessage =
         getErrorMessage(
           error,
         );
+
 
       console.error(
         '[handle-test-submitted] fatal',
@@ -1162,6 +1698,7 @@ Deno.serve(
             errorMessage,
         },
       );
+
 
       return Response.json(
         {
@@ -1175,6 +1712,7 @@ Deno.serve(
         },
         {
           status: 500,
+
           headers:
             corsHeaders,
         },

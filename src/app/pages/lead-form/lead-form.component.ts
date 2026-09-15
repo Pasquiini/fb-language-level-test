@@ -460,7 +460,12 @@ export class LeadFormComponent {
         ],
 
         mainGoal: [
-          '',
+          [] as string[],
+          Validators.required,
+        ],
+
+        availabilityPeriod: [
+          [] as string[],
           Validators.required,
         ],
 
@@ -469,10 +474,6 @@ export class LeadFormComponent {
           Validators.required,
         ],
 
-        availabilityPeriod: [
-          '',
-          Validators.required,
-        ],
         weeklyFrequency: [
           '',
           Validators.required,
@@ -524,20 +525,12 @@ export class LeadFormComponent {
       .previousSchool;
   }
 
-  get mainGoal() {
-    return this.form.controls
-      .mainGoal;
-  }
 
   get preferredModality() {
     return this.form.controls
       .preferredModality;
   }
 
-  get availabilityPeriod() {
-    return this.form.controls
-      .availabilityPeriod;
-  }
 
   get isBrazil(): boolean {
     return (
@@ -577,7 +570,75 @@ export class LeadFormComponent {
       )
     );
   }
+  toggleMainGoal(
+    value: string,
+    event: Event,
+  ): void {
+    const input =
+      event.target as HTMLInputElement;
 
+    const currentValues = [
+      ...this.mainGoal.value,
+    ];
+
+    const nextValues =
+      input.checked
+        ? [
+          ...currentValues,
+          value,
+        ]
+        : currentValues.filter(
+          item =>
+            item !== value,
+        );
+
+    this.mainGoal.setValue(
+      nextValues,
+    );
+
+    this.mainGoal.markAsTouched();
+    this.mainGoal.updateValueAndValidity();
+  }
+
+  toggleAvailabilityPeriod(
+    value: string,
+    event: Event,
+  ): void {
+    const input =
+      event.target as HTMLInputElement;
+
+    const currentValues = [
+      ...this.availabilityPeriod.value,
+    ];
+
+    const nextValues =
+      input.checked
+        ? [
+          ...currentValues,
+          value,
+        ]
+        : currentValues.filter(
+          item =>
+            item !== value,
+        );
+
+    this.availabilityPeriod.setValue(
+      nextValues,
+    );
+
+    this.availabilityPeriod.markAsTouched();
+    this.availabilityPeriod
+      .updateValueAndValidity();
+  }
+  get mainGoal() {
+    return this.form.controls
+      .mainGoal;
+  }
+
+  get availabilityPeriod() {
+    return this.form.controls
+      .availabilityPeriod;
+  }
   onCountryCodeChange(): void {
     const digits =
       this.normalizeWhatsapp(

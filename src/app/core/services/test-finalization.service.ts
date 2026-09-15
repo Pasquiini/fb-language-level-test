@@ -134,32 +134,77 @@ export class TestFinalizationService {
 private async triggerTestSubmittedCommunication(
   attemptId: string,
 ): Promise<boolean> {
+
   try {
-    const response =
-      await fetch(
-        `${environment.functions.baseUrl}/handle-test-submitted`,
-        {
-          method: 'POST',
+    const {
+      data: {
+        session,
+      },
 
-          headers: {
-            'Content-Type':
-              'application/json',
-          },
+      error:
+        sessionError,
+    } =
+      await this.supabase
+        .client
+        .auth
+        .getSession();
 
-          body:
-            JSON.stringify({
-              attemptId,
-            }),
-        },
+
+    if (sessionError) {
+      console.error(
+        '[TestFinalizationService] session:',
+        sessionError,
       );
 
-    const data =
-      await response
-        .json() as
-        HandleTestSubmittedResponse;
+      return false;
+    }
+
+
+    if (!session) {
+      console.error(
+        '[TestFinalizationService] sessão não encontrada.',
+      );
+
+      return false;
+    }
+
+
+    const {
+      data,
+      error,
+    } =
+      await this.supabase
+        .client
+        .functions
+        .invoke<
+          HandleTestSubmittedResponse
+        >(
+          'handle-test-submitted',
+          {
+            body: {
+              attemptId,
+            },
+
+            headers: {
+              Authorization:
+                `Bearer ${session.access_token}`,
+            },
+          },
+        );
+
+
+    if (error) {
+      console.error(
+        '[TestFinalizationService] handle-test-submitted:',
+        error,
+      );
+
+      return false;
+    }
+
 
     if (
-      !response.ok ||
+      !data ||
       !data.success
     ) {
       console.error(
@@ -170,17 +215,43 @@ private async triggerTestSubmittedCommunication(
       return false;
     }
 
+
     console.log(
       'Test submitted communication processed:',
-      data,
+      {
+        attemptId:
+          data.attemptId,
+
+        eventId:
+          data.eventId,
+
+        processed:
+          data.processed,
+
+        sent:
+          data.sent,
+
+        failed:
+          data.failed,
+      },
     );
 
+
     return true;
+
   } catch (error) {
+
     console.error(
       'Could not trigger test submitted communication:',
       error,
     );
+
+
+    /*
+     * A comunicação não deve transformar
+     * uma finalização pedagógica válida
+     * em falha para o aluno.
+     */
 
     return false;
   }

@@ -2,17 +2,23 @@ import {
   createClient,
 } from 'npm:@supabase/supabase-js@2';
 
+
 const corsHeaders = {
   'Access-Control-Allow-Origin':
     '*',
 
   'Access-Control-Allow-Headers':
     'authorization, x-client-info, apikey, content-type',
+
+  'Access-Control-Allow-Methods':
+    'POST, OPTIONS',
 };
+
 
 function getErrorMessage(
   error: unknown,
 ): string {
+
   if (
     error instanceof Error
   ) {
@@ -35,19 +41,29 @@ function getErrorMessage(
   }
 }
 
+
 function normalizePhone(
   value: string,
 ): string {
+
   return value.replace(
     /\D/g,
     '',
   );
 }
 
+
 Deno.serve(
   async (
     req: Request,
   ) => {
+
+    /*
+     * =========================================
+     * CORS
+     * =========================================
+     */
+
     if (
       req.method ===
       'OPTIONS'
@@ -55,11 +71,14 @@ Deno.serve(
       return new Response(
         'ok',
         {
+          status: 200,
+
           headers:
             corsHeaders,
         },
       );
     }
+
 
     if (
       req.method !==
@@ -68,114 +87,315 @@ Deno.serve(
       return Response.json(
         {
           success: false,
+
           error:
             'Método não permitido.',
         },
         {
           status: 405,
+
           headers:
             corsHeaders,
         },
       );
     }
 
+
     try {
+
+      /*
+       * =========================================
+       * AUTENTICAÇÃO
+       * =========================================
+       */
+
+      const authorization =
+        req.headers.get(
+          'Authorization',
+        );
+
+
+      if (!authorization) {
+        return Response.json(
+          {
+            success: false,
+
+            error:
+              'Não autenticado.',
+          },
+          {
+            status: 401,
+
+            headers:
+              corsHeaders,
+          },
+        );
+      }
+
+
+      /*
+       * =========================================
+       * CONFIGURAÇÃO
+       * =========================================
+       */
+
       const supabaseUrl =
         Deno.env.get(
-          'FB_SUPABASE_URL',
+          'SUPABASE_URL',
         );
+
+
+      const anonKey =
+        Deno.env.get(
+          'SUPABASE_ANON_KEY',
+        );
+
 
       const serviceRoleKey =
         Deno.env.get(
-          'FB_SUPABASE_SERVICE_ROLE_KEY',
+          'SUPABASE_SERVICE_ROLE_KEY',
         );
+
 
       const evolutionApiUrl =
         Deno.env.get(
           'EVOLUTION_API_URL',
-        );
+        )
+          ?.replace(
+            /\/+$/,
+            '',
+          );
+
 
       const evolutionApiKey =
         Deno.env.get(
           'EVOLUTION_API_KEY',
         );
 
+
       const evolutionInstance =
         Deno.env.get(
           'EVOLUTION_INSTANCE',
         );
 
+
       if (
         !supabaseUrl ||
+        !anonKey ||
         !serviceRoleKey ||
         !evolutionApiUrl ||
         !evolutionApiKey ||
         !evolutionInstance
       ) {
+        const missing:
+          string[] =
+          [];
+
+
+        if (!supabaseUrl) {
+          missing.push(
+            'SUPABASE_URL',
+          );
+        }
+
+
+        if (!anonKey) {
+          missing.push(
+            'SUPABASE_ANON_KEY',
+          );
+        }
+
+
+        if (!serviceRoleKey) {
+          missing.push(
+            'SUPABASE_SERVICE_ROLE_KEY',
+          );
+        }
+
+
+        if (!evolutionApiUrl) {
+          missing.push(
+            'EVOLUTION_API_URL',
+          );
+        }
+
+
+        if (!evolutionApiKey) {
+          missing.push(
+            'EVOLUTION_API_KEY',
+          );
+        }
+
+
+        if (!evolutionInstance) {
+          missing.push(
+            'EVOLUTION_INSTANCE',
+          );
+        }
+
+
         throw new Error(
-          'Configuração de ambiente incompleta.',
+          `Configuração de ambiente incompleta: ${missing.join(', ')}.`,
         );
       }
 
+
+      /*
+       * =========================================
+       * VALIDAR STAFF
+       * =========================================
+       */
+
+      const authClient =
+        createClient(
+          supabaseUrl,
+          anonKey,
+          {
+            global: {
+              headers: {
+                Authorization:
+                  authorization,
+              },
+            },
+
+            auth: {
+              persistSession:
+                false,
+
+              autoRefreshToken:
+                false,
+            },
+          },
+        );
+
+
+      const {
+        data: isStaff,
+        error: staffError,
+      } =
+        await authClient.rpc(
+          'is_staff',
+        );
+
+
+      if (staffError) {
+        console.error(
+          '[admin-complete-test-review] staff-check',
+          staffError,
+        );
+
+
+        return Response.json(
+          {
+            success: false,
+
+            error:
+              'Não foi possível validar a permissão administrativa.',
+          },
+          {
+            status: 403,
+
+            headers:
+              corsHeaders,
+          },
+        );
+      }
+
+
+      if (!isStaff) {
+        return Response.json(
+          {
+            success: false,
+
+            error:
+              'Acesso não autorizado.',
+          },
+          {
+            status: 403,
+
+            headers:
+              corsHeaders,
+          },
+        );
+      }
+
+
+      /*
+       * =========================================
+       * BODY
+       * =========================================
+       */
+
       const body =
         await req.json();
+
 
       const attemptId =
         typeof body
           ?.attemptId ===
           'string'
-          ? body.attemptId
+          ? body
+              .attemptId
+              .trim()
           : null;
+
 
       const rawSpeakingScore =
         body?.speakingScore;
 
+
       const speakingScore =
         rawSpeakingScore ===
           null ||
-          rawSpeakingScore ===
+        rawSpeakingScore ===
           undefined ||
-          rawSpeakingScore ===
+        rawSpeakingScore ===
           ''
           ? null
           : Number(
-            rawSpeakingScore,
-          );
+              rawSpeakingScore,
+            );
+
 
       const estimatedLevel =
         typeof body
           ?.estimatedLevel ===
           'string'
           ? body
-            .estimatedLevel
-            .trim()
+              .estimatedLevel
+              .trim()
           : '';
+
 
       const finalLevel =
         estimatedLevel
           .toUpperCase();
 
+
       const reviewNotes =
         typeof body
           ?.reviewNotes ===
           'string'
-          ? body
-            .reviewNotes
-            .trim()
+          ? (
+              body
+                .reviewNotes
+                .trim() ||
+              null
+            )
           : null;
 
 
       if (!attemptId) {
         return Response.json(
           {
-            success:
-              false,
+            success: false,
 
             error:
               'attemptId é obrigatório.',
           },
           {
             status: 400,
+
             headers:
               corsHeaders,
           },
@@ -194,14 +414,14 @@ Deno.serve(
       ) {
         return Response.json(
           {
-            success:
-              false,
+            success: false,
 
             error:
               'Nota de Speaking inválida.',
           },
           {
             status: 400,
+
             headers:
               corsHeaders,
           },
@@ -209,24 +429,6 @@ Deno.serve(
       }
 
 
-      if (
-        !estimatedLevel
-      ) {
-        return Response.json(
-          {
-            success:
-              false,
-
-            error:
-              'Nível final é obrigatório.',
-          },
-          {
-            status: 400,
-            headers:
-              corsHeaders,
-          },
-        );
-      }
       const allowedLevels =
         new Set([
           'A1',
@@ -237,7 +439,9 @@ Deno.serve(
           'C2',
         ]);
 
+
       if (
+        !finalLevel ||
         !allowedLevels.has(
           finalLevel,
         )
@@ -251,11 +455,19 @@ Deno.serve(
           },
           {
             status: 400,
+
             headers:
               corsHeaders,
           },
         );
       }
+
+
+      /*
+       * =========================================
+       * CLIENT PRIVILEGIADO
+       * =========================================
+       */
 
       const supabase =
         createClient(
@@ -274,16 +486,17 @@ Deno.serve(
 
 
       /*
-       * ----------------------------------------
-       * 1. Conclusão pedagógica
-       * ----------------------------------------
+       * =========================================
+       * 1. CONCLUSÃO PEDAGÓGICA
+       * =========================================
        */
 
       const {
         data:
-        completionRows,
+          completionRows,
+
         error:
-        completionError,
+          completionError,
       } =
         await supabase.rpc(
           'complete_test_review',
@@ -303,15 +516,18 @@ Deno.serve(
         );
 
 
-      if (
-        completionError
-      ) {
+      if (completionError) {
         throw completionError;
       }
 
 
       const completion =
-        completionRows?.[0];
+        Array.isArray(
+          completionRows,
+        )
+          ? completionRows[0]
+          : completionRows;
+
 
       if (!completion) {
         throw new Error(
@@ -320,22 +536,32 @@ Deno.serve(
       }
 
 
+      const eventId =
+        completion.event_id;
+
+
+      if (!eventId) {
+        throw new Error(
+          'A conclusão não retornou o evento de comunicação.',
+        );
+      }
+
+
       /*
-       * ----------------------------------------
-       * 2. Cria mensagem TEST_COMPLETED
-       * ----------------------------------------
+       * =========================================
+       * 2. CRIAR MENSAGEM TEST_COMPLETED
+       * =========================================
        */
 
       const {
         error:
-        enqueueError,
+          enqueueError,
       } =
         await supabase.rpc(
           'enqueue_test_completed_message',
           {
             p_event_id:
-              completion
-                .event_id,
+              eventId,
           },
         );
 
@@ -346,11 +572,17 @@ Deno.serve(
           enqueueError,
         );
 
+
         /*
-         * A avaliação JÁ foi concluída.
-         * Comunicação não deve desfazer
-         * conclusão pedagógica.
+         * Importante:
+         *
+         * a conclusão pedagógica já
+         * aconteceu.
+         *
+         * Falha de comunicação não
+         * desfaz o resultado.
          */
+
         return Response.json(
           {
             success: true,
@@ -374,6 +606,8 @@ Deno.serve(
               ),
           },
           {
+            status: 200,
+
             headers:
               corsHeaders,
           },
@@ -382,15 +616,15 @@ Deno.serve(
 
 
       /*
-       * ----------------------------------------
-       * 3. Localiza a mensagem
-       * ----------------------------------------
+       * =========================================
+       * 3. LOCALIZAR MENSAGEM
+       * =========================================
        */
 
       const {
         data: message,
         error:
-        messageError,
+          messageError,
       } =
         await supabase
           .from(
@@ -405,8 +639,7 @@ Deno.serve(
           `)
           .eq(
             'event_id',
-            completion
-              .event_id,
+            eventId,
           )
           .eq(
             'recipient_type',
@@ -421,16 +654,43 @@ Deno.serve(
 
 
       if (!message) {
-        throw new Error(
-          'Mensagem de conclusão não encontrada.',
+        return Response.json(
+          {
+            success: true,
+
+            attemptId,
+
+            status:
+              'completed',
+
+            speakingScore,
+
+            estimatedLevel:
+              finalLevel,
+
+            communicationSent:
+              false,
+
+            communicationError:
+              'Mensagem de conclusão não encontrada.',
+          },
+          {
+            status: 200,
+
+            headers:
+              corsHeaders,
+          },
         );
       }
 
 
       /*
-       * Se já foi enviada em outra execução,
-       * não envia novamente.
+       * Idempotência.
+       *
+       * Se outra execução já enviou,
+       * não disparamos novamente.
        */
+
       if (
         message.status ===
         'sent'
@@ -456,6 +716,8 @@ Deno.serve(
               true,
           },
           {
+            status: 200,
+
             headers:
               corsHeaders,
           },
@@ -464,16 +726,17 @@ Deno.serve(
 
 
       /*
-       * ----------------------------------------
-       * 4. Reserva
-       * ----------------------------------------
+       * =========================================
+       * 4. RESERVAR MENSAGEM
+       * =========================================
        */
 
       const {
         data:
-        lockedMessage,
+          lockedMessage,
+
         error:
-        lockError,
+          lockError,
       } =
         await supabase
           .from(
@@ -515,9 +778,7 @@ Deno.serve(
       }
 
 
-      if (
-        !lockedMessage
-      ) {
+      if (!lockedMessage) {
         return Response.json(
           {
             success: true,
@@ -539,6 +800,8 @@ Deno.serve(
               'Mensagem já está sendo processada.',
           },
           {
+            status: 200,
+
             headers:
               corsHeaders,
           },
@@ -547,17 +810,17 @@ Deno.serve(
 
 
       /*
-       * ----------------------------------------
-       * 5. Evolution
-       * ----------------------------------------
+       * =========================================
+       * 5. EVOLUTION
+       * =========================================
        */
 
       try {
+
         const recipient =
           normalizePhone(
             String(
-              message
-                .recipient,
+              message.recipient,
             ),
           );
 
@@ -603,25 +866,25 @@ Deno.serve(
 
 
         let evolutionData:
-          any = null;
+          unknown =
+          null;
 
 
-        try {
-          evolutionData =
-            responseText
-              ? JSON.parse(
+        if (responseText) {
+          try {
+            evolutionData =
+              JSON.parse(
                 responseText,
-              )
-              : null;
-        } catch {
-          evolutionData =
-            responseText;
+              );
+          } catch {
+            evolutionData =
+              responseText;
+          }
         }
 
 
         if (
-          !evolutionResponse
-            .ok
+          !evolutionResponse.ok
         ) {
           throw new Error(
             `Evolution API HTTP ${evolutionResponse.status}: ${getErrorMessage(
@@ -631,19 +894,39 @@ Deno.serve(
         }
 
 
+        const evolutionRecord =
+          (
+            evolutionData &&
+            typeof evolutionData ===
+              'object'
+          )
+            ? evolutionData as
+                Record<
+                  string,
+                  any
+                >
+            : null;
+
+
         const providerMessageId =
-          evolutionData
+          evolutionRecord
             ?.key?.id ??
-          evolutionData
+          evolutionRecord
             ?.messageId ??
-          evolutionData
+          evolutionRecord
             ?.id ??
           null;
 
 
+        /*
+         * =========================================
+         * 6. MARCAR COMO ENVIADA
+         * =========================================
+         */
+
         const {
           error:
-          sentError,
+            sentError,
         } =
           await supabase
             .from(
@@ -700,51 +983,76 @@ Deno.serve(
             providerMessageId,
           },
           {
+            status: 200,
+
             headers:
               corsHeaders,
           },
         );
+
       } catch (
-      communicationError
+        communicationError
       ) {
+
         const errorMessage =
           getErrorMessage(
             communicationError,
           );
 
 
-        await supabase
-          .from(
-            'communication_messages',
-          )
-          .update({
-            status:
-              'failed',
+        console.error(
+          '[admin-complete-test-review] communication-error',
+          errorMessage,
+        );
 
-            provider:
-              'evolution',
 
-            last_error:
-              errorMessage,
+        const {
+          error:
+            failedUpdateError,
+        } =
+          await supabase
+            .from(
+              'communication_messages',
+            )
+            .update({
+              status:
+                'failed',
 
-            next_retry_at:
-              new Date(
-                Date.now() +
-                5 *
-                60 *
-                1000,
-              )
-                .toISOString(),
-          })
-          .eq(
-            'id',
-            message.id,
+              provider:
+                'evolution',
+
+              last_error:
+                errorMessage,
+
+              next_retry_at:
+                new Date(
+                  Date.now() +
+                  (
+                    5 *
+                    60 *
+                    1000
+                  ),
+                )
+                  .toISOString(),
+            })
+            .eq(
+              'id',
+              message.id,
+            );
+
+
+        if (failedUpdateError) {
+          console.error(
+            '[admin-complete-test-review] failed-status-update',
+            failedUpdateError,
           );
+        }
 
 
         /*
-         * Resultado continua concluído.
+         * Resultado permanece concluído.
          */
+
         return Response.json(
           {
             success: true,
@@ -766,6 +1074,8 @@ Deno.serve(
               errorMessage,
           },
           {
+            status: 200,
+
             headers:
               corsHeaders,
           },
@@ -773,6 +1083,7 @@ Deno.serve(
       }
 
     } catch (error) {
+
       console.error(
         '[admin-complete-test-review] fatal',
         error,
@@ -790,6 +1101,7 @@ Deno.serve(
         },
         {
           status: 500,
+
           headers:
             corsHeaders,
         },

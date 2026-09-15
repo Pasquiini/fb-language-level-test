@@ -10,6 +10,7 @@ import {
 import {
   SupabaseService,
 } from './supabase.service';
+import { FunctionsFetchError, FunctionsHttpError, FunctionsRelayError } from '@supabase/supabase-js';
 
 
 export type AdminReviewStatus =
@@ -627,67 +628,180 @@ export class AdminTestReviewService {
 
 
   async completeReview(
-    params:
-      CompleteAdminReviewParams,
-  ): Promise<
-    CompleteAdminReviewResult
-  > {
+  params:
+    CompleteAdminReviewParams,
+): Promise<
+  CompleteAdminReviewResult
+> {
 
-    const response =
-      await fetch(
-        `${environment.functions.baseUrl}/admin-complete-test-review`,
+  const {
+    data: {
+      session,
+    },
+
+    error:
+      sessionError,
+  } =
+    await this.supabase
+      .client
+      .auth
+      .getSession();
+
+
+  if (sessionError) {
+    console.error(
+      '[AdminTestReviewService] session:',
+      sessionError,
+    );
+
+    throw new Error(
+      'Não foi possível validar sua sessão.',
+    );
+  }
+
+
+  if (!session) {
+    throw new Error(
+      'Sua sessão expirou. Faça login novamente.',
+    );
+  }
+
+
+  const {
+    data,
+    error,
+  } =
+    await this.supabase
+      .client
+      .functions
+      .invoke<
+        CompleteAdminReviewResult
+      >(
+        'admin-complete-test-review',
         {
-          method:
-            'POST',
+          body: {
+            attemptId:
+              params
+                .attemptId,
 
-          headers: {
-            'Content-Type':
-              'application/json',
+            speakingScore:
+              params
+                .speakingScore,
+
+            estimatedLevel:
+              params
+                .estimatedLevel,
+
+            reviewNotes:
+              params
+                .reviewNotes,
           },
 
-          body:
-            JSON.stringify({
-              attemptId:
-                params
-                  .attemptId,
-
-              speakingScore:
-                params
-                  .speakingScore,
-
-              estimatedLevel:
-                params
-                  .estimatedLevel,
-
-              reviewNotes:
-                params
-                  .reviewNotes,
-            }),
+          headers: {
+            Authorization:
+              `Bearer ${session.access_token}`,
+          },
         },
       );
 
 
-    const data =
-      await response
-        .json();
+  if (error) {
+    console.error(
+      '[AdminTestReviewService] admin-complete-test-review:',
+      error,
+    );
 
-
-    if (
-      !response.ok ||
-      !data?.success
-    ) {
-      throw new Error(
-        data?.error ??
-        'Não foi possível concluir a avaliação.',
-      );
-    }
-
-
-    return data as
-      CompleteAdminReviewResult;
+    throw new Error(
+      await this
+        .extractFunctionError(
+          error,
+        ),
+    );
   }
 
 
+  if (
+    !data ||
+    !data.success
+  ) {
+    throw new Error(
+      (
+        data as {
+          error?: string;
+        } | null
+      )?.error ??
+      'Não foi possível concluir a avaliação.',
+    );
+  }
+
+
+  return data;
+}
+private async extractFunctionError(
+  error: unknown,
+): Promise<string> {
+
+  if (
+    error instanceof
+    FunctionsHttpError
+  ) {
+    try {
+      const context =
+        await error.context
+          .json();
+
+      if (
+        context &&
+        typeof context ===
+          'object' &&
+        'error' in context &&
+        typeof context.error ===
+          'string'
+      ) {
+        return context.error;
+      }
+    } catch {
+      return (
+        error.message ||
+        'Erro retornado pela função.'
+      );
+    }
+  }
+
+
+  if (
+    error instanceof
+    FunctionsRelayError
+  ) {
+    return (
+      error.message ||
+      'Erro de comunicação com a função.'
+    );
+  }
+
+
+  if (
+    error instanceof
+    FunctionsFetchError
+  ) {
+    return (
+      error.message ||
+      'Não foi possível acessar a função.'
+    );
+  }
+
+
+  if (
+    error instanceof Error
+  ) {
+    return error.message;
+  }
+
+
+  return (
+    'Não foi possível concluir a avaliação.'
+  );
+}
   private toNumber(
     value:
       number |

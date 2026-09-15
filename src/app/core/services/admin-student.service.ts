@@ -38,13 +38,18 @@ export interface AdminStudentProfile {
   email: string | null;
   whatsapp: string | null;
   avatarUrl: string | null;
+
   weeklyFrequency: string | null;
   perceivedLevel: string | null;
   studyDuration: string | null;
   previousSchool: string | null;
-  mainGoal: string | null;
+
+  mainGoal: string[] | null;
+
   preferredModality: string | null;
-  availabilityPeriod: string | null;
+
+  availabilityPeriod: string[] | null;
+
   notes: string | null;
   leadStatus: string | null;
 }
@@ -96,14 +101,17 @@ interface StudentExtraProfileRow {
   perceived_level: string | null;
   study_duration: string | null;
   previous_school: string | null;
-  main_goal: string | null;
+
+  main_goal: string[] | null;
+
   preferred_modality: string | null;
   weekly_frequency: string | null;
-  availability_period: string | null;
+
+  availability_period: string[] | null;
+
   notes: string | null;
   current_lead_status: string;
 }
-
 interface TestAttemptRow {
   id: string;
   status: string;

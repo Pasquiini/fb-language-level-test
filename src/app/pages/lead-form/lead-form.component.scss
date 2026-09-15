@@ -691,3 +691,13 @@
       rgba(32, 32, 28, 0.12);
   }
 }
+.multiple-choice-note {
+  display: block;
+  margin-top: 0.35rem;
+
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.4;
+
+  color: var(--fb-brown);
+}

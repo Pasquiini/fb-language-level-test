@@ -22,10 +22,13 @@ interface TestRegistrationData {
   perceivedLevel: string;
   studyDuration: string;
   previousSchool: string;
-  mainGoal: string;
+
+  mainGoal: string[];
+
   preferredModality: string;
   weeklyFrequency: string;
-  availabilityPeriod: string;
+
+  availabilityPeriod: string[];
 }
 
 interface TestRegistrationResult {
