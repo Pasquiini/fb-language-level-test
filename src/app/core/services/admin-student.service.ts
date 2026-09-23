@@ -88,6 +88,81 @@ export interface AdminStudentDetail {
   messages: AdminStudentCommunicationMessage[];
 }
 
+export interface AdminAttemptSkillSummary {
+  category: string;
+
+  correct: number;
+  incorrect: number;
+  unanswered: number;
+  answered: number;
+  total: number;
+
+  percentage: number;
+}
+
+export interface AdminAttemptAnswerOption {
+  id: string;
+  text: string;
+
+  order: number;
+
+  isCorrect: boolean;
+  isSelected: boolean;
+}
+
+export interface AdminAttemptAnswer {
+  questionId: string;
+
+  sectionId: string;
+  sectionName: string;
+
+  sectionOrder: number;
+  questionOrder: number;
+
+  category: string;
+  type: string;
+
+  level: string | null;
+
+  statement: string;
+  instructions: string | null;
+
+  audioPath: string | null;
+
+  points: number;
+
+  answerId: string | null;
+
+  selectedOptionId: string | null;
+  selectedOptionText: string | null;
+
+  correctOptionId: string | null;
+  correctOptionText: string | null;
+
+  isCorrect: boolean | null;
+
+  awardedPoints: number | null;
+
+  answeredAt: string | null;
+
+  options: AdminAttemptAnswerOption[];
+}
+
+export interface AdminAttemptAnswerBreakdown {
+  attemptId: string;
+  testId: string;
+  studentId: string;
+
+  status: string;
+
+  startedAt: string;
+  submittedAt: string | null;
+  completedAt: string | null;
+
+  summary: AdminAttemptSkillSummary[];
+  answers: AdminAttemptAnswer[];
+}
+
 interface StudentProfileRow {
   id: string;
   full_name: string;
@@ -583,6 +658,125 @@ export class AdminStudentService {
 
             createdAt:
               message.created_at,
+          }),
+        ),
+    };
+  }
+
+  async getAttemptAnswerBreakdown(
+    attemptId: string,
+  ): Promise<AdminAttemptAnswerBreakdown> {
+
+    const {
+      data,
+      error,
+    } =
+      await this.supabase.client
+        .rpc(
+          'get_admin_attempt_answer_breakdown',
+          {
+            p_attempt_id:
+              attemptId,
+          },
+        );
+
+    if (error) {
+      console.error(
+        'Could not load attempt answer breakdown:',
+        error,
+      );
+
+      throw new Error(
+        'Não foi possível carregar as respostas do teste.',
+      );
+    }
+
+    if (!data) {
+      throw new Error(
+        'As respostas deste teste não foram encontradas.',
+      );
+    }
+
+    const payload =
+      data as unknown as
+      AdminAttemptAnswerBreakdown;
+
+    return {
+      ...payload,
+
+      summary:
+        (
+          payload.summary
+          ?? []
+        ).map(
+          (item) => ({
+            ...item,
+
+            correct:
+              Number(
+                item.correct
+                ?? 0,
+              ),
+
+            incorrect:
+              Number(
+                item.incorrect
+                ?? 0,
+              ),
+
+            unanswered:
+              Number(
+                item.unanswered
+                ?? 0,
+              ),
+
+            answered:
+              Number(
+                item.answered
+                ?? 0,
+              ),
+
+            total:
+              Number(
+                item.total
+                ?? 0,
+              ),
+
+            percentage:
+              Number(
+                item.percentage
+                ?? 0,
+              ),
+          }),
+        ),
+
+      answers:
+        (
+          payload.answers
+          ?? []
+        ).map(
+          (answer) => ({
+            ...answer,
+
+            points:
+              Number(
+                answer.points
+                ?? 0,
+              ),
+
+            awardedPoints:
+              answer.awardedPoints
+                === null
+                || answer.awardedPoints
+                === undefined
+                ? null
+                : Number(
+                  answer.awardedPoints,
+                ),
+
+            options:
+              answer.options
+              ?? [],
           }),
         ),
     };

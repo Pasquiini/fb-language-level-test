@@ -17,6 +17,7 @@ import {
 } from '@angular/router';
 
 import {
+  AdminAttemptAnswerBreakdown,
   AdminStudentDetail,
   AdminStudentService,
   AdminStudentTest,
@@ -118,6 +119,28 @@ export class StudentDetailComponent
         return null;
       },
     );
+  readonly expandedTestId =
+    signal<string | null>(
+      null,
+    );
+
+  readonly answerBreakdowns =
+    signal<
+      Record<
+        string,
+        AdminAttemptAnswerBreakdown
+      >
+    >({});
+
+  readonly loadingAnswersTestId =
+    signal<string | null>(
+      null,
+    );
+
+  readonly answerErrors =
+    signal<
+      Record<string, string>
+    >({});
 
   ngOnInit():
     void {
@@ -324,6 +347,203 @@ export class StudentDetailComponent
       default:
         return 'is-neutral';
     }
+  }
+
+  isTestAnswersExpanded(
+    testId: string,
+  ): boolean {
+    return (
+      this.expandedTestId()
+      === testId
+    );
+  }
+
+  breakdownFor(
+    testId: string,
+  ): AdminAttemptAnswerBreakdown | null {
+    return (
+      this.answerBreakdowns()[
+      testId
+      ]
+      ?? null
+    );
+  }
+
+  answerErrorFor(
+    testId: string,
+  ): string | null {
+    return (
+      this.answerErrors()[
+      testId
+      ]
+      ?? null
+    );
+  }
+
+  async toggleTestAnswers(
+    testId: string,
+  ): Promise<void> {
+
+    if (
+      this.expandedTestId()
+      === testId
+    ) {
+      this.expandedTestId.set(
+        null,
+      );
+
+      return;
+    }
+
+    this.expandedTestId.set(
+      testId,
+    );
+
+    const existing =
+      this.answerBreakdowns()[
+      testId
+      ];
+
+    if (existing) {
+      return;
+    }
+
+    this.loadingAnswersTestId.set(
+      testId,
+    );
+
+    this.answerErrors.update(
+      (current) => {
+
+        const next = {
+          ...current,
+        };
+
+        delete next[
+          testId
+        ];
+
+        return next;
+      },
+    );
+
+    try {
+      const breakdown =
+        await this.studentService
+          .getAttemptAnswerBreakdown(
+            testId,
+          );
+
+      this.answerBreakdowns.update(
+        (current) => ({
+          ...current,
+
+          [testId]:
+            breakdown,
+        }),
+      );
+
+    } catch (error) {
+      console.error(
+        'Could not load test answers:',
+        error,
+      );
+
+      this.answerErrors.update(
+        (current) => ({
+          ...current,
+
+          [testId]:
+            error instanceof Error
+              ? error.message
+              : 'Não foi possível carregar as respostas.',
+        }),
+      );
+
+    } finally {
+
+      if (
+        this.loadingAnswersTestId()
+        === testId
+      ) {
+        this.loadingAnswersTestId.set(
+          null,
+        );
+      }
+    }
+  }
+
+  categoryLabel(
+    category: string,
+  ): string {
+
+    const labels:
+      Record<string, string> = {
+      grammar:
+        'Grammar',
+
+      vocabulary:
+        'Vocabulary',
+
+      reading:
+        'Reading',
+
+      context:
+        'Context',
+
+      listening:
+        'Listening',
+
+      speaking:
+        'Speaking',
+    };
+
+    return (
+      labels[
+      category
+      ]
+      ?? category
+    );
+  }
+
+  answerStatusLabel(
+    isCorrect:
+      boolean | null,
+  ): string {
+
+    if (
+      isCorrect === true
+    ) {
+      return 'Correta';
+    }
+
+    if (
+      isCorrect === false
+    ) {
+      return 'Incorreta';
+    }
+
+    return 'Não respondida';
+  }
+
+  answerStatusClass(
+    isCorrect:
+      boolean | null,
+  ): string {
+
+    if (
+      isCorrect === true
+    ) {
+      return 'is-correct';
+    }
+
+    if (
+      isCorrect === false
+    ) {
+      return 'is-incorrect';
+    }
+
+    return 'is-unanswered';
   }
 
   private async loadStudent(

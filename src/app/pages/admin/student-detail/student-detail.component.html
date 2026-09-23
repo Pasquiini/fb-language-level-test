@@ -7,461 +7,592 @@
     </a>
 
     @if (isLoading()) {
-    <div class="state-card">
-      <span class="
-            spinner-border
-            spinner-border-sm
-          "></span>
+      <div class="state-card">
+        <span class="spinner-border spinner-border-sm"></span>
 
-      Carregando aluno...
-    </div>
-    } @else if (errorMessage()) {
-    <div class="state-card state-card--error">
-      <i class="bi bi-exclamation-circle"></i>
-
-      {{ errorMessage() }}
-    </div>
-    } @else {
-    @if (student(); as student) {
-    <header class="student-header">
-      <div class="student-header__identity">
-        <div class="student-header__avatar">
-          {{
-          student.fullName
-          .slice(0, 2)
-          .toUpperCase()
-          }}
-        </div>
-
-        <div>
-          <span class="student-eyebrow">
-            Perfil do aluno
-          </span>
-
-          <h1>
-            {{ student.fullName }}
-          </h1>
-
-          <div class="student-contact">
-            @if (student.email) {
-            <span>
-              <i class="bi bi-envelope"></i>
-
-              {{ student.email }}
-            </span>
-            }
-
-            @if (student.whatsapp) {
-            <span>
-              <i class="bi bi-whatsapp"></i>
-
-              {{ student.whatsapp }}
-            </span>
-            }
-          </div>
-        </div>
+        Carregando aluno...
       </div>
+    } @else if (errorMessage()) {
+      <div class="state-card state-card--error">
+        <i class="bi bi-exclamation-circle"></i>
 
-      <button type="button" class="contact-button" disabled title="Integração será adicionada posteriormente">
-        <i class="bi bi-chat-dots"></i>
-
-        Entrar em contato
-      </button>
-    </header>
-
-    <div class="summary-grid">
-      <article class="summary-card">
-        <span>
-          Testes realizados
-        </span>
-
-        <strong>
-          {{ totalTests() }}
-        </strong>
-      </article>
-
-      <article class="summary-card">
-        <span>
-          Nível atual
-        </span>
-
-        <strong>
-          {{ currentLevel() ?? 'Pendente' }}
-        </strong>
-      </article>
-
-      <article class="summary-card">
-        <span>
-          Último teste
-        </span>
-
-        <strong class="summary-card__date">
-          @if (lastTest()) {
-          {{
-          lastTest()!.submittedAt
-          ?? lastTest()!.startedAt
-          | date:'dd/MM/yyyy'
-          }}
-          } @else {
-          Nenhum
-          }
-        </strong>
-      </article>
-
-      <article class="summary-card">
-        <span>
-          Status
-        </span>
-
-        <strong class="summary-card__status">
-          {{
-          student.leadStatus
-          ?? 'Não informado'
-          }}
-        </strong>
-      </article>
-    </div>
-
-    <div class="content-grid">
-      <section class="content-card">
-        <div class="section-heading">
-          <span>
-            Perfil
-          </span>
-
-          <h2>
-            Informações do aluno
-          </h2>
-        </div>
-
-        <dl class="student-data">
-          <div>
-            <dt>
-              Nível percebido
-            </dt>
-
-            <dd>
-              {{
-              profileValueLabel(
-              student.perceivedLevel
-              )
-              }}
-            </dd>
-          </div>
-
-          <div>
-            <dt>
-              Tempo de estudo
-            </dt>
-
-            <dd>
-              {{
-              profileValueLabel(
-              student.studyDuration
-              )
-              }}
-            </dd>
-          </div>
-
-          <div>
-            <dt>
-              Escola anterior
-            </dt>
-
-            <dd>
-              {{
-              student.previousSchool
-              ?? 'Não informado'
-              }}
-            </dd>
-          </div>
-
-          <div>
-            <dt>
-              Objetivos
-            </dt>
-
-            <dd>
-              {{
-              profileValuesLabel(
-              student.mainGoal
-              )
-              }}
-            </dd>
-          </div>
-
-          <div>
-            <dt>
-              Modalidade preferida
-            </dt>
-
-            <dd>
-              {{
-              profileValueLabel(
-              student.preferredModality
-              )
-              }}
-            </dd>
-          </div>
-
-          <div>
-            <dt>
-              Frequência desejada
-            </dt>
-
-            <dd>
-              {{
-              profileValueLabel(
-              student.weeklyFrequency
-              )
-              }}
-            </dd>
-          </div>
-
-          <div>
-            <dt>
-              Disponibilidade
-            </dt>
-
-            <dd>
-              {{
-              profileValuesLabel(
-              student.availabilityPeriod
-              )
-              }}
-            </dd>
-          </div>
-        </dl>
-
-        @if (student.notes) {
-        <div class="student-notes">
-          <span>
-            Observações
-          </span>
-
-          <p>
-            {{ student.notes }}
-          </p>
-        </div>
-        }
-      </section>
-
-      <section class="content-card">
-        <div class="section-heading">
-          <span>
-            Histórico
-          </span>
-
-          <h2>
-            Testes realizados
-          </h2>
-        </div>
-
-        @if (tests().length === 0) {
-        <div class="empty-state">
-          <i class="bi bi-journal-text"></i>
-
-          <p>
-            Nenhum teste encontrado.
-          </p>
-        </div>
-        } @else {
-        <div class="tests-list">
-          @for (
-          test of tests();
-          track test.id
-          ) {
-          <article class="test-row">
-            <div class="test-row__main">
-              <span class="test-date">
-                {{
-                test.submittedAt
-                ?? test.startedAt
-                | date:'dd/MM/yyyy'
-                }}
-              </span>
-
-              <span [class]="
-                          'status-badge '
-                          + statusClass(
-                            test.status
-                          )
-                        ">
-                {{
-                statusLabel(
-                test.status
-                )
-                }}
-              </span>
+        {{ errorMessage() }}
+      </div>
+    } @else {
+      @if (student(); as student) {
+        <header class="student-header">
+          <div class="student-header__identity">
+            <div class="student-header__avatar">
+              {{ student.fullName.slice(0, 2).toUpperCase() }}
             </div>
 
-            <div class="test-result">
-              @if (test.result) {
-              <div>
-                <span>
-                  Nível
-                </span>
+            <div>
+              <span class="student-eyebrow"> Perfil do aluno </span>
 
-                <strong>
-                  {{
-                  test.result
-                  .estimatedLevel
-                  }}
-                </strong>
+              <h1>
+                {{ student.fullName }}
+              </h1>
+
+              <div class="student-contact">
+                @if (student.email) {
+                  <span>
+                    <i class="bi bi-envelope"></i>
+
+                    {{ student.email }}
+                  </span>
+                }
+
+                @if (student.whatsapp) {
+                  <span>
+                    <i class="bi bi-whatsapp"></i>
+
+                    {{ student.whatsapp }}
+                  </span>
+                }
               </div>
+            </div>
+          </div>
 
-              <div>
-                <span>
-                  Desempenho
-                </span>
+          <button
+            type="button"
+            class="contact-button"
+            disabled
+            title="Integração será adicionada posteriormente"
+          >
+            <i class="bi bi-chat-dots"></i>
 
-                <strong>
-                  {{
-                  test.result
-                  .percentage
-                  | number:'1.0-1'
-                  }}%
-                </strong>
-              </div>
+            Entrar em contato
+          </button>
+        </header>
+
+        <div class="summary-grid">
+          <article class="summary-card">
+            <span> Testes realizados </span>
+
+            <strong>
+              {{ totalTests() }}
+            </strong>
+          </article>
+
+          <article class="summary-card">
+            <span> Nível atual </span>
+
+            <strong>
+              {{ currentLevel() ?? "Pendente" }}
+            </strong>
+          </article>
+
+          <article class="summary-card">
+            <span> Último teste </span>
+
+            <strong class="summary-card__date">
+              @if (lastTest()) {
+                {{
+                  lastTest()!.submittedAt ?? lastTest()!.startedAt
+                    | date: "dd/MM/yyyy"
+                }}
               } @else {
-              <span class="test-result__pending">
-                Resultado ainda
-                não disponível
-              </span>
+                Nenhum
               }
+            </strong>
+          </article>
+
+          <article class="summary-card">
+            <span> Status </span>
+
+            <strong class="summary-card__status">
+              {{ student.leadStatus ?? "Não informado" }}
+            </strong>
+          </article>
+        </div>
+
+        <div class="content-grid">
+          <section class="content-card">
+            <div class="section-heading">
+              <span> Perfil </span>
+
+              <h2>Informações do aluno</h2>
             </div>
 
-            <a [routerLink]="[
-                        '/admin/avaliacoes',
-                        test.id
-                      ]" class="test-action">
-              Ver avaliação
-
-              <i class="bi bi-arrow-right"></i>
-            </a>
-          </article>
-          }
-        </div>
-        }
-      </section>
-
-      <section class="content-card communication-card">
-        <div class="section-heading">
-          <span>
-            Comunicação
-          </span>
-
-          <h2>
-            Histórico de mensagens
-          </h2>
-        </div>
-
-        @if (messages().length === 0) {
-        <div class="empty-state">
-          <i class="bi bi-chat-dots"></i>
-
-          <p>
-            Nenhuma comunicação foi
-            registrada para este aluno.
-          </p>
-        </div>
-        } @else {
-        <div class="communication-list">
-          @for (
-          message of messages();
-          track message.id
-          ) {
-          <article class="communication-item">
-            <div class="communication-item__header">
+            <dl class="student-data">
               <div>
-                <span class="communication-channel">
-                  @if (
-                  message.channel ===
-                  'whatsapp'
-                  ) {
-                  <i class="bi bi-whatsapp"></i>
-                  } @else {
-                  <i class="bi bi-chat"></i>
-                  }
+                <dt>Nível percebido</dt>
 
-                  {{ message.channel }}
-                </span>
-
-                <span class="communication-date">
-                  {{
-                  message.sentAt
-                  ?? message.createdAt
-                  | date:'dd/MM/yyyy HH:mm'
-                  }}
-                </span>
+                <dd>
+                  {{ profileValueLabel(student.perceivedLevel) }}
+                </dd>
               </div>
 
-              <span [class]="
-                          'message-status '
-                          + messageStatusClass(
-                            message.status
-                          )
-                        ">
-                {{
-                messageStatusLabel(
-                message.status
-                )
-                }}
-              </span>
-            </div>
+              <div>
+                <dt>Tempo de estudo</dt>
 
-            <div class="communication-body">
-              {{ message.messageBody }}
-            </div>
+                <dd>
+                  {{ profileValueLabel(student.studyDuration) }}
+                </dd>
+              </div>
 
-            <div class="communication-meta">
-              <span>
-                Destinatário:
-                <strong>
-                  {{ message.recipient }}
-                </strong>
-              </span>
+              <div>
+                <dt>Escola anterior</dt>
 
-              @if (message.provider) {
-              <span>
-                Provider:
-                <strong>
-                  {{ message.provider }}
-                </strong>
-              </span>
-              }
+                <dd>
+                  {{ student.previousSchool ?? "Não informado" }}
+                </dd>
+              </div>
 
-              @if (
-              message.attemptCount > 1
-              ) {
-              <span>
-                Tentativas:
-                <strong>
-                  {{ message.attemptCount }}
-                </strong>
-              </span>
-              }
-            </div>
+              <div>
+                <dt>Objetivos</dt>
 
-            @if (message.lastError) {
-            <div class="communication-error">
-              <i class="
-                            bi
-                            bi-exclamation-triangle
-                          "></i>
+                <dd>
+                  {{ profileValuesLabel(student.mainGoal) }}
+                </dd>
+              </div>
 
-              <span>
-                {{ message.lastError }}
-              </span>
-            </div>
+              <div>
+                <dt>Modalidade preferida</dt>
+
+                <dd>
+                  {{ profileValueLabel(student.preferredModality) }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>Frequência desejada</dt>
+
+                <dd>
+                  {{ profileValueLabel(student.weeklyFrequency) }}
+                </dd>
+              </div>
+
+              <div>
+                <dt>Disponibilidade</dt>
+
+                <dd>
+                  {{ profileValuesLabel(student.availabilityPeriod) }}
+                </dd>
+              </div>
+            </dl>
+
+            @if (student.notes) {
+              <div class="student-notes">
+                <span> Observações </span>
+
+                <p>
+                  {{ student.notes }}
+                </p>
+              </div>
             }
-          </article>
-          }
+          </section>
+
+          <section class="content-card">
+            <div class="section-heading">
+              <span> Histórico </span>
+
+              <h2>Testes realizados</h2>
+            </div>
+
+            @if (tests().length === 0) {
+              <div class="empty-state">
+                <i class="bi bi-journal-text"></i>
+
+                <p>Nenhum teste encontrado.</p>
+              </div>
+            } @else {
+              <div class="tests-list">
+                @for (test of tests(); track test.id) {
+                  <article class="test-row">
+                    <div class="test-row__main">
+                      <span class="test-date">
+                        {{
+                          test.submittedAt ?? test.startedAt
+                            | date: "dd/MM/yyyy"
+                        }}
+                      </span>
+
+                      <span
+                        [class]="'status-badge ' + statusClass(test.status)"
+                      >
+                        {{ statusLabel(test.status) }}
+                      </span>
+                    </div>
+
+                    <div class="test-result">
+                      @if (test.result) {
+                        <div>
+                          <span> Nível </span>
+
+                          <strong>
+                            {{ test.result.estimatedLevel }}
+                          </strong>
+                        </div>
+
+                        <div>
+                          <span> Desempenho </span>
+
+                          <strong>
+                            {{ test.result.percentage | number: "1.0-1" }}%
+                          </strong>
+                        </div>
+                      } @else {
+                        <span class="test-result__pending">
+                          Resultado ainda não disponível
+                        </span>
+                      }
+                    </div>
+
+                    <div class="test-actions">
+                      <button
+                        type="button"
+                        class="test-action test-action--button"
+                        (click)="toggleTestAnswers(test.id)"
+                      >
+                        @if (loadingAnswersTestId() === test.id) {
+                          <span class="spinner-border spinner-border-sm"></span>
+
+                          Carregando...
+                        } @else {
+                          <i class="bi bi-list-check"></i>
+
+                          {{
+                            isTestAnswersExpanded(test.id)
+                              ? "Ocultar respostas"
+                              : "Ver respostas"
+                          }}
+                        }
+                      </button>
+
+                      <a
+                        [routerLink]="['/admin/avaliacoes', test.id]"
+                        class="test-action"
+                      >
+                        Ver avaliação
+
+                        <i class="bi bi-arrow-right"></i>
+                      </a>
+                    </div>
+
+                    @if (isTestAnswersExpanded(test.id)) {
+                      <div class="answer-breakdown">
+                        @if (answerErrorFor(test.id); as answerError) {
+                          <div class="answer-breakdown__error">
+                            <i class="bi bi-exclamation-circle"></i>
+
+                            {{ answerError }}
+                          </div>
+                        } @else if (loadingAnswersTestId() === test.id) {
+                          <div class="answer-breakdown__loading">
+                            <span class="spinner-border spinner-border-sm"></span>
+
+                            Carregando respostas...
+                          </div>
+                        } @else {
+                          @if (breakdownFor(test.id); as breakdown) {
+                            <div class="answer-breakdown__summary">
+                              <div class="answer-breakdown__heading">
+                                <div>
+                                  <span>Desempenho</span>
+                                  <h3>Acertos por habilidade</h3>
+                                </div>
+                              </div>
+
+                              @if (breakdown.summary.length === 0) {
+                                <div class="empty-state">
+                                  <p>Nenhuma questão objetiva encontrada.</p>
+                                </div>
+                              } @else {
+                                <div class="skill-summary-grid">
+                                  @for (
+                                    skill of breakdown.summary;
+                                    track skill.category
+                                  ) {
+                                    <article class="skill-summary-card">
+                                      <div class="skill-summary-card__header">
+                                        <span>
+                                          {{ categoryLabel(skill.category) }}
+                                        </span>
+
+                                        <strong>
+                                          {{ skill.percentage | number: "1.0-1" }}%
+                                        </strong>
+                                      </div>
+
+                                      <div class="skill-summary-card__score">
+                                        <strong>
+                                          {{ skill.correct }}
+                                        </strong>
+
+                                        <span>
+                                          / {{ skill.total }} acertos
+                                        </span>
+                                      </div>
+
+                                      <div class="skill-summary-card__details">
+                                        <span>
+                                          <i class="bi bi-check-circle"></i>
+                                          {{ skill.correct }} corretas
+                                        </span>
+
+                                        <span>
+                                          <i class="bi bi-x-circle"></i>
+                                          {{ skill.incorrect }} incorretas
+                                        </span>
+
+                                        @if (skill.unanswered > 0) {
+                                          <span>
+                                            <i class="bi bi-dash-circle"></i>
+                                            {{ skill.unanswered }} não respondidas
+                                          </span>
+                                        }
+                                      </div>
+                                    </article>
+                                  }
+                                </div>
+                              }
+                            </div>
+
+                            <div class="answer-list-section">
+                              <div class="answer-breakdown__heading">
+                                <div>
+                                  <span>Questões</span>
+                                  <h3>Respostas do aluno</h3>
+                                </div>
+
+                                <span class="answer-count">
+                                  {{ breakdown.answers.length }} questões
+                                </span>
+                              </div>
+
+                              @if (breakdown.answers.length === 0) {
+                                <div class="empty-state">
+                                  <p>Nenhuma resposta encontrada.</p>
+                                </div>
+                              } @else {
+                                <div class="answer-list">
+                                  @for (
+                                    answer of breakdown.answers;
+                                    track answer.questionId;
+                                    let index = $index
+                                  ) {
+                                    <article
+                                      [class]="
+                                        'answer-item '
+                                        + answerStatusClass(answer.isCorrect)
+                                      "
+                                    >
+                                      <div class="answer-item__header">
+                                        <div class="answer-item__identity">
+                                          <span class="answer-item__number">
+                                            {{ index + 1 }}
+                                          </span>
+
+                                          <div>
+                                            <strong>
+                                              {{ categoryLabel(answer.category) }}
+                                            </strong>
+
+                                            @if (answer.level) {
+                                              <span>
+                                                Nível {{ answer.level }}
+                                              </span>
+                                            }
+                                          </div>
+                                        </div>
+
+                                        <span
+                                          [class]="
+                                            'answer-status '
+                                            + answerStatusClass(answer.isCorrect)
+                                          "
+                                        >
+                                          @if (answer.isCorrect === true) {
+                                            <i class="bi bi-check-circle-fill"></i>
+                                          } @else if (answer.isCorrect === false) {
+                                            <i class="bi bi-x-circle-fill"></i>
+                                          } @else {
+                                            <i class="bi bi-dash-circle"></i>
+                                          }
+
+                                          {{ answerStatusLabel(answer.isCorrect) }}
+                                        </span>
+                                      </div>
+
+                                      <div class="answer-item__question">
+                                        <p>
+                                          {{ answer.statement }}
+                                        </p>
+                                      </div>
+
+                                      @if (answer.instructions) {
+                                        <p class="answer-item__instructions">
+                                          {{ answer.instructions }}
+                                        </p>
+                                      }
+
+                                      <div class="answer-item__answers">
+                                        <div class="answer-value answer-value--student">
+                                          <span>Resposta do aluno</span>
+
+                                          <strong>
+                                            {{
+                                              answer.selectedOptionText
+                                                ?? "Não respondida"
+                                            }}
+                                          </strong>
+                                        </div>
+
+                                        <div class="answer-value answer-value--correct">
+                                          <span>Resposta correta</span>
+
+                                          <strong>
+                                            {{
+                                              answer.correctOptionText
+                                                ?? "Não disponível"
+                                            }}
+                                          </strong>
+                                        </div>
+                                      </div>
+
+                                      @if (answer.options.length > 0) {
+                                        <div class="answer-options">
+                                          @for (
+                                            option of answer.options;
+                                            track option.id
+                                          ) {
+                                            <div
+                                              class="answer-option"
+                                              [class.is-selected]="option.isSelected"
+                                              [class.is-correct]="option.isCorrect"
+                                            >
+                                              <span class="answer-option__marker">
+                                                @if (option.isCorrect) {
+                                                  <i class="bi bi-check"></i>
+                                                } @else if (option.isSelected) {
+                                                  <i class="bi bi-x"></i>
+                                                }
+                                              </span>
+
+                                              <span>
+                                                {{ option.text }}
+                                              </span>
+
+                                              @if (option.isSelected) {
+                                                <small>Escolhida</small>
+                                              }
+
+                                              @if (option.isCorrect) {
+                                                <small>Correta</small>
+                                              }
+                                            </div>
+                                          }
+                                        </div>
+                                      }
+                                    </article>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          }
+                        }
+                      </div>
+                    }
+                  </article>
+                }
+              </div>
+            }
+          </section>
+
+          <section class="content-card communication-card">
+            <div class="section-heading">
+              <span> Comunicação </span>
+
+              <h2>Histórico de mensagens</h2>
+            </div>
+
+            @if (messages().length === 0) {
+              <div class="empty-state">
+                <i class="bi bi-chat-dots"></i>
+
+                <p>Nenhuma comunicação foi registrada para este aluno.</p>
+              </div>
+            } @else {
+              <div class="communication-list">
+                @for (message of messages(); track message.id) {
+                  <article class="communication-item">
+                    <div class="communication-item__header">
+                      <div>
+                        <span class="communication-channel">
+                          @if (message.channel === "whatsapp") {
+                            <i class="bi bi-whatsapp"></i>
+                          } @else {
+                            <i class="bi bi-chat"></i>
+                          }
+
+                          {{ message.channel }}
+                        </span>
+
+                        <span class="communication-date">
+                          {{
+                            message.sentAt ?? message.createdAt
+                              | date: "dd/MM/yyyy HH:mm"
+                          }}
+                        </span>
+                      </div>
+
+                      <span
+                        [class]="
+                          'message-status ' + messageStatusClass(message.status)
+                        "
+                      >
+                        {{ messageStatusLabel(message.status) }}
+                      </span>
+                    </div>
+
+                    <div class="communication-body">
+                      {{ message.messageBody }}
+                    </div>
+
+                    <div class="communication-meta">
+                      <span>
+                        Destinatário:
+                        <strong>
+                          {{ message.recipient }}
+                        </strong>
+                      </span>
+
+                      @if (message.provider) {
+                        <span>
+                          Provider:
+                          <strong>
+                            {{ message.provider }}
+                          </strong>
+                        </span>
+                      }
+
+                      @if (message.attemptCount > 1) {
+                        <span>
+                          Tentativas:
+                          <strong>
+                            {{ message.attemptCount }}
+                          </strong>
+                        </span>
+                      }
+                    </div>
+
+                    @if (message.lastError) {
+                      <div class="communication-error">
+                        <i class="bi bi-exclamation-triangle"></i>
+
+                        <span>
+                          {{ message.lastError }}
+                        </span>
+                      </div>
+                    }
+                  </article>
+                }
+              </div>
+            }
+          </section>
         </div>
-        }
-      </section>
-    </div>
-    }
+      }
     }
   </div>
 </section>
