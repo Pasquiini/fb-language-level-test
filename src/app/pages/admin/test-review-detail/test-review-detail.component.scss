@@ -1407,3 +1407,297 @@
     padding: 1.25rem;
   }
 }
+.objective-grid--three {
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+}
+
+.objective-grid--three > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.objective-grid--three small {
+  color:
+    rgba(
+      69,
+      69,
+      28,
+      0.68
+    );
+
+  font-size: 0.8rem;
+}
+
+.objective-distribution {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+
+  border-top:
+    1px solid
+    rgba(
+      69,
+      69,
+      28,
+      0.12
+    );
+}
+
+.objective-distribution__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+
+  margin-bottom: 1.25rem;
+}
+
+.objective-distribution__heading h3 {
+  margin:
+    0.3rem 0 0;
+
+  color:
+    var(--fb-charcoal);
+
+  font-size: 1rem;
+}
+
+.objective-distribution__hint {
+  flex: 0 0 auto;
+
+  padding:
+    0.35rem
+    0.65rem;
+
+  border-radius:
+    999px;
+
+  background:
+    rgba(
+      134,
+      105,
+      76,
+      0.08
+    );
+
+  color:
+    var(--fb-brown);
+
+  font-size:
+    0.72rem;
+
+  font-weight:
+    600;
+}
+
+.objective-distribution__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.objective-level-row {
+  padding:
+    0.9rem
+    1rem;
+
+  border:
+    1px solid
+    rgba(
+      69,
+      69,
+      28,
+      0.1
+    );
+
+  border-radius:
+    12px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.7
+    );
+}
+
+.objective-level-row__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  margin-bottom:
+    0.7rem;
+}
+
+.objective-level-row__name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.objective-level-row__name strong {
+  color:
+    var(--fb-charcoal);
+
+  font-size:
+    0.95rem;
+}
+
+.objective-level-row__name span {
+  color:
+    rgba(
+      69,
+      69,
+      28,
+      0.62
+    );
+
+  font-size:
+    0.78rem;
+}
+
+.objective-level-row__score {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.objective-level-row__score strong {
+  color:
+    var(--fb-brown);
+
+  font-size:
+    0.9rem;
+}
+
+.objective-level-row__score span {
+  color:
+    rgba(
+      69,
+      69,
+      28,
+      0.58
+    );
+
+  font-size:
+    0.75rem;
+}
+
+.objective-level-row__progress {
+  overflow: hidden;
+
+  height:
+    7px;
+
+  border-radius:
+    999px;
+
+  background:
+    rgba(
+      69,
+      69,
+      28,
+      0.08
+    );
+}
+
+.objective-level-row__progress span {
+  display: block;
+
+  height:
+    100%;
+
+  border-radius:
+    inherit;
+
+  background:
+    var(--fb-brown);
+
+  transition:
+    width
+    0.3s
+    ease;
+}
+
+.objective-distribution__notice,
+.objective-distribution__legacy {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+
+  margin-top:
+    1.25rem;
+
+  padding:
+    0.9rem
+    1rem;
+
+  border-radius:
+    12px;
+
+  background:
+    rgba(
+      134,
+      105,
+      76,
+      0.06
+    );
+
+  color:
+    rgba(
+      69,
+      69,
+      28,
+      0.76
+    );
+}
+
+.objective-distribution__notice i,
+.objective-distribution__legacy i {
+  margin-top:
+    0.15rem;
+
+  color:
+    var(--fb-brown);
+}
+
+.objective-distribution__notice p,
+.objective-distribution__legacy p {
+  margin: 0;
+
+  font-size:
+    0.82rem;
+
+  line-height:
+    1.55;
+}
+
+@media (
+  max-width: 768px
+) {
+  .objective-grid--three {
+    grid-template-columns:
+      1fr;
+  }
+
+  .objective-distribution__heading {
+    flex-direction:
+      column;
+  }
+
+  .objective-level-row__header {
+    align-items:
+      flex-start;
+  }
+
+  .objective-level-row__score {
+    flex: 0 0 auto;
+  }
+}

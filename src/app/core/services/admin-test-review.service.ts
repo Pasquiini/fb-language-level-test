@@ -27,38 +27,59 @@ export interface AdminTestReviewItem {
   whatsapp: string | null;
 
   status:
-    AdminReviewStatus;
+  AdminReviewStatus;
 
   objectiveScore:
-    number | null;
+  number | null;
 
   percentage:
-    number | null;
+  number | null;
 
   speakingScore:
-    number | null;
+  number | null;
 
   estimatedLevel:
-    string | null;
+  string | null;
+  objectiveLevel:
+  ObjectiveLevel | null;
 
+  objectiveDistribution:
+  ObjectiveDistribution | null;
   createdAt: string;
   updatedAt:
-    string | null;
+  string | null;
 }
 
+export type ObjectiveLevel =
+  | 'A1'
+  | 'A2'
+  | 'B1'
+  | 'B2';
+
+export interface ObjectiveLevelDistribution {
+  correct: number;
+  total: number;
+}
+
+export interface ObjectiveDistribution {
+  A1: ObjectiveLevelDistribution;
+  A2: ObjectiveLevelDistribution;
+  B1: ObjectiveLevelDistribution;
+  B2: ObjectiveLevelDistribution;
+}
 
 export interface AdminTestReviewDetail
   extends
-    AdminTestReviewItem {
+  AdminTestReviewItem {
 
   summary:
-    string | null;
+  string | null;
 
   recommendation:
-    string | null;
+  string | null;
 
   reviewNotes:
-    string | null;
+  string | null;
 }
 
 
@@ -66,13 +87,13 @@ export interface CompleteAdminReviewParams {
   attemptId: string;
 
   speakingScore:
-    number | null;
+  number | null;
 
   estimatedLevel:
-    string;
+  string;
 
   reviewNotes:
-    string | null;
+  string | null;
 }
 
 
@@ -80,28 +101,28 @@ export interface CompleteAdminReviewResult {
   success: boolean;
 
   attemptId:
-    string;
+  string;
 
   status:
-    'completed';
+  'completed';
 
   speakingScore:
-    number | null;
+  number | null;
 
   estimatedLevel:
-    string;
+  string;
 
   communicationSent:
-    boolean;
+  boolean;
 
   communicationAlreadySent?:
-    boolean;
+  boolean;
 
   communicationError?:
-    string;
+  string;
 
   providerMessageId?:
-    string | null;
+  string | null;
 }
 
 
@@ -111,20 +132,20 @@ interface AttemptRow {
   student_id: string;
 
   status:
-    AdminReviewStatus;
+  AdminReviewStatus;
 
   created_at: string;
   updated_at:
-    string | null;
+  string | null;
 }
 
 
 interface ProfileRow {
   id: string;
   full_name:
-    string | null;
+  string | null;
   whatsapp:
-    string | null;
+  string | null;
 }
 
 
@@ -132,25 +153,31 @@ interface ResultRow {
   attempt_id: string;
 
   objective_score:
-    number | string | null;
+  number | string | null;
 
   percentage:
-    number | string | null;
+  number | string | null;
+
+  objective_level:
+  string | null;
+
+  objective_distribution:
+  ObjectiveDistribution | null;
 
   speaking_score:
-    number | string | null;
+  number | string | null;
 
   estimated_level:
-    string | null;
+  string | null;
 
   summary:
-    string | null;
+  string | null;
 
   recommendation:
-    string | null;
+  string | null;
 
   review_notes:
-    string | null;
+  string | null;
 }
 
 
@@ -172,9 +199,9 @@ export class AdminTestReviewService {
 
     const {
       data:
-        attemptsData,
+      attemptsData,
       error:
-        attemptsError,
+      attemptsError,
     } =
       await this
         .supabase
@@ -223,7 +250,7 @@ export class AdminTestReviewService {
         attemptsData ??
         []
       ) as
-        AttemptRow[];
+      AttemptRow[];
 
 
     if (
@@ -278,15 +305,17 @@ export class AdminTestReviewService {
             'test_results',
           )
           .select(`
-            attempt_id,
-            objective_score,
-            percentage,
-            speaking_score,
-            estimated_level,
-            summary,
-            recommendation,
-            review_notes
-          `)
+  attempt_id,
+  objective_score,
+  percentage,
+  objective_level,
+  objective_distribution,
+  speaking_score,
+  estimated_level,
+  summary,
+  recommendation,
+  review_notes
+`)
           .in(
             'attempt_id',
             attemptIds,
@@ -318,7 +347,7 @@ export class AdminTestReviewService {
           .data ??
         []
       ) as
-        ProfileRow[];
+      ProfileRow[];
 
 
     const results =
@@ -327,7 +356,7 @@ export class AdminTestReviewService {
           .data ??
         []
       ) as
-        ResultRow[];
+      ResultRow[];
 
 
     const profileMap =
@@ -403,6 +432,18 @@ export class AdminTestReviewService {
                 ?.percentage,
             ),
 
+          objectiveLevel:
+            this.toObjectiveLevel(
+              result
+                ?.objective_level,
+            ),
+
+          objectiveDistribution:
+            this.toObjectiveDistribution(
+              result
+                ?.objective_distribution,
+            ),
+
           speakingScore:
             this.toNumber(
               result
@@ -435,9 +476,9 @@ export class AdminTestReviewService {
 
     const {
       data:
-        attemptData,
+      attemptData,
       error:
-        attemptError,
+      attemptError,
     } =
       await this
         .supabase
@@ -476,7 +517,7 @@ export class AdminTestReviewService {
 
     const attempt =
       attemptData as
-        AttemptRow;
+      AttemptRow;
 
 
     const [
@@ -507,15 +548,17 @@ export class AdminTestReviewService {
             'test_results',
           )
           .select(`
-            attempt_id,
-            objective_score,
-            percentage,
-            speaking_score,
-            estimated_level,
-            summary,
-            recommendation,
-            review_notes
-          `)
+  attempt_id,
+  objective_score,
+  percentage,
+  objective_level,
+  objective_distribution,
+  speaking_score,
+  estimated_level,
+  summary,
+  recommendation,
+  review_notes
+`)
           .eq(
             'attempt_id',
             attemptId,
@@ -545,13 +588,13 @@ export class AdminTestReviewService {
     const profile =
       profileResult
         .data as
-        ProfileRow | null;
+      ProfileRow | null;
 
 
     const result =
       resultResult
         .data as
-        ResultRow | null;
+      ResultRow | null;
 
 
     return {
@@ -588,6 +631,18 @@ export class AdminTestReviewService {
         this.toNumber(
           result
             ?.percentage,
+        ),
+
+      objectiveLevel:
+        this.toObjectiveLevel(
+          result
+            ?.objective_level,
+        ),
+
+      objectiveDistribution:
+        this.toObjectiveDistribution(
+          result
+            ?.objective_distribution,
         ),
 
       speakingScore:
@@ -628,180 +683,180 @@ export class AdminTestReviewService {
 
 
   async completeReview(
-  params:
-    CompleteAdminReviewParams,
-): Promise<
-  CompleteAdminReviewResult
-> {
+    params:
+      CompleteAdminReviewParams,
+  ): Promise<
+    CompleteAdminReviewResult
+  > {
 
-  const {
-    data: {
-      session,
-    },
+    const {
+      data: {
+        session,
+      },
 
-    error:
+      error:
       sessionError,
-  } =
-    await this.supabase
-      .client
-      .auth
-      .getSession();
+    } =
+      await this.supabase
+        .client
+        .auth
+        .getSession();
 
 
-  if (sessionError) {
-    console.error(
-      '[AdminTestReviewService] session:',
-      sessionError,
-    );
-
-    throw new Error(
-      'Não foi possível validar sua sessão.',
-    );
-  }
-
-
-  if (!session) {
-    throw new Error(
-      'Sua sessão expirou. Faça login novamente.',
-    );
-  }
-
-
-  const {
-    data,
-    error,
-  } =
-    await this.supabase
-      .client
-      .functions
-      .invoke<
-        CompleteAdminReviewResult
-      >(
-        'admin-complete-test-review',
-        {
-          body: {
-            attemptId:
-              params
-                .attemptId,
-
-            speakingScore:
-              params
-                .speakingScore,
-
-            estimatedLevel:
-              params
-                .estimatedLevel,
-
-            reviewNotes:
-              params
-                .reviewNotes,
-          },
-
-          headers: {
-            Authorization:
-              `Bearer ${session.access_token}`,
-          },
-        },
+    if (sessionError) {
+      console.error(
+        '[AdminTestReviewService] session:',
+        sessionError,
       );
 
-
-  if (error) {
-    console.error(
-      '[AdminTestReviewService] admin-complete-test-review:',
-      error,
-    );
-
-    throw new Error(
-      await this
-        .extractFunctionError(
-          error,
-        ),
-    );
-  }
-
-
-  if (
-    !data ||
-    !data.success
-  ) {
-    throw new Error(
-      (
-        data as {
-          error?: string;
-        } | null
-      )?.error ??
-      'Não foi possível concluir a avaliação.',
-    );
-  }
-
-
-  return data;
-}
-private async extractFunctionError(
-  error: unknown,
-): Promise<string> {
-
-  if (
-    error instanceof
-    FunctionsHttpError
-  ) {
-    try {
-      const context =
-        await error.context
-          .json();
-
-      if (
-        context &&
-        typeof context ===
-          'object' &&
-        'error' in context &&
-        typeof context.error ===
-          'string'
-      ) {
-        return context.error;
-      }
-    } catch {
-      return (
-        error.message ||
-        'Erro retornado pela função.'
+      throw new Error(
+        'Não foi possível validar sua sessão.',
       );
     }
+
+
+    if (!session) {
+      throw new Error(
+        'Sua sessão expirou. Faça login novamente.',
+      );
+    }
+
+
+    const {
+      data,
+      error,
+    } =
+      await this.supabase
+        .client
+        .functions
+        .invoke<
+          CompleteAdminReviewResult
+        >(
+          'admin-complete-test-review',
+          {
+            body: {
+              attemptId:
+                params
+                  .attemptId,
+
+              speakingScore:
+                params
+                  .speakingScore,
+
+              estimatedLevel:
+                params
+                  .estimatedLevel,
+
+              reviewNotes:
+                params
+                  .reviewNotes,
+            },
+
+            headers: {
+              Authorization:
+                `Bearer ${session.access_token}`,
+            },
+          },
+        );
+
+
+    if (error) {
+      console.error(
+        '[AdminTestReviewService] admin-complete-test-review:',
+        error,
+      );
+
+      throw new Error(
+        await this
+          .extractFunctionError(
+            error,
+          ),
+      );
+    }
+
+
+    if (
+      !data ||
+      !data.success
+    ) {
+      throw new Error(
+        (
+          data as {
+            error?: string;
+          } | null
+        )?.error ??
+        'Não foi possível concluir a avaliação.',
+      );
+    }
+
+
+    return data;
   }
+  private async extractFunctionError(
+    error: unknown,
+  ): Promise<string> {
+
+    if (
+      error instanceof
+      FunctionsHttpError
+    ) {
+      try {
+        const context =
+          await error.context
+            .json();
+
+        if (
+          context &&
+          typeof context ===
+          'object' &&
+          'error' in context &&
+          typeof context.error ===
+          'string'
+        ) {
+          return context.error;
+        }
+      } catch {
+        return (
+          error.message ||
+          'Erro retornado pela função.'
+        );
+      }
+    }
 
 
-  if (
-    error instanceof
-    FunctionsRelayError
-  ) {
+    if (
+      error instanceof
+      FunctionsRelayError
+    ) {
+      return (
+        error.message ||
+        'Erro de comunicação com a função.'
+      );
+    }
+
+
+    if (
+      error instanceof
+      FunctionsFetchError
+    ) {
+      return (
+        error.message ||
+        'Não foi possível acessar a função.'
+      );
+    }
+
+
+    if (
+      error instanceof Error
+    ) {
+      return error.message;
+    }
+
+
     return (
-      error.message ||
-      'Erro de comunicação com a função.'
+      'Não foi possível concluir a avaliação.'
     );
   }
-
-
-  if (
-    error instanceof
-    FunctionsFetchError
-  ) {
-    return (
-      error.message ||
-      'Não foi possível acessar a função.'
-    );
-  }
-
-
-  if (
-    error instanceof Error
-  ) {
-    return error.message;
-  }
-
-
-  return (
-    'Não foi possível concluir a avaliação.'
-  );
-}
   private toNumber(
     value:
       number |
@@ -812,9 +867,9 @@ private async extractFunctionError(
 
     if (
       value ===
-        null ||
+      null ||
       value ===
-        undefined
+      undefined
     ) {
       return null;
     }
@@ -829,5 +884,73 @@ private async extractFunctionError(
     )
       ? number
       : null;
+  }
+
+  private toObjectiveLevel(
+    value:
+      string |
+      null |
+      undefined,
+  ): ObjectiveLevel | null {
+
+    if (
+      value === 'A1' ||
+      value === 'A2' ||
+      value === 'B1' ||
+      value === 'B2'
+    ) {
+      return value;
+    }
+
+    return null;
+  }
+
+  private toObjectiveDistribution(
+    value:
+      ObjectiveDistribution |
+      null |
+      undefined,
+  ): ObjectiveDistribution | null {
+
+    if (!value) {
+      return null;
+    }
+
+    const levels:
+      ObjectiveLevel[] = [
+        'A1',
+        'A2',
+        'B1',
+        'B2',
+      ];
+
+    const result =
+      {} as ObjectiveDistribution;
+
+    for (
+      const level
+      of levels
+    ) {
+      const item =
+        value[level];
+
+      if (!item) {
+        return null;
+      }
+
+      result[level] = {
+        correct:
+          Number(
+            item.correct ?? 0,
+          ),
+
+        total:
+          Number(
+            item.total ?? 0,
+          ),
+      };
+    }
+
+    return result;
   }
 }

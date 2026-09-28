@@ -113,7 +113,7 @@ export class TestSpeakingComponent
     computed(
       () =>
         this.questions()[
-          this.currentIndex()
+        this.currentIndex()
         ] ?? null,
     );
 
@@ -132,7 +132,7 @@ export class TestSpeakingComponent
       return (
         total > 0 &&
         this.currentIndex() ===
-          total - 1
+        total - 1
       );
     });
 
@@ -147,7 +147,7 @@ export class TestSpeakingComponent
 
       return Boolean(
         this.savedAnswers()[
-          question.id
+        question.id
         ],
       );
     });
@@ -214,23 +214,23 @@ export class TestSpeakingComponent
 
   private testId:
     string | null =
-      null;
+    null;
 
   private attemptId:
     string | null =
-      null;
+    null;
 
   private mediaRecorder:
     MediaRecorder | null =
-      null;
+    null;
 
   private mediaStream:
     MediaStream | null =
-      null;
+    null;
 
   private recordedBlob:
     Blob | null =
-      null;
+    null;
 
   private chunks:
     Blob[] = [];
@@ -239,7 +239,7 @@ export class TestSpeakingComponent
     ReturnType<
       typeof setInterval
     > | null =
-      null;
+    null;
 
   async ngOnInit():
     Promise<void> {
@@ -305,7 +305,7 @@ export class TestSpeakingComponent
         questions.findIndex(
           (question) =>
             !savedAnswers[
-              question.id
+            question.id
             ],
         );
 
@@ -401,14 +401,14 @@ export class TestSpeakingComponent
       this.mediaRecorder =
         mimeType
           ? new MediaRecorder(
-              this.mediaStream,
-              {
-                mimeType,
-              },
-            )
+            this.mediaStream,
+            {
+              mimeType,
+            },
+          )
           : new MediaRecorder(
-              this.mediaStream,
-            );
+            this.mediaStream,
+          );
 
       this.mediaRecorder
         .ondataavailable =
@@ -431,7 +431,9 @@ export class TestSpeakingComponent
           const type =
             this.mediaRecorder
               ?.mimeType ||
-            'audio/webm';
+            this.chunks[0]
+              ?.type ||
+            'audio/mp4';
 
           this.recordedBlob =
             new Blob(
@@ -489,7 +491,7 @@ export class TestSpeakingComponent
       !this.mediaRecorder ||
       this.mediaRecorder
         .state ===
-        'inactive'
+      'inactive'
     ) {
       return;
     }
@@ -532,13 +534,13 @@ export class TestSpeakingComponent
 
     const savedAnswer =
       this.savedAnswers()[
-        question.id
+      question.id
       ];
 
     this.elapsedSeconds.set(
       savedAnswer
         ?.durationSeconds ??
-        0,
+      0,
     );
   }
 
@@ -734,7 +736,7 @@ export class TestSpeakingComponent
 
     const savedAnswer =
       this.savedAnswers()[
-        question.id
+      question.id
       ];
 
     if (!savedAnswer) {
@@ -790,10 +792,12 @@ export class TestSpeakingComponent
 
   private getSupportedMimeType():
     string | null {
+
     const candidates = [
+      'audio/mp4;codecs=mp4a.40.2',
+      'audio/mp4',
       'audio/webm;codecs=opus',
       'audio/webm',
-      'audio/mp4',
       'audio/ogg;codecs=opus',
     ];
 
@@ -845,7 +849,7 @@ export class TestSpeakingComponent
       this.mediaRecorder &&
       this.mediaRecorder
         .state !==
-        'inactive'
+      'inactive'
     ) {
       this.mediaRecorder.stop();
     }

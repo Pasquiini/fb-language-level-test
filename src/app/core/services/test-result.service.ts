@@ -17,6 +17,32 @@ export type TestResultStatus =
   | 'under_review'
   | 'completed';
 
+export interface TestResultQuestion {
+  questionId: string;
+
+  sectionId: string;
+  sectionName: string;
+
+  questionNumber: number;
+  questionText: string;
+
+  selectedAnswer: string | null;
+
+  isAnswered: boolean;
+  isCorrect: boolean;
+}
+
+export interface TestResultSection {
+  sectionId: string;
+  sectionName: string;
+
+  correctAnswers: number;
+  answeredQuestions: number;
+  totalQuestions: number;
+
+  percentage: number;
+}
+
 export interface TestResultData {
   attemptId: string;
   status: TestResultStatus;
@@ -25,6 +51,13 @@ export interface TestResultData {
   speakingScore: number | null;
   totalScore: number;
   percentage: number;
+
+  objectiveCorrectAnswers: number;
+  objectiveAnsweredQuestions: number;
+  objectiveTotalQuestions: number;
+
+  sections: TestResultSection[];
+  answers: TestResultQuestion[];
 
   estimatedLevel: string;
 
@@ -85,12 +118,46 @@ interface TestResultRow {
 
 interface TestAttemptRow {
   status: TestResultStatus;
+  test_id: string;
+}
+
+interface TestSectionRow {
+  id: string;
+  name: string;
+  order_index: number;
+}
+
+interface QuestionRow {
+  id: string;
+  section_id: string;
+  statement: string;
+  order_index: number;
+  points: number | string;
+}
+
+interface TestAnswerRow {
+  question_id: string;
+
+  selected_option_id:
+    string | null;
+
+  text_answer:
+    string | null;
+
+  awarded_points:
+    number | string | null;
+}
+
+interface QuestionOptionRow {
+  id: string;
+  text: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class TestResultService {
+
   private readonly supabase =
     inject(SupabaseService);
 
@@ -100,6 +167,7 @@ export class TestResultService {
   async getResult(
     attemptId: string,
   ): Promise<TestResultData> {
+
     await this.auth
       .waitUntilInitialized();
 
@@ -112,11 +180,18 @@ export class TestResultService {
       );
     }
 
+    /*
+     * ----------------------------------------
+     * 1. Resultado + tentativa
+     * ----------------------------------------
+     */
+
     const [
       resultResponse,
       attemptResponse,
     ] =
       await Promise.all([
+
         this.supabase.client
           .from(
             'test_results',
@@ -146,20 +221,25 @@ export class TestResultService {
             'test_attempts',
           )
           .select(
-            'status',
+            `
+              status,
+              test_id
+            `,
           )
           .eq(
             'id',
             attemptId,
           )
           .maybeSingle(),
+
       ]);
 
     if (
       attemptResponse.error
     ) {
+
       console.error(
-        'Could not load attempt status:',
+        'Could not load attempt:',
         attemptResponse.error,
       );
 
@@ -179,6 +259,7 @@ export class TestResultService {
     if (
       resultResponse.error
     ) {
+
       console.error(
         'Could not load test result:',
         resultResponse.error,
@@ -189,7 +270,9 @@ export class TestResultService {
       );
     }
 
-    if (!resultResponse.data) {
+    if (
+      !resultResponse.data
+    ) {
       throw new Error(
         'Seu resultado ainda não está disponível.',
       );
@@ -202,6 +285,551 @@ export class TestResultService {
     const attempt =
       attemptResponse.data as
         TestAttemptRow;
+
+    /*
+     * ----------------------------------------
+     * 2. Seções do teste
+     * ----------------------------------------
+     */
+
+    const {
+      data:
+        sectionsData,
+      error:
+        sectionsError,
+    } =
+      await this.supabase.client
+        .from(
+          'test_sections',
+        )
+        .select(
+          `
+            id,
+            name,
+            order_index
+          `,
+        )
+        .eq(
+          'test_id',
+          attempt.test_id,
+        )
+        .order(
+          'order_index',
+          {
+            ascending:
+              true,
+          },
+        );
+
+    if (
+      sectionsError
+    ) {
+
+      console.error(
+        'Could not load test sections:',
+        sectionsError,
+      );
+
+      throw new Error(
+        'Não foi possível carregar os detalhes da avaliação.',
+      );
+    }
+
+    const allSections =
+      (
+        sectionsData ??
+        []
+      ) as TestSectionRow[];
+
+    /*
+     * Speaking não entra no breakdown
+     * objetivo.
+     */
+    const objectiveSections =
+      allSections.filter(
+        section =>
+          !this.isSpeakingSection(
+            section.name,
+          ),
+      );
+
+    const objectiveSectionIds =
+      objectiveSections.map(
+        section =>
+          section.id,
+      );
+
+    /*
+     * ----------------------------------------
+     * 3. Questões objetivas
+     * ----------------------------------------
+     */
+
+    let questions:
+      QuestionRow[] =
+        [];
+
+    if (
+      objectiveSectionIds.length >
+      0
+    ) {
+
+      const {
+        data,
+        error,
+      } =
+        await this.supabase.client
+          .from(
+            'questions',
+          )
+          .select(
+            `
+              id,
+              section_id,
+              statement,
+              order_index,
+              points
+            `,
+          )
+          .in(
+            'section_id',
+            objectiveSectionIds,
+          )
+          .order(
+            'order_index',
+            {
+              ascending:
+                true,
+            },
+          );
+
+      if (error) {
+
+        console.error(
+          'Could not load objective questions:',
+          error,
+        );
+
+        throw new Error(
+          'Não foi possível carregar as questões da avaliação.',
+        );
+      }
+
+      questions =
+        (
+          data ??
+          []
+        ) as QuestionRow[];
+    }
+
+    /*
+     * ----------------------------------------
+     * 4. Respostas do aluno
+     * ----------------------------------------
+     */
+
+    const {
+      data:
+        answersData,
+      error:
+        answersError,
+    } =
+      await this.supabase.client
+        .from(
+          'test_answers',
+        )
+        .select(
+          `
+            question_id,
+            selected_option_id,
+            text_answer,
+            awarded_points
+          `,
+        )
+        .eq(
+          'attempt_id',
+          attemptId,
+        );
+
+    if (
+      answersError
+    ) {
+
+      console.error(
+        'Could not load test answers:',
+        answersError,
+      );
+
+      throw new Error(
+        'Não foi possível carregar suas respostas.',
+      );
+    }
+
+    const studentAnswers =
+      (
+        answersData ??
+        []
+      ) as TestAnswerRow[];
+
+    /*
+     * ----------------------------------------
+     * 5. Textos das alternativas marcadas
+     * ----------------------------------------
+     */
+
+    const selectedOptionIds =
+      studentAnswers
+        .map(
+          answer =>
+            answer
+              .selected_option_id,
+        )
+        .filter(
+          (
+            id,
+          ): id is string =>
+            Boolean(id),
+        );
+
+    let selectedOptions:
+      QuestionOptionRow[] =
+        [];
+
+    if (
+      selectedOptionIds.length >
+      0
+    ) {
+
+      const {
+        data,
+        error,
+      } =
+        await this.supabase.client
+          .from(
+            'question_options',
+          )
+          .select(
+            `
+              id,
+              text
+            `,
+          )
+          .in(
+            'id',
+            selectedOptionIds,
+          );
+
+      if (error) {
+
+        console.error(
+          'Could not load selected options:',
+          error,
+        );
+
+        throw new Error(
+          'Não foi possível carregar os detalhes das respostas.',
+        );
+      }
+
+      selectedOptions =
+        (
+          data ??
+          []
+        ) as QuestionOptionRow[];
+    }
+
+    /*
+     * ----------------------------------------
+     * 6. Maps para cruzamento rápido
+     * ----------------------------------------
+     */
+
+    const sectionMap =
+      new Map(
+        objectiveSections.map(
+          section => [
+            section.id,
+            section,
+          ],
+        ),
+      );
+
+    const answerMap =
+      new Map(
+        studentAnswers.map(
+          answer => [
+            answer.question_id,
+            answer,
+          ],
+        ),
+      );
+
+    const optionMap =
+      new Map(
+        selectedOptions.map(
+          option => [
+            option.id,
+            option,
+          ],
+        ),
+      );
+
+    /*
+     * ----------------------------------------
+     * 7. Ordenação real das questões
+     * ----------------------------------------
+     */
+
+    const sortedQuestions =
+      [...questions]
+        .sort(
+          (
+            questionA,
+            questionB,
+          ) => {
+
+            const sectionA =
+              sectionMap.get(
+                questionA
+                  .section_id,
+              );
+
+            const sectionB =
+              sectionMap.get(
+                questionB
+                  .section_id,
+              );
+
+            const sectionOrderA =
+              sectionA
+                ?.order_index ??
+              0;
+
+            const sectionOrderB =
+              sectionB
+                ?.order_index ??
+              0;
+
+            if (
+              sectionOrderA !==
+              sectionOrderB
+            ) {
+              return (
+                sectionOrderA -
+                sectionOrderB
+              );
+            }
+
+            return (
+              questionA
+                .order_index -
+              questionB
+                .order_index
+            );
+          },
+        );
+
+    /*
+     * ----------------------------------------
+     * 8. Montagem das respostas para o front
+     * ----------------------------------------
+     */
+
+    const answers:
+      TestResultQuestion[] =
+        sortedQuestions
+          .map(
+            (
+              question,
+              index,
+            ) => {
+
+              const section =
+                sectionMap.get(
+                  question
+                    .section_id,
+                );
+
+              const studentAnswer =
+                answerMap.get(
+                  question.id,
+                );
+
+              const option =
+                studentAnswer
+                  ?.selected_option_id
+                ? optionMap.get(
+                    studentAnswer
+                      .selected_option_id,
+                  )
+                : null;
+
+              const selectedAnswer =
+                option
+                  ?.text ??
+                studentAnswer
+                  ?.text_answer ??
+                null;
+
+              const isAnswered =
+                Boolean(
+                  studentAnswer &&
+                  (
+                    studentAnswer
+                      .selected_option_id ||
+                    studentAnswer
+                      .text_answer
+                  ),
+                );
+
+              const awardedPoints =
+                Number(
+                  studentAnswer
+                    ?.awarded_points ??
+                  0,
+                );
+
+              /*
+               * Não enviamos is_correct
+               * do gabarito para o front.
+               *
+               * O próprio awarded_points
+               * indica se a questão objetiva
+               * foi acertada.
+               */
+              const isCorrect =
+                isAnswered &&
+                awardedPoints >
+                  0;
+
+              return {
+                questionId:
+                  question.id,
+
+                sectionId:
+                  question
+                    .section_id,
+
+                sectionName:
+                  section
+                    ?.name ??
+                  'Avaliação',
+
+                questionNumber:
+                  index +
+                  1,
+
+                questionText:
+                  question
+                    .statement,
+
+                selectedAnswer,
+
+                isAnswered,
+
+                isCorrect,
+              };
+            },
+          );
+
+    /*
+     * ----------------------------------------
+     * 9. Breakdown por seção
+     * ----------------------------------------
+     */
+
+    const sections:
+      TestResultSection[] =
+        objectiveSections
+          .map(
+            section => {
+
+              const sectionAnswers =
+                answers.filter(
+                  answer =>
+                    answer
+                      .sectionId ===
+                    section.id,
+                );
+
+              const totalQuestions =
+                sectionAnswers
+                  .length;
+
+              const answeredQuestions =
+                sectionAnswers
+                  .filter(
+                    answer =>
+                      answer
+                        .isAnswered,
+                  )
+                  .length;
+
+              const correctAnswers =
+                sectionAnswers
+                  .filter(
+                    answer =>
+                      answer
+                        .isCorrect,
+                  )
+                  .length;
+
+              const percentage =
+                totalQuestions >
+                0
+                  ? Math.round(
+                      (
+                        correctAnswers /
+                        totalQuestions
+                      ) *
+                        100,
+                    )
+                  : 0;
+
+              return {
+                sectionId:
+                  section.id,
+
+                sectionName:
+                  section.name,
+
+                correctAnswers,
+
+                answeredQuestions,
+
+                totalQuestions,
+
+                percentage,
+              };
+            },
+          );
+
+    /*
+     * ----------------------------------------
+     * 10. Totais objetivos
+     * ----------------------------------------
+     */
+
+    const objectiveTotalQuestions =
+      answers.length;
+
+    const objectiveAnsweredQuestions =
+      answers.filter(
+        answer =>
+          answer.isAnswered,
+      ).length;
+
+    const objectiveCorrectAnswers =
+      answers.filter(
+        answer =>
+          answer.isCorrect,
+      ).length;
+
+    /*
+     * ----------------------------------------
+     * 11. Resultado final
+     * ----------------------------------------
+     */
 
     return {
       attemptId:
@@ -220,7 +848,8 @@ export class TestResultService {
         null
           ? null
           : Number(
-              result.speaking_score,
+              result
+                .speaking_score,
             ),
 
       totalScore:
@@ -232,6 +861,16 @@ export class TestResultService {
         Number(
           result.percentage,
         ),
+
+      objectiveCorrectAnswers,
+
+      objectiveAnsweredQuestions,
+
+      objectiveTotalQuestions,
+
+      sections,
+
+      answers,
 
       estimatedLevel:
         result.estimated_level,
@@ -251,71 +890,97 @@ export class TestResultService {
   }
 
   async generateAnalysis(
-  attemptId: string,
-): Promise<GeneratedTestAnalysis> {
-  await this.auth
-    .waitUntilInitialized();
+    attemptId: string,
+  ): Promise<GeneratedTestAnalysis> {
 
-  const user =
-    this.auth.user();
+    await this.auth
+      .waitUntilInitialized();
 
-  if (!user) {
-    throw new Error(
-      'Nenhum usuário autenticado foi encontrado.',
-    );
-  }
+    const user =
+      this.auth.user();
 
-  const {
-    data,
-    error,
-  } =
-    await this.supabase.client
-      .functions
-      .invoke(
-        'generate-test-analysis',
-        {
-          body: {
-            attemptId,
+    if (!user) {
+      throw new Error(
+        'Nenhum usuário autenticado foi encontrado.',
+      );
+    }
+
+    const {
+      data,
+      error,
+    } =
+      await this.supabase.client
+        .functions
+        .invoke(
+          'generate-test-analysis',
+          {
+            body: {
+              attemptId,
+            },
           },
-        },
+        );
+
+    if (error) {
+
+      console.error(
+        'generate-test-analysis function error:',
+        error,
       );
 
-  if (error) {
-    console.error(
-      'generate-test-analysis function error:',
-      error,
-    );
+      throw new Error(
+        'Não foi possível gerar sua análise personalizada.',
+      );
+    }
 
-    throw new Error(
-      'Não foi possível gerar sua análise personalizada.',
-    );
+    const response =
+      data as
+        GenerateAnalysisResponse;
+
+    if (
+      !response?.success ||
+      !response.analysis
+    ) {
+      throw new Error(
+        'A análise personalizada não pôde ser carregada.',
+      );
+    }
+
+    return {
+      summary:
+        response
+          .analysis
+          .summary,
+
+      recommendation:
+        response
+          .analysis
+          .recommendation,
+
+      aiAnalysis:
+        response
+          .analysis
+          .aiAnalysis,
+    };
   }
 
-  const response =
-    data as
-      GenerateAnalysisResponse;
+  private isSpeakingSection(
+    sectionName: string,
+  ): boolean {
 
-  if (
-    !response?.success ||
-    !response.analysis
-  ) {
-    throw new Error(
-      'A análise personalizada não pôde ser carregada.',
+    const normalized =
+      sectionName
+        .trim()
+        .toLowerCase();
+
+    return (
+      normalized ===
+        'speaking' ||
+      normalized.includes(
+        'speaking',
+      ) ||
+      normalized.includes(
+        'oral',
+      )
     );
   }
-
-  return {
-    summary:
-      response.analysis
-        .summary,
-
-    recommendation:
-      response.analysis
-        .recommendation,
-
-    aiAnalysis:
-      response.analysis
-        .aiAnalysis,
-  };
-}
 }

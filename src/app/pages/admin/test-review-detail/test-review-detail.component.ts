@@ -25,6 +25,7 @@ import {
 import {
   AdminTestReviewDetail,
   AdminTestReviewService,
+  ObjectiveLevel,
 } from '../../../core/services/admin-test-review.service';
 
 import {
@@ -127,6 +128,88 @@ export class TestReviewDetailComponent
       null,
     );
 
+  readonly objectiveLevel =
+    computed(() => {
+
+      return (
+        this.review()
+          ?.objectiveLevel
+        ?? null
+      );
+    });
+
+  readonly objectiveDistribution =
+    computed(() => {
+
+      return (
+        this.review()
+          ?.objectiveDistribution
+        ?? null
+      );
+    });
+
+  readonly hasObjectiveDistribution =
+    computed(() => {
+
+      return Boolean(
+        this.objectiveDistribution(),
+      );
+    });
+
+  readonly objectiveLevels =
+    computed(() => {
+
+      const distribution =
+        this.objectiveDistribution();
+
+      if (!distribution) {
+        return [];
+      }
+
+      const levels:
+        ObjectiveLevel[] = [
+          'A1',
+          'A2',
+          'B1',
+          'B2',
+        ];
+
+      return levels.map(
+        (level) => {
+
+          const item =
+            distribution[level];
+
+          const percentage =
+            item.total > 0
+              ? Math.round(
+                (
+                  item.correct /
+                  item.total
+                ) * 100,
+              )
+              : 0;
+
+          return {
+            level,
+
+            label:
+              this.levelLabel(
+                level,
+              ),
+
+            correct:
+              item.correct,
+
+            total:
+              item.total,
+
+            percentage,
+          };
+        },
+      );
+    });
+
   readonly reviewForm =
     this.fb.nonNullable.group({
       estimatedLevel: [
@@ -210,6 +293,21 @@ export class TestReviewDetailComponent
     }
 
     await this.loadReview();
+  }
+
+  objectiveLevelLabel():
+    string {
+
+    const level =
+      this.objectiveLevel();
+
+    if (!level) {
+      return 'Não disponível';
+    }
+
+    return this.levelLabel(
+      level,
+    );
   }
 
   formatPercentage(
@@ -463,7 +561,8 @@ export class TestReviewDetailComponent
             review.estimatedLevel !==
             'Pendente'
             ? review.estimatedLevel
-            : '',
+            : review.objectiveLevel
+            ?? '',
 
         notes:
           review.reviewNotes ??

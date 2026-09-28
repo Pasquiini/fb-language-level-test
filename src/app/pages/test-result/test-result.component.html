@@ -1,433 +1,422 @@
-<main
-  class="result-page"
-  id="main-content"
->
-
+<main class="result-page" id="main-content">
   @if (loading()) {
-    <section class="result-state">
-      <div class="container">
-        <div
-          class="result-state__content"
-          role="status"
-          aria-live="polite"
-        >
-          <span
-            class="spinner-border"
-            aria-hidden="true"
-          ></span>
+  <section class="result-state">
+    <div class="container">
+      <div class="result-state__content" role="status" aria-live="polite">
+        <span class="spinner-border" aria-hidden="true"></span>
 
-          <h1>
-            Carregando seu resultado
-          </h1>
+        <h1>Carregando seu resultado</h1>
 
-          <p>
-            Estamos recuperando sua
-            avaliação com segurança.
-          </p>
-        </div>
+        <p>Estamos recuperando sua avaliação com segurança.</p>
       </div>
-    </section>
+    </div>
+  </section>
   } @else if (error()) {
-    <section class="result-state">
-      <div class="container">
-        <div
-          class="result-state__content"
-        >
-          <div
-            class="result-state__icon result-state__icon--error"
-          >
-            <i
-              class="bi bi-exclamation-circle"
-              aria-hidden="true"
-            ></i>
+  <section class="result-state">
+    <div class="container">
+      <div class="result-state__content">
+        <div class="result-state__icon result-state__icon--error">
+          <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+        </div>
+
+        <h1>Não conseguimos carregar seu resultado</h1>
+
+        <p>
+          {{ error() }}
+        </p>
+
+        <button type="button" class="result-retry" (click)="retry()">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+
+          Tentar novamente
+        </button>
+      </div>
+    </div>
+  </section>
+  } @else {
+  @if (result(); as resultData) {
+  <section class="result-hero">
+    <div class="container">
+      <div class="result-hero__layout">
+        <div class="result-hero__content">
+          <span class="result-eyebrow"> Sua avaliação </span>
+
+          @if (hasFinalLevel()) {
+          <h1>
+            Seu nível de inglês é
+            <strong>
+              {{ resultData.estimatedLevel }}
+            </strong>
+          </h1>
+          } @else {
+          <h1>Sua avaliação inicial está pronta.</h1>
+          }
+
+          @if (speakingPending()) {
+          <p>
+            A parte objetiva da sua avaliação já foi processada. Agora
+            suas respostas de Speaking seguem para análise antes da
+            conclusão do seu nível final.
+          </p>
+          } @else {
+          <p>
+            Sua avaliação foi concluída. Veja abaixo os principais dados
+            do seu resultado.
+          </p>
+          }
+        </div>
+
+        <div class="result-score-card">
+          <span class="result-score-card__label">
+            Desempenho objetivo
+          </span>
+
+          <strong class="result-score-card__value">
+            {{ roundedPercentage() }}%
+          </strong>
+
+          <span class="result-score-card__caption">
+            {{ resultData.objectiveCorrectAnswers }}
+            de
+            {{ resultData.objectiveTotalQuestions }}
+            questões corretas
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="result-content">
+    <div class="container">
+      <div class="result-grid">
+        <article class="result-card">
+          <div class="result-card__icon" aria-hidden="true">
+            <i class="bi bi-journal-check"></i>
           </div>
 
-          <h1>
-            Não conseguimos carregar
-            seu resultado
-          </h1>
+          <span class="result-card__label"> Parte objetiva </span>
+
+          <strong class="result-card__value">
+            {{ resultData.objectiveScore }}
+            pontos
+          </strong>
+
+          <p>Suas respostas de Grammar e Listening já foram corrigidas.</p>
+        </article>
+
+        <article class="result-card">
+          <div class="result-card__icon" aria-hidden="true">
+            <i class="bi bi-mic"></i>
+          </div>
+
+          <span class="result-card__label">
+            Speaking
+          </span>
+
+          @if (
+          speakingPending()
+          ) {
+          <strong class="
+        result-card__value
+        result-card__value--pending
+      ">
+            Em avaliação
+          </strong>
 
           <p>
-            {{ error() }}
+            Suas gravações foram
+            recebidas e serão analisadas
+            pela nossa equipe pedagógica.
           </p>
+          } @else {
+          <strong class="result-card__value">
+            Avaliado
+          </strong>
 
-          <button
-            type="button"
-            class="result-retry"
-            (click)="retry()"
-          >
-            <i
-              class="bi bi-arrow-clockwise"
-              aria-hidden="true"
-            ></i>
+          <p>
+            Suas respostas de Speaking
+            foram consideradas na definição
+            do seu nível final.
+          </p>
+          }
+        </article>
 
-            Tentar novamente
-          </button>
-        </div>
-      </div>
-    </section>
-  } @else {
-  @if (
-    result();
-    as resultData
-  ) {
-    <section class="result-hero">
-      <div class="container">
-        <div
-          class="result-hero__layout"
-        >
-          <div
-            class="result-hero__content"
-          >
-            <span
-              class="result-eyebrow"
-            >
-              Sua avaliação
-            </span>
-
-            @if (
-              hasFinalLevel()
-            ) {
-              <h1>
-                Seu nível de inglês é
-                <strong>
-                  {{
-                    resultData
-                      .estimatedLevel
-                  }}
-                </strong>
-              </h1>
-            } @else {
-              <h1>
-                Sua avaliação inicial
-                está pronta.
-              </h1>
-            }
-
-            @if (
-              speakingPending()
-            ) {
-              <p>
-                A parte objetiva da sua
-                avaliação já foi
-                processada. Agora suas
-                respostas de Speaking
-                seguem para análise antes
-                da conclusão do seu nível
-                final.
-              </p>
-            } @else {
-              <p>
-                Sua avaliação foi
-                concluída. Veja abaixo
-                os principais dados do
-                seu resultado.
-              </p>
-            }
+        <article class="result-card">
+          <div class="result-card__icon" aria-hidden="true">
+            <i class="bi bi-signpost-split"></i>
           </div>
 
-          <div
-            class="result-score-card"
-          >
-            <span
-              class="result-score-card__label"
-            >
-              Desempenho objetivo
-            </span>
+          <span class="result-card__label"> Nível estimado </span>
 
-            <strong
-              class="result-score-card__value"
-            >
-              {{
-                roundedPercentage()
-              }}%
-            </strong>
+          @if (hasFinalLevel()) {
+          <strong class="result-card__value">
+            {{ resultData.estimatedLevel }}
+          </strong>
 
-            <span
-              class="result-score-card__caption"
-            >
-              Grammar + Listening
-            </span>
-          </div>
-        </div>
+          <p>Este é o nível indicado pela avaliação concluída.</p>
+          } @else {
+          <strong class="result-card__value result-card__value--pending">
+            Em definição
+          </strong>
+
+          <p>
+            O nível final será consolidado junto da avaliação do Speaking.
+          </p>
+          }
+        </article>
       </div>
-    </section>
+      @if (hasAnswerBreakdown()) {
+      <section class="result-breakdown" aria-labelledby="breakdown-title">
+        <div class="result-breakdown__heading">
+          <span class="result-eyebrow"> Seu desempenho </span>
 
-    <section
-      class="result-content"
-    >
-      <div class="container">
-        <div
-          class="result-grid"
-        >
-          <article
-            class="result-card"
-          >
-            <div
-              class="result-card__icon"
-              aria-hidden="true"
-            >
-              <i
-                class="bi bi-journal-check"
-              ></i>
-            </div>
+          <h2 id="breakdown-title">Veja como você foi em cada etapa</h2>
 
-            <span
-              class="result-card__label"
-            >
-              Parte objetiva
-            </span>
-
-            <strong
-              class="result-card__value"
-            >
-              {{
-                resultData
-                  .objectiveScore
-              }}
-              pontos
-            </strong>
-
-            <p>
-              Suas respostas de Grammar
-              e Listening já foram
-              corrigidas.
-            </p>
-          </article>
-
-          <article
-            class="result-card"
-          >
-            <div
-              class="result-card__icon"
-              aria-hidden="true"
-            >
-              <i
-                class="bi bi-mic"
-              ></i>
-            </div>
-
-            <span
-              class="result-card__label"
-            >
-              Speaking
-            </span>
-
-            @if (
-              speakingPending()
-            ) {
-              <strong
-                class="result-card__value result-card__value--pending"
-              >
-                Em avaliação
-              </strong>
-
-              <p>
-                Suas gravações foram
-                recebidas e ainda serão
-                analisadas.
-              </p>
-            } @else {
-              <strong
-                class="result-card__value"
-              >
-                {{
-                  resultData
-                    .speakingScore
-                }}
-                pontos
-              </strong>
-
-              <p>
-                Sua etapa de Speaking
-                já foi avaliada.
-              </p>
-            }
-          </article>
-
-          <article
-            class="result-card"
-          >
-            <div
-              class="result-card__icon"
-              aria-hidden="true"
-            >
-              <i
-                class="bi bi-signpost-split"
-              ></i>
-            </div>
-
-            <span
-              class="result-card__label"
-            >
-              Nível estimado
-            </span>
-
-            @if (
-              hasFinalLevel()
-            ) {
-              <strong
-                class="result-card__value"
-              >
-                {{
-                  resultData
-                    .estimatedLevel
-                }}
-              </strong>
-
-              <p>
-                Este é o nível indicado
-                pela avaliação concluída.
-              </p>
-            } @else {
-              <strong
-                class="result-card__value result-card__value--pending"
-              >
-                Em definição
-              </strong>
-
-              <p>
-                O nível final será
-                consolidado junto da
-                avaliação do Speaking.
-              </p>
-            }
-          </article>
+          <p>
+            Sua parte objetiva já foi corrigida. Confira seus acertos em
+            Grammar e Listening.
+          </p>
         </div>
 
-        @if (
-          speakingPending()
-        ) {
-          <section
-            class="result-review"
-            aria-labelledby="review-title"
-          >
-            <div
-              class="result-review__icon"
-              aria-hidden="true"
-            >
-              <i
-                class="bi bi-chat-square-quote"
-              ></i>
-            </div>
-
-            <div>
-              <span
-                class="result-eyebrow"
-              >
-                Próxima etapa
+        <div class="result-breakdown__grid">
+          @for (section of resultData.sections; track section.sectionId) {
+          <article class="result-section-card">
+            <div class="result-section-card__top">
+              <span class="result-section-card__name">
+                {{ section.sectionName }}
               </span>
 
-              <h2 id="review-title">
-                Seu Speaking ainda
-                será analisado.
-              </h2>
-
-              <p>
-                Fluência, pronúncia,
-                construção das respostas
-                e comunicação serão
-                considerados antes da
-                conclusão da avaliação.
-              </p>
+              <strong class="result-section-card__percentage">
+                {{ section.percentage }}%
+              </strong>
             </div>
-          </section>
+
+            <div class="result-section-card__score">
+              <strong>
+                {{ section.correctAnswers }}
+              </strong>
+
+              <span>
+                de
+                {{ section.totalQuestions }}
+                questões
+              </span>
+            </div>
+
+            <div class="result-section-card__progress" aria-hidden="true">
+              <span [style.width.%]="section.percentage"></span>
+            </div>
+
+            <p>
+              {{ section.correctAnswers }}
+              {{
+              section.correctAnswers === 1
+              ? "resposta correta"
+              : "respostas corretas"
+              }}
+            </p>
+          </article>
+          }
+        </div>
+      </section>
+
+      <section class="result-answers" aria-labelledby="answers-title">
+        <div class="result-answers__heading">
+          <span class="result-eyebrow"> Suas respostas </span>
+
+          <h2 id="answers-title">Confira questão por questão</h2>
+
+          <p>
+            Veja o que você acertou e quais pontos ainda merecem atenção.
+          </p>
+        </div>
+
+        <div class="result-answers__summary">
+          <div>
+            <strong>
+              {{ correctAnswers() }}
+            </strong>
+
+            <span> Acertos </span>
+          </div>
+
+          <div>
+            <strong>
+              {{ totalQuestions() - correctAnswers() }}
+            </strong>
+
+            <span> Erros </span>
+          </div>
+
+          @if (unansweredQuestions() > 0) {
+          <div>
+            <strong>
+              {{ unansweredQuestions() }}
+            </strong>
+
+            <span> Em branco </span>
+          </div>
+          }
+        </div>
+
+        <div class="result-answers__list">
+          @for (answer of resultData.answers; track answer.questionId) {
+          <article class="result-answer" [class.result-answer--correct]="answer.isCorrect" [class.result-answer--wrong]="
+                      answer.isAnswered && !answer.isCorrect
+                    " [class.result-answer--empty]="!answer.isAnswered">
+            <div class="result-answer__header">
+              <div class="result-answer__meta">
+                <span class="result-answer__number">
+                  Questão
+                  {{ answer.questionNumber }}
+                </span>
+
+                <span class="result-answer__section">
+                  {{ answer.sectionName }}
+                </span>
+              </div>
+
+              @if (!answer.isAnswered) {
+              <span class="result-answer__status result-answer__status--empty">
+                <i class="bi bi-dash-circle" aria-hidden="true"></i>
+
+                Não respondida
+              </span>
+              } @else if (answer.isCorrect) {
+              <span class="result-answer__status result-answer__status--correct">
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+
+                Acertou
+              </span>
+              } @else {
+              <span class="result-answer__status result-answer__status--wrong">
+                <i class="bi bi-x-circle-fill" aria-hidden="true"></i>
+
+                Errou
+              </span>
+              }
+            </div>
+
+            <p class="result-answer__question">
+              {{ answer.questionText }}
+            </p>
+
+            <div class="result-answer__response">
+              <span> Sua resposta </span>
+
+              <strong>
+                {{ answer.selectedAnswer ?? "Não respondida" }}
+              </strong>
+            </div>
+          </article>
+          }
+        </div>
+      </section>
+      }
+      @if (speakingPending()) {
+      <section class="result-review" aria-labelledby="review-title">
+        <div class="result-review__icon" aria-hidden="true">
+          <i class="bi bi-chat-square-quote"></i>
+        </div>
+
+        <div>
+          <span class="result-eyebrow"> Próxima etapa </span>
+
+          <h2 id="review-title">Seu Speaking ainda será analisado.</h2>
+
+          <p>
+            Fluência, pronúncia, construção das respostas e comunicação
+            serão considerados antes da conclusão da avaliação.
+          </p>
+        </div>
+      </section>
+      }
+
+      @if (
+      hasAnalysis()
+      ) {
+      <section class="result-analysis" aria-labelledby="analysis-title">
+        <span class="result-eyebrow">
+          @if (
+          hasFinalLevel()
+          ) {
+          Resultado final
+          } @else {
+          Sua análise
+          }
+        </span>
+
+        <h2 id="analysis-title">
+          @if (
+          hasFinalLevel()
+          ) {
+          Seu resultado pedagógico
+          } @else {
+          Um olhar sobre o seu
+          momento com o inglês
+          }
+        </h2>
+
+        @if (
+        resultData.summary
+        ) {
+        <div class="result-analysis__block">
+          <h3>
+            @if (
+            hasFinalLevel()
+            ) {
+            Sobre o seu nível
+            } @else {
+            Visão geral
+            }
+          </h3>
+
+          <p>
+            {{
+            resultData.summary
+            }}
+          </p>
+        </div>
         }
 
         @if (
-          hasAnalysis()
+        resultData.recommendation
         ) {
-          <section
-            class="result-analysis"
-            aria-labelledby="analysis-title"
-          >
-            <span
-              class="result-eyebrow"
-            >
-              Sua análise
-            </span>
+        <div class="result-analysis__block">
+          <h3>
+            Próximo passo
+          </h3>
 
-            <h2 id="analysis-title">
-              Um olhar sobre o seu
-              momento com o inglês
-            </h2>
-
-            @if (
-              resultData.summary
-            ) {
-              <div
-                class="result-analysis__block"
-              >
-                <h3>
-                  Visão geral
-                </h3>
-
-                <p>
-                  {{
-                    resultData.summary
-                  }}
-                </p>
-              </div>
-            }
-
-            @if (
-              resultData.recommendation
-            ) {
-              <div
-                class="result-analysis__block"
-              >
-                <h3>
-                  Próximo passo
-                </h3>
-
-                <p>
-                  {{
-                    resultData
-                      .recommendation
-                  }}
-                </p>
-              </div>
-            }
-          </section>
+          <p>
+            {{
+            resultData.recommendation
+            }}
+          </p>
+        </div>
         }
+      </section>
+      }
 
-        <footer
-          class="result-footer"
-        >
-          <div>
-            <span
-              class="result-footer__eyebrow"
-            >
-              FB Language Center
-            </span>
+      <footer class="result-footer">
+        <div>
+          <span class="result-footer__eyebrow"> FB Language Center </span>
 
-            <h2>
-              Seu inglês continua
-              daqui.
-            </h2>
+          <h2>Seu inglês continua daqui.</h2>
 
-            <p>
-              O objetivo da avaliação é
-              ajudar a construir um ponto
-              de partida mais claro para
-              o seu aprendizado.
-            </p>
-          </div>
+          <p>
+            O objetivo da avaliação é ajudar a construir um ponto de partida
+            mais claro para o seu aprendizado.
+          </p>
+        </div>
 
-          <a
-            routerLink="/"
-            class="result-home-button"
-          >
-            Voltar para o início
+        <a routerLink="/" class="result-home-button">
+          Voltar para o início
 
-            <i
-              class="bi bi-arrow-right"
-              aria-hidden="true"
-            ></i>
-          </a>
-        </footer>
-      </div>
-    </section>
+          <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </a>
+      </footer>
+    </div>
+  </section>
   }
-}
+  }
 </main>

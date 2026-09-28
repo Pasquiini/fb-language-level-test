@@ -99,8 +99,8 @@ export class SpeakingAnswerService {
 
     for (
       const row of
-        (data ?? []) as
-          SpeakingAnswerRow[]
+      (data ?? []) as
+      SpeakingAnswerRow[]
     ) {
       answers[
         row.question_id
@@ -116,7 +116,7 @@ export class SpeakingAnswerService {
             0,
             Math.round(
               row.duration_seconds ??
-                0,
+              0,
             ),
           ),
       };
@@ -227,7 +227,7 @@ export class SpeakingAnswerService {
           {
             contentType:
               params.blob.type ||
-              'audio/webm',
+              'audio/mp4',
 
             upsert: true,
           },
@@ -313,25 +313,40 @@ export class SpeakingAnswerService {
   private getExtension(
     mimeType: string,
   ): string {
+
+    const normalized =
+      mimeType
+        .toLowerCase();
+
     if (
-      mimeType.includes(
+      normalized.includes(
         'mp4',
+      ) ||
+      normalized.includes(
+        'm4a',
       )
     ) {
-      return 'mp4';
+      return 'm4a';
     }
 
     if (
-      mimeType.includes(
+      normalized.includes(
         'ogg',
       )
     ) {
       return 'ogg';
     }
 
-    return 'webm';
-  }
+    if (
+      normalized.includes(
+        'webm',
+      )
+    ) {
+      return 'webm';
+    }
 
+    return 'm4a';
+  }
   private getSaveErrorMessage(
     message: string,
   ): string {
