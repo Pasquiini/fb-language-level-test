@@ -55,6 +55,15 @@ export class TestResultComponent
       null,
     );
 
+  readonly incorrectQuestions =
+    computed(() =>
+      Math.max(
+        0,
+        this.answeredQuestions() -
+        this.correctAnswers(),
+      ),
+    );
+
   readonly result =
     signal<
       TestResultData | null

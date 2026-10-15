@@ -242,7 +242,7 @@
 
           <div>
             <strong>
-              {{ totalQuestions() - correctAnswers() }}
+              {{ incorrectQuestions() }}
             </strong>
 
             <span> Erros </span>
@@ -308,6 +308,19 @@
                 {{ answer.selectedAnswer ?? "Não respondida" }}
               </strong>
             </div>
+
+            @if (
+            answer.isAnswered &&
+            !answer.isCorrect
+            ) {
+            <div class="result-answer__response result-answer__response--correct">
+              <span> Resposta correta </span>
+
+              <strong>
+                {{ answer.correctAnswer ?? "Não disponível" }}
+              </strong>
+            </div>
+            }
           </article>
           }
         </div>

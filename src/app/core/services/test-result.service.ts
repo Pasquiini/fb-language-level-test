@@ -28,6 +28,8 @@ export interface TestResultQuestion {
 
   selectedAnswer: string | null;
 
+  correctAnswer: string | null;
+
   isAnswered: boolean;
   isCorrect: boolean;
 }
@@ -89,31 +91,31 @@ interface TestResultRow {
   attempt_id: string;
 
   objective_score:
-    number | string;
+  number | string;
 
   speaking_score:
-    number | string | null;
+  number | string | null;
 
   total_score:
-    number | string;
+  number | string;
 
   percentage:
-    number | string;
+  number | string;
 
   estimated_level:
-    string;
+  string;
 
   summary:
-    string | null;
+  string | null;
 
   recommendation:
-    string | null;
+  string | null;
 
   ai_analysis:
-    unknown | null;
+  unknown | null;
 
   generated_at:
-    string;
+  string;
 }
 
 interface TestAttemptRow {
@@ -139,19 +141,15 @@ interface TestAnswerRow {
   question_id: string;
 
   selected_option_id:
-    string | null;
+  string | null;
 
   text_answer:
-    string | null;
+  string | null;
 
   awarded_points:
-    number | string | null;
+  number | string | null;
 }
 
-interface QuestionOptionRow {
-  id: string;
-  text: string;
-}
 
 @Injectable({
   providedIn: 'root',
@@ -280,11 +278,11 @@ export class TestResultService {
 
     const result =
       resultResponse.data as
-        TestResultRow;
+      TestResultRow;
 
     const attempt =
       attemptResponse.data as
-        TestAttemptRow;
+      TestAttemptRow;
 
     /*
      * ----------------------------------------
@@ -294,9 +292,9 @@ export class TestResultService {
 
     const {
       data:
-        sectionsData,
+      sectionsData,
       error:
-        sectionsError,
+      sectionsError,
     } =
       await this.supabase.client
         .from(
@@ -367,7 +365,7 @@ export class TestResultService {
 
     let questions:
       QuestionRow[] =
-        [];
+      [];
 
     if (
       objectiveSectionIds.length >
@@ -430,9 +428,9 @@ export class TestResultService {
 
     const {
       data:
-        answersData,
+      answersData,
       error:
-        answersError,
+      answersError,
     } =
       await this.supabase.client
         .from(
@@ -471,72 +469,9 @@ export class TestResultService {
         []
       ) as TestAnswerRow[];
 
-    /*
-     * ----------------------------------------
-     * 5. Textos das alternativas marcadas
-     * ----------------------------------------
-     */
 
-    const selectedOptionIds =
-      studentAnswers
-        .map(
-          answer =>
-            answer
-              .selected_option_id,
-        )
-        .filter(
-          (
-            id,
-          ): id is string =>
-            Boolean(id),
-        );
 
-    let selectedOptions:
-      QuestionOptionRow[] =
-        [];
 
-    if (
-      selectedOptionIds.length >
-      0
-    ) {
-
-      const {
-        data,
-        error,
-      } =
-        await this.supabase.client
-          .from(
-            'question_options',
-          )
-          .select(
-            `
-              id,
-              text
-            `,
-          )
-          .in(
-            'id',
-            selectedOptionIds,
-          );
-
-      if (error) {
-
-        console.error(
-          'Could not load selected options:',
-          error,
-        );
-
-        throw new Error(
-          'Não foi possível carregar os detalhes das respostas.',
-        );
-      }
-
-      selectedOptions =
-        (
-          data ??
-          []
-        ) as QuestionOptionRow[];
-    }
 
     /*
      * ----------------------------------------
@@ -564,15 +499,7 @@ export class TestResultService {
         ),
       );
 
-    const optionMap =
-      new Map(
-        selectedOptions.map(
-          option => [
-            option.id,
-            option,
-          ],
-        ),
-      );
+
 
     /*
      * ----------------------------------------
@@ -635,102 +562,141 @@ export class TestResultService {
      * ----------------------------------------
      */
 
+    const {
+      data: answerReviewData,
+      error: answerReviewError,
+    } =
+      await this.supabase.client
+        .rpc(
+          'get_student_attempt_answer_review',
+          {
+            p_attempt_id:
+              attemptId,
+          },
+        );
+
+    if (answerReviewError) {
+      console.error(
+        'Could not load answer review:',
+        answerReviewError,
+      );
+
+      throw new Error(
+        'Não foi possível carregar a correção das respostas.',
+      );
+    }
+
+    interface AnswerReviewRow {
+      questionId: string;
+      selectedOptionId: string | null;
+      selectedAnswer: string | null;
+      correctOptionId: string | null;
+      correctAnswer: string | null;
+      isAnswered: boolean;
+      isCorrect: boolean;
+    }
+
+    const answerReview =
+      (
+        answerReviewData ?? []
+      ) as AnswerReviewRow[];
+
+    const answerReviewMap =
+      new Map(
+        answerReview.map(
+          item => [
+            item.questionId,
+            item,
+          ],
+        ),
+      );
+
     const answers:
       TestResultQuestion[] =
-        sortedQuestions
-          .map(
-            (
-              question,
-              index,
-            ) => {
+      sortedQuestions
+        .map(
+          (
+            question,
+            index,
+          ) => {
 
-              const section =
-                sectionMap.get(
-                  question
-                    .section_id,
-                );
+            const section =
+              sectionMap.get(
+                question
+                  .section_id,
+              );
 
-              const studentAnswer =
-                answerMap.get(
-                  question.id,
-                );
+            const studentAnswer =
+              answerMap.get(
+                question.id,
+              );
 
-              const option =
-                studentAnswer
-                  ?.selected_option_id
-                ? optionMap.get(
-                    studentAnswer
-                      .selected_option_id,
-                  )
-                : null;
+            const review =
+              answerReviewMap.get(
+                question.id,
+              );
 
-              const selectedAnswer =
-                option
-                  ?.text ??
-                studentAnswer
-                  ?.text_answer ??
-                null;
+            const selectedAnswer =
+              review
+                ?.selectedAnswer
+              ?? studentAnswer
+                ?.text_answer
+              ?? null;
 
-              const isAnswered =
-                Boolean(
-                  studentAnswer &&
-                  (
-                    studentAnswer
-                      .selected_option_id ||
-                    studentAnswer
-                      .text_answer
-                  ),
-                );
+            const correctAnswer =
+              review
+                ?.correctAnswer
+              ?? null;
 
-              const awardedPoints =
-                Number(
+            const isAnswered =
+              review
+                ?.isAnswered
+              ?? Boolean(
+                studentAnswer &&
+                (
                   studentAnswer
-                    ?.awarded_points ??
-                  0,
-                );
+                    .selected_option_id ||
+                  studentAnswer
+                    .text_answer
+                ),
+              );
 
-              /*
-               * Não enviamos is_correct
-               * do gabarito para o front.
-               *
-               * O próprio awarded_points
-               * indica se a questão objetiva
-               * foi acertada.
-               */
-              const isCorrect =
-                isAnswered &&
-                awardedPoints >
-                  0;
+            const isCorrect =
+              review
+                ?.isCorrect
+              ?? false;
 
-              return {
-                questionId:
-                  question.id,
+            return {
+              questionId:
+                question.id,
 
-                sectionId:
-                  question
-                    .section_id,
+              sectionId:
+                question
+                  .section_id,
 
-                sectionName:
-                  section
-                    ?.name ??
-                  'Avaliação',
+              sectionName:
+                section
+                  ?.name ??
+                'Avaliação',
 
-                questionNumber:
-                  index +
-                  1,
+              questionNumber:
+                index +
+                1,
 
-                questionText:
-                  question
-                    .statement,
+              questionText:
+                question
+                  .statement,
 
-                selectedAnswer,
+              selectedAnswer,
 
-                isAnswered,
+              correctAnswer,
 
-                isCorrect,
-              };
-            },
-          );
+              isAnswered,
+
+              isCorrect,
+            };
+          },
+        );
 
     /*
      * ----------------------------------------
@@ -740,69 +706,69 @@ export class TestResultService {
 
     const sections:
       TestResultSection[] =
-        objectiveSections
-          .map(
-            section => {
+      objectiveSections
+        .map(
+          section => {
 
-              const sectionAnswers =
-                answers.filter(
+            const sectionAnswers =
+              answers.filter(
+                answer =>
+                  answer
+                    .sectionId ===
+                  section.id,
+              );
+
+            const totalQuestions =
+              sectionAnswers
+                .length;
+
+            const answeredQuestions =
+              sectionAnswers
+                .filter(
                   answer =>
                     answer
-                      .sectionId ===
-                    section.id,
-                );
+                      .isAnswered,
+                )
+                .length;
 
-              const totalQuestions =
-                sectionAnswers
-                  .length;
+            const correctAnswers =
+              sectionAnswers
+                .filter(
+                  answer =>
+                    answer
+                      .isCorrect,
+                )
+                .length;
 
-              const answeredQuestions =
-                sectionAnswers
-                  .filter(
-                    answer =>
-                      answer
-                        .isAnswered,
-                  )
-                  .length;
-
-              const correctAnswers =
-                sectionAnswers
-                  .filter(
-                    answer =>
-                      answer
-                        .isCorrect,
-                  )
-                  .length;
-
-              const percentage =
-                totalQuestions >
+            const percentage =
+              totalQuestions >
                 0
-                  ? Math.round(
-                      (
-                        correctAnswers /
-                        totalQuestions
-                      ) *
-                        100,
-                    )
-                  : 0;
+                ? Math.round(
+                  (
+                    correctAnswers /
+                    totalQuestions
+                  ) *
+                  100,
+                )
+                : 0;
 
-              return {
-                sectionId:
-                  section.id,
+            return {
+              sectionId:
+                section.id,
 
-                sectionName:
-                  section.name,
+              sectionName:
+                section.name,
 
-                correctAnswers,
+              correctAnswers,
 
-                answeredQuestions,
+              answeredQuestions,
 
-                totalQuestions,
+              totalQuestions,
 
-                percentage,
-              };
-            },
-          );
+              percentage,
+            };
+          },
+        );
 
     /*
      * ----------------------------------------
@@ -845,12 +811,12 @@ export class TestResultService {
 
       speakingScore:
         result.speaking_score ===
-        null
+          null
           ? null
           : Number(
-              result
-                .speaking_score,
-            ),
+            result
+              .speaking_score,
+          ),
 
       totalScore:
         Number(
@@ -934,7 +900,7 @@ export class TestResultService {
 
     const response =
       data as
-        GenerateAnalysisResponse;
+      GenerateAnalysisResponse;
 
     if (
       !response?.success ||
@@ -974,7 +940,7 @@ export class TestResultService {
 
     return (
       normalized ===
-        'speaking' ||
+      'speaking' ||
       normalized.includes(
         'speaking',
       ) ||
